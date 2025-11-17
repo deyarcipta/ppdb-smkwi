@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\UserSiswa;
 use App\Models\DataSiswa;
 use App\Models\TemplatePesan;
-use App\Services\WhatsappService;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -14,7 +14,7 @@ class VerifikasiPendaftarController extends Controller
 {
     protected $whatsappService;
 
-    public function __construct(WhatsappService $whatsappService)
+    public function __construct(WhatsAppService $whatsappService)
     {
         $this->whatsappService = $whatsappService;
     }
