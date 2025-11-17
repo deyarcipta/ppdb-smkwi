@@ -7,6 +7,7 @@
 /vendor/
 node_modules/
 whatsapp-bot/node_modules/
+whatsapp-bot/sessions/
 
 # Laravel Cache & Sessions
 /storage/*.key
