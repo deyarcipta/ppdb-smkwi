@@ -5,7 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 
-class WhatsAppService
+class WhatsappService
 {
     private $client;
     
