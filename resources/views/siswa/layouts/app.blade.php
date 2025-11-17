@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>@yield('title', 'Dashboard Siswa')</title>
+  @php
+      $pengaturan = \App\Models\PengaturanAplikasi::first();
+      $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
+      $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB SMK WI';
+  @endphp
+  <link rel="icon" href="{{ asset($logo) }}" type="image/png">
+  <title>@yield('title', 'Dashboard Admin') - {{ $namaAplikasi }}</title>
 
   <!-- Sneat CSS -->
   <link rel="stylesheet" href="{{ asset('sneat/vendor/css/core.css') }}">
