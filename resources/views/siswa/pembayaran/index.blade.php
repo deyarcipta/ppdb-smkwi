@@ -74,7 +74,7 @@
                             <h6 class="card-title">Informasi Pembayaran Transfer</h6>
                             <div class="mb-2">
                                 <small class="text-muted">Nama Bank</small>
-                                <div class="fw-bold">{{ $infoPembayaran->nama_bank ? '-' }}</div>
+                                <div class="fw-bold">{{ $infoPembayaran->nama_bank ?? '-' }}</div>
                             </div>
                             <div class="mb-2">
                                 <small class="text-muted">Nomor Rekening</small>
