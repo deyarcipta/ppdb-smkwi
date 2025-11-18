@@ -81,7 +81,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body text-center py-5">
-                        <i class="bx bx-bullhorn display-1 text-muted mb-3"></i>
+                        <i class="bx bxs-megaphone display-1 text-muted mb-3"></i>
                         <h5 class="text-muted">
                             @if(request('search'))
                                 Tidak ada pengumuman yang sesuai dengan pencarian "{{ request('search') }}"
