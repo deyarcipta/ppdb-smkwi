@@ -116,7 +116,7 @@
                 <div class="card login-card-siswa">
                     <div class="login-header-siswa">
                         <div class="school-logo">
-                            <img src="{{ asset('sneat/img/logowi.png') }}" alt="Logo SMK Wisata Indonesia">
+                            <img src="{{ asset($logo) }}" alt="Logo PPDB">
                         </div>
                         <h4 class="mb-2">PPDB SMK Wisata Indonesia</h4>
                         <p class="mb-0">Area Login Siswa</p>
