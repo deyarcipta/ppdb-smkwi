@@ -1,5 +1,10 @@
+@php
+  $currentYear = date('Y');
+  $pengaturan = \App\Models\PengaturanAplikasi::first();
+  $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+@endphp
 <footer class="footer">
   <div class="container">
-    © 2025 <strong>SMK Wisata Indonesia</strong>. All rights reserved.
+    © {{$currentYear}} <strong>{{$namaSekolah}}</strong>. created by <a href="https://wistek.xyz" target="_blank">Wistin Teknologi</a>  
   </div>
 </footer>
