@@ -70,9 +70,9 @@
               <div class="mb-3" id="info-transfer" style="display: none;">
                 <div class="alert alert-primary">
                   <h6 class="alert-heading">Informasi Transfer Bank:</h6>
-                  <p class="mb-1"><strong>Bank:</strong> {{ $infoPembayaran->nama_bank }}</p>
-                  <p class="mb-1"><strong>No. Rekening:</strong> {{ $infoPembayaran->nomor_rekening }}</p>
-                  <p class="mb-1"><strong>Atas Nama:</strong> {{ $infoPembayaran->atas_nama }}</p>
+                  <p class="mb-1"><strong>Bank:</strong> {{ $infoPembayaran->nama_bank ?? '-' }}</p>
+                  <p class="mb-1"><strong>No. Rekening:</strong> {{ $infoPembayaran->nomor_rekening ?? '-' }}</p>
+                  <p class="mb-1"><strong>Atas Nama:</strong> {{ $infoPembayaran->atas_nama ?? '-' }}</p>
                   <p class="mb-0"><strong>Jumlah:</strong> Rp 100.000</p>
                 </div>
               </div>
