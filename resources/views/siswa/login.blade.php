@@ -1,4 +1,4 @@
-{{-- resources/views/siswa/auth/login.blade.php --}}
+<!-- resources/views/siswa/auth/login.blade.php -->
 <!DOCTYPE html>
 <html lang="id" class="light-style customizer-hide" dir="ltr"
       data-theme="theme-default"
@@ -9,39 +9,34 @@
     <meta charset="utf-8" />
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    @php
+      $pengaturan = \App\Models\PengaturanAplikasi::first();
+      $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
+      $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB SMK WI';
+    @endphp
+    <title>Login Siswa - PPDB SMK Wisata Indonesia</title>
 
-    <title>Login Siswa - PPDB SMK Wizata Indonesia</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset($logo) }}" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('sneat/img/logowi.png') }}" />
-
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
         href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap"
         rel="stylesheet" />
 
-    <!-- Icons -->
     <link rel="stylesheet" href="{{ asset('sneat/vendor/fonts/iconify-icons.css') }}" />
-    <!-- Boxicons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-    <!-- Core CSS -->
     <link rel="stylesheet" href="{{ asset('sneat/vendor/css/core.css') }}" />
     <link rel="stylesheet" href="{{ asset('sneat/vendor/css/theme-default.css') }}" />
     <link rel="stylesheet" href="{{ asset('sneat/css/demo.css') }}" />
 
-    <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{ asset('sneat/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
 
-    <!-- Page CSS -->
     <link rel="stylesheet" href="{{ asset('sneat/vendor/css/pages/page-auth.css') }}" />
 
-    <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
-    <!-- Helpers -->
     <script src="{{ asset('sneat/vendor/js/helpers.js') }}"></script>
     <script src="{{ asset('sneat/js/config.js') }}"></script>
 
@@ -115,26 +110,21 @@
 </head>
 
 <body class="login-siswa">
-    <!-- Content -->
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">
             <div class="authentication-inner">
-
-                <!-- Login Card -->
                 <div class="card login-card-siswa">
-                    <!-- Header dengan gradient -->
                     <div class="login-header-siswa">
                         <div class="school-logo">
-                            <img src="{{ asset('sneat/img/logowi.png') }}" alt="Logo SMK Wizata Indonesia">
+                            <img src="{{ asset('sneat/img/logowi.png') }}" alt="Logo SMK Wisata Indonesia">
                         </div>
-                        <h4 class="mb-2">PPDB SMK Wizata Indonesia</h4>
+                        <h4 class="mb-2">PPDB SMK Wisata Indonesia</h4>
                         <p class="mb-0">Area Login Siswa</p>
                     </div>
 
                     <div class="card-body p-4">
                         <h5 class="mb-3 text-center">Masuk ke Akun Anda</h5>
 
-                        {{-- Pesan Error untuk username/password salah --}}
                         @if ($errors->has('username') && !session('account_inactive'))
                             <div class="alert alert-danger" role="alert">
                                 <i class="bx bx-error-circle me-2"></i>
@@ -142,7 +132,6 @@
                             </div>
                         @endif
 
-                        {{-- Validasi Error lainnya --}}
                         @if ($errors->any() && !$errors->has('username') && !session('account_inactive'))
                             <div class="alert alert-danger">
                                 <i class="bx bx-error-circle me-2"></i>
@@ -154,7 +143,6 @@
                             </div>
                         @endif
 
-                        {{-- Pesan Success --}}
                         @if (session('success'))
                             <div class="alert alert-success" role="alert">
                                 <i class="bx bx-check-circle me-2"></i>
@@ -162,21 +150,14 @@
                             </div>
                         @endif
 
-                        <!-- Form Login -->
                         <form method="POST" action="{{ route('siswa.login.submit') }}">
                             @csrf
-
                             <div class="mb-3">
                                 <label for="username" class="form-label">
                                     <i class="bx bx-user me-2"></i>Username
                                 </label>
-                                <input type="text"
-                                       class="form-control"
-                                       id="username"
-                                       name="username"
-                                       value="{{ old('username') }}"
-                                       placeholder="Masukkan username Anda"
-                                       required autofocus />
+                                <input type="text" class="form-control" id="username" name="username"
+                                       value="{{ old('username') }}" placeholder="Masukkan username Anda" required autofocus />
                                 <div class="form-text">
                                     Gunakan username yang diberikan saat pendaftaran
                                 </div>
@@ -187,14 +168,10 @@
                                     <i class="bx bx-lock me-2"></i>Password
                                 </label>
                                 <div class="input-group input-group-merge">
-                                    <input type="password"
-                                           id="password"
-                                           class="form-control"
-                                           name="password"
-                                           placeholder="Masukkan password Anda"
-                                           required />
+                                    <input type="password" id="password" class="form-control" name="password"
+                                           placeholder="Masukkan password Anda" required />
                                     <span class="input-group-text cursor-pointer" id="togglePassword">
-                                        <i class="bx bx-hide"></i>
+                                        <i class="bx bx-hide" id="passwordIcon"></i>
                                     </span>
                                 </div>
                                 <div class="form-text">
@@ -219,7 +196,6 @@
                             </div>
                         </form>
 
-                        <!-- Contact Info -->
                         <div class="text-center mt-4">
                             <p class="text-muted mb-2 small">Butuh bantuan?</p>
                             <div class="d-flex justify-content-center">
@@ -230,55 +206,48 @@
                         </div>
                     </div>
 
-                    <!-- Footer -->
                     <div class="card-footer text-center py-3">
                         <small class="text-muted">
-                            &copy; {{ date('Y') }} SMK Wizata Indonesia. All rights reserved.
+                            &copy; {{ date('Y') }} SMK Wisata Indonesia. All rights reserved.
                         </small>
                     </div>
                 </div>
-                <!-- /Login Card -->
-
             </div>
         </div>
     </div>
 
-    <!-- / Content -->
-
-    <!-- Core JS -->
     <script src="{{ asset('sneat/vendor/libs/jquery/jquery.js') }}"></script>
     <script src="{{ asset('sneat/vendor/libs/popper/popper.js') }}"></script>
     <script src="{{ asset('sneat/vendor/js/bootstrap.js') }}"></script>
     <script src="{{ asset('sneat/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
-
     <script src="{{ asset('sneat/vendor/js/menu.js') }}"></script>
     <script src="{{ asset('sneat/js/main.js') }}"></script>
 
-    <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 
     <script>
-    // Toggle visibility password - FIXED VERSION
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const passwordIcon = document.getElementById('passwordIcon');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordIcon.classList.remove('bx-hide');
+            passwordIcon.classList.add('bx-show');
+        } else {
+            passwordInput.type = 'password';
+            passwordIcon.classList.remove('bx-show');
+            passwordIcon.classList.add('bx-hide');
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-        const togglePassword = document.getElementById('togglePassword');
-        const password = document.getElementById('password');
-        
-        if (togglePassword && password) {
-            togglePassword.addEventListener('click', function() {
-                // Toggle the type attribute
-                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-                password.setAttribute('type', type);
-                
-                // Toggle the icon
-                const eyeIcon = this.querySelector('i');
-                if (eyeIcon) {
-                    eyeIcon.classList.toggle('bx-hide');
-                    eyeIcon.classList.toggle('bx-show');
-                }
-            });
+        const toggleButton = document.getElementById('togglePassword');
+        if (toggleButton) {
+            toggleButton.onclick = togglePasswordVisibility;
+            toggleButton.addEventListener('click', togglePasswordVisibility);
         }
 
-        // Auto hide alerts after 5 seconds
         setTimeout(function() {
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(function(alert) {
@@ -287,7 +256,6 @@
             });
         }, 5000);
 
-        // SweetAlert untuk akun tidak aktif
         @if(session('account_inactive'))
             Swal.fire({
                 icon: 'warning',
@@ -298,6 +266,6 @@
             });
         @endif
     });
-</script>
+    </script>
 </body>
 </html>
