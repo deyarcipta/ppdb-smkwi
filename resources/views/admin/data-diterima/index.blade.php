@@ -140,7 +140,59 @@
         $statusText = 'Menunggu Verifikasi';
     }
 @endphp
-<div class="modal fade" id="detailModal{{ $row->id }}" tabindex="-1">
+<div class="modal fade" id="detailModal{{ $row->id }}" tabindex="-1"
+     data-nama="{{ $row->dataSiswa->nama_lengkap ?? $row->username }}"
+     data-no-pendaftaran="{{ $row->dataSiswa->no_pendaftaran ?? $row->username }}"
+     data-nisn="{{ $row->dataSiswa->nisn ?? '-' }}"
+     data-nik="{{ $row->dataSiswa->nik ?? '-' }}"
+     data-no-kk="{{ $row->dataSiswa->no_kk ?? '-' }}"
+     data-tempat-lahir="{{ $row->dataSiswa->tempat_lahir ?? '-' }}"
+     data-tanggal-lahir="{{ $row->dataSiswa->tanggal_lahir ? \Carbon\Carbon::parse($row->dataSiswa->tanggal_lahir)->format('d-m-Y') : '-' }}"
+     data-jenis-kelamin="{{ $row->dataSiswa->jenis_kelamin ?? '-' }}"
+     data-agama="{{ $row->dataSiswa->agama ?? '-' }}"
+     data-no-hp="{{ $row->dataSiswa->no_hp ?? '-' }}"
+     data-asal-sekolah="{{ $row->dataSiswa->asal_sekolah ?? '-' }}"
+     data-alamat="{{ $row->dataSiswa->alamat ?? '-' }}"
+     data-rt="{{ $row->dataSiswa->rt ?? '-' }}"
+     data-rw="{{ $row->dataSiswa->rw ?? '-' }}"
+     data-desa="{{ $row->dataSiswa->desa ?? '-' }}"
+     data-kecamatan="{{ $row->dataSiswa->kecamatan ?? '-' }}"
+     data-kota="{{ $row->dataSiswa->kota ?? '-' }}"
+     data-provinsi="{{ $row->dataSiswa->provinsi ?? '-' }}"
+     data-kode-pos="{{ $row->dataSiswa->kode_pos ?? '-' }}"
+     data-tinggi-badan="{{ $row->dataSiswa->tinggi_badan ?? '-' }}"
+     data-berat-badan="{{ $row->dataSiswa->berat_badan ?? '-' }}"
+     data-anak-ke="{{ $row->dataSiswa->anak_ke ?? '-' }}"
+     data-jumlah-saudara="{{ $row->dataSiswa->jumlah_saudara ?? '-' }}"
+     data-status-dalam-keluarga="{{ $row->dataSiswa->status_dalam_keluarga ?? '-' }}"
+     data-tinggal-bersama="{{ $row->dataSiswa->tinggal_bersama ?? '-' }}"
+     data-jarak-kesekolah="{{ $row->dataSiswa->jarak_kesekolah ?? '-' }}"
+     data-waktu-tempuh="{{ $row->dataSiswa->waktu_tempuh ?? '-' }}"
+     data-no-kip="{{ $row->dataSiswa->no_kip ?? '-' }}"
+     data-nik-ayah="{{ $row->dataSiswa->nik_ayah ?? '-' }}"
+     data-nama-ayah="{{ $row->dataSiswa->nama_ayah ?? '-' }}"
+     data-tempat-lahir-ayah="{{ $row->dataSiswa->tempat_lahir_ayah ?? '-' }}"
+     data-tanggal-lahir-ayah="{{ $row->dataSiswa->tanggal_lahir_ayah ? \Carbon\Carbon::parse($row->dataSiswa->tanggal_lahir_ayah)->format('d-m-Y') : '-' }}"
+     data-pendidikan-ayah="{{ $row->dataSiswa->pendidikan_ayah ?? '-' }}"
+     data-pekerjaan-ayah="{{ $row->dataSiswa->pekerjaan_ayah ?? '-' }}"
+     data-penghasilan-ayah="{{ $row->dataSiswa->penghasilan_ayah ?? '-' }}"
+     data-no-hp-ayah="{{ $row->dataSiswa->no_hp_ayah ?? '-' }}"
+     data-nik-ibu="{{ $row->dataSiswa->nik_ibu ?? '-' }}"
+     data-nama-ibu="{{ $row->dataSiswa->nama_ibu ?? '-' }}"
+     data-tempat-lahir-ibu="{{ $row->dataSiswa->tempat_lahir_ibu ?? '-' }}"
+     data-tanggal-lahir-ibu="{{ $row->dataSiswa->tanggal_lahir_ibu ? \Carbon\Carbon::parse($row->dataSiswa->tanggal_lahir_ibu)->format('d-m-Y') : '-' }}"
+     data-pendidikan-ibu="{{ $row->dataSiswa->pendidikan_ibu ?? '-' }}"
+     data-pekerjaan-ibu="{{ $row->dataSiswa->pekerjaan_ibu ?? '-' }}"
+     data-penghasilan-ibu="{{ $row->dataSiswa->penghasilan_ibu ?? '-' }}"
+     data-no-hp-ibu="{{ $row->dataSiswa->no_hp_ibu ?? '-' }}"
+     data-nik-wali="{{ $row->dataSiswa->nik_wali ?? '-' }}"
+     data-nama-wali="{{ $row->dataSiswa->nama_wali ?? '-' }}"
+     data-tempat-lahir-wali="{{ $row->dataSiswa->tempat_lahir_wali ?? '-' }}"
+     data-tanggal-lahir-wali="{{ $row->dataSiswa->tanggal_lahir_wali ? \Carbon\Carbon::parse($row->dataSiswa->tanggal_lahir_wali)->format('d-m-Y') : '-' }}"
+     data-pendidikan-wali="{{ $row->dataSiswa->pendidikan_wali ?? '-' }}"
+     data-pekerjaan-wali="{{ $row->dataSiswa->pekerjaan_wali ?? '-' }}"
+     data-penghasilan-wali="{{ $row->dataSiswa->penghasilan_wali ?? '-' }}"
+     data-no-hp-wali="{{ $row->dataSiswa->no_hp_wali ?? '-' }}">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
@@ -744,8 +796,70 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-// Fungsi Print Formulir menggunakan iframe
+// Fungsi Print Formulir yang sudah diperbaiki
 function printFormulir(id) {
+    const modal = document.getElementById('detailModal' + id);
+    
+    // Ambil data dari data attributes
+    const namaLengkap = modal.getAttribute('data-nama');
+    const noPendaftaran = modal.getAttribute('data-no-pendaftaran');
+    const nisn = modal.getAttribute('data-nisn');
+    const nik = modal.getAttribute('data-nik');
+    const noKk = modal.getAttribute('data-no-kk');
+    const tempatLahir = modal.getAttribute('data-tempat-lahir');
+    const tanggalLahir = modal.getAttribute('data-tanggal-lahir');
+    const jenisKelamin = modal.getAttribute('data-jenis-kelamin');
+    const agama = modal.getAttribute('data-agama');
+    const noHp = modal.getAttribute('data-no-hp');
+    const asalSekolah = modal.getAttribute('data-asal-sekolah');
+    const alamat = modal.getAttribute('data-alamat');
+    const rt = modal.getAttribute('data-rt');
+    const rw = modal.getAttribute('data-rw');
+    const desa = modal.getAttribute('data-desa');
+    const kecamatan = modal.getAttribute('data-kecamatan');
+    const kota = modal.getAttribute('data-kota');
+    const provinsi = modal.getAttribute('data-provinsi');
+    const kodePos = modal.getAttribute('data-kode-pos');
+    const tinggiBadan = modal.getAttribute('data-tinggi-badan');
+    const beratBadan = modal.getAttribute('data-berat-badan');
+    const anakKe = modal.getAttribute('data-anak-ke');
+    const jumlahSaudara = modal.getAttribute('data-jumlah-saudara');
+    const statusDalamKeluarga = modal.getAttribute('data-status-dalam-keluarga');
+    const tinggalBersama = modal.getAttribute('data-tinggal-bersama');
+    const jarakKesekolah = modal.getAttribute('data-jarak-kesekolah');
+    const waktuTempuh = modal.getAttribute('data-waktu-tempuh');
+    const noKip = modal.getAttribute('data-no-kip');
+    
+    // Data Ayah
+    const nikAyah = modal.getAttribute('data-nik-ayah');
+    const namaAyah = modal.getAttribute('data-nama-ayah');
+    const tempatLahirAyah = modal.getAttribute('data-tempat-lahir-ayah');
+    const tanggalLahirAyah = modal.getAttribute('data-tanggal-lahir-ayah');
+    const pendidikanAyah = modal.getAttribute('data-pendidikan-ayah');
+    const pekerjaanAyah = modal.getAttribute('data-pekerjaan-ayah');
+    const penghasilanAyah = modal.getAttribute('data-penghasilan-ayah');
+    const noHpAyah = modal.getAttribute('data-no-hp-ayah');
+    
+    // Data Ibu
+    const nikIbu = modal.getAttribute('data-nik-ibu');
+    const namaIbu = modal.getAttribute('data-nama-ibu');
+    const tempatLahirIbu = modal.getAttribute('data-tempat-lahir-ibu');
+    const tanggalLahirIbu = modal.getAttribute('data-tanggal-lahir-ibu');
+    const pendidikanIbu = modal.getAttribute('data-pendidikan-ibu');
+    const pekerjaanIbu = modal.getAttribute('data-pekerjaan-ibu');
+    const penghasilanIbu = modal.getAttribute('data-penghasilan-ibu');
+    const noHpIbu = modal.getAttribute('data-no-hp-ibu');
+    
+    // Data Wali
+    const nikWali = modal.getAttribute('data-nik-wali');
+    const namaWali = modal.getAttribute('data-nama-wali');
+    const tempatLahirWali = modal.getAttribute('data-tempat-lahir-wali');
+    const tanggalLahirWali = modal.getAttribute('data-tanggal-lahir-wali');
+    const pendidikanWali = modal.getAttribute('data-pendidikan-wali');
+    const pekerjaanWali = modal.getAttribute('data-pekerjaan-wali');
+    const penghasilanWali = modal.getAttribute('data-penghasilan-wali');
+    const noHpWali = modal.getAttribute('data-no-hp-wali');
+
     // Buat iframe untuk print
     const printFrame = document.createElement('iframe');
     printFrame.style.position = 'fixed';
@@ -757,12 +871,12 @@ function printFormulir(id) {
     printFrame.style.visibility = 'hidden';
     document.body.appendChild(printFrame);
     
-    // Buat konten print dengan format baru
+    // Buat konten print dengan data yang diambil dari data attributes
     const printContent = `
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Formulir Pendaftaran - {{ $row->dataSiswa->nama_lengkap ?? $row->username }}</title>
+            <title>Formulir Pendaftaran - ${namaLengkap}</title>
             <style>
                 @page {
                     size: A4;
@@ -907,7 +1021,7 @@ function printFormulir(id) {
                 <div class="divider"></div>
 
                 <h3 class="form-title">FORMULIR PENDAFTARAN</h3>
-                <p class="form-number">No. Pendaftaran : <b>{{ $row->dataSiswa->no_pendaftaran ?? $row->username }}</b></p>
+                <p class="form-number">No. Pendaftaran : <b>${noPendaftaran}</b></p>
 
                 <!-- DATA PRIBADI SISWA -->
                 <table>
@@ -918,22 +1032,19 @@ function printFormulir(id) {
                     <tr>
                         <td class="photo-cell" rowspan="4">FOTO<br>3x4</td>
                         <td width="35%"><b>NISN</b></td>
-                        <td>{{ $row->dataSiswa->nisn ?? '-' }}</td>
+                        <td>${nisn}</td>
                     </tr>
                     <tr>
                         <td><b>Nama Lengkap</b></td>
-                        <td>{{ $row->dataSiswa->nama_lengkap ?? '-' }}</td>
+                        <td>${namaLengkap}</td>
                     </tr>
                     <tr>
                         <td><b>Tempat, Tgl Lahir</b></td>
-                        <td>
-                            {{ $row->dataSiswa->tempat_lahir ?? '-' }},
-                            {{ $row->dataSiswa->tanggal_lahir ? \Carbon\Carbon::parse($row->dataSiswa->tanggal_lahir)->format('d-m-Y') : '-' }}
-                        </td>
+                        <td>${tempatLahir}, ${tanggalLahir}</td>
                     </tr>
                     <tr>
                         <td><b>Jenis Kelamin</b></td>
-                        <td>{{ $row->dataSiswa->jenis_kelamin ?? '-' }}</td>
+                        <td>${jenisKelamin}</td>
                     </tr>
                 </table>
 
@@ -949,48 +1060,48 @@ function printFormulir(id) {
                     </colgroup>
 
                     <tr>
-                        <td><b>No NIK</b></td><td>{{ $row->dataSiswa->nik ?? '-' }}</td>
-                        <td><b>No Kartu Keluarga</b></td><td>{{ $row->dataSiswa->no_kk ?? '-' }}</td>
+                        <td><b>No NIK</b></td><td>${nik}</td>
+                        <td><b>No Kartu Keluarga</b></td><td>${noKk}</td>
                     </tr>
                     <tr>
-                        <td><b>Agama</b></td><td>{{ $row->dataSiswa->agama ?? '-' }}</td>
-                        <td><b>Anak Ke</b></td><td>{{ $row->dataSiswa->anak_ke ?? '-' }}</td>
+                        <td><b>Agama</b></td><td>${agama}</td>
+                        <td><b>Anak Ke</b></td><td>${anakKe}</td>
                     </tr>
                     <tr>
-                        <td><b>No Handphone</b></td><td>{{ $row->dataSiswa->no_hp ?? '-' }}</td>
-                        <td><b>Saudara</b></td><td>{{ $row->dataSiswa->jumlah_saudara ?? '-' }}</td>
+                        <td><b>No Handphone</b></td><td>${noHp}</td>
+                        <td><b>Saudara</b></td><td>${jumlahSaudara}</td>
                     </tr>
                     <tr>
-                        <td><b>Asal Sekolah</b></td><td>{{ $row->dataSiswa->asal_sekolah ?? '-' }}</td>
-                        <td><b>Tinggi Badan (cm)</b></td><td>{{ $row->dataSiswa->tinggi_badan ?? '-' }}</td>
+                        <td><b>Asal Sekolah</b></td><td>${asalSekolah}</td>
+                        <td><b>Tinggi Badan (cm)</b></td><td>${tinggiBadan}</td>
                     </tr>
                     <tr>
                         <td><b>Alamat Siswa</b></td>
-                        <td colspan="3">{{ $row->dataSiswa->alamat ?? '-' }}</td>
+                        <td colspan="3">${alamat}</td>
                     </tr>
                     <tr>
-                        <td><b>RT / RW</b></td><td>{{ $row->dataSiswa->rt ?? '-' }}/{{ $row->dataSiswa->rw ?? '-' }}</td>
-                        <td><b>Berat Badan (kg)</b></td><td>{{ $row->dataSiswa->berat_badan ?? '-' }}</td>
+                        <td><b>RT / RW</b></td><td>${rt}/${rw}</td>
+                        <td><b>Berat Badan (kg)</b></td><td>${beratBadan}</td>
                     </tr>
                     <tr>
-                        <td><b>Kelurahan</b></td><td>{{ $row->dataSiswa->desa ?? '-' }}</td>
-                        <td><b>Status Dalam Keluarga</b></td><td>{{ $row->dataSiswa->status_dalam_keluarga ?? '-' }}</td>
+                        <td><b>Kelurahan</b></td><td>${desa}</td>
+                        <td><b>Status Dalam Keluarga</b></td><td>${statusDalamKeluarga}</td>
                     </tr>
                     <tr>
-                        <td><b>Kecamatan</b></td><td>{{ $row->dataSiswa->kecamatan ?? '-' }}</td>
-                        <td><b>Tinggal Bersama</b></td><td>{{ $row->dataSiswa->tinggal_bersama ?? '-' }}</td>
+                        <td><b>Kecamatan</b></td><td>${kecamatan}</td>
+                        <td><b>Tinggal Bersama</b></td><td>${tinggalBersama}</td>
                     </tr>
                     <tr>
-                        <td><b>Kota / Kabupaten</b></td><td>{{ $row->dataSiswa->kota ?? '-' }}</td>
-                        <td><b>Jarak ke Sekolah (m)</b></td><td>{{ $row->dataSiswa->jarak_kesekolah ?? '-' }}</td>
+                        <td><b>Kota / Kabupaten</b></td><td>${kota}</td>
+                        <td><b>Jarak ke Sekolah (m)</b></td><td>${jarakKesekolah}</td>
                     </tr>
                     <tr>
-                        <td><b>Provinsi</b></td><td>{{ $row->dataSiswa->provinsi ?? '-' }}</td>
-                        <td><b>Waktu Tempuh (menit)</b></td><td>{{ $row->dataSiswa->waktu_tempuh ?? '-' }}</td>
+                        <td><b>Provinsi</b></td><td>${provinsi}</td>
+                        <td><b>Waktu Tempuh (menit)</b></td><td>${waktuTempuh}</td>
                     </tr>
                     <tr>
-                        <td><b>Kode Pos</b></td><td>{{ $row->dataSiswa->kode_pos ?? '-' }}</td>
-                        <td><b>No KIP</b></td><td>{{ $row->dataSiswa->no_kip ?? '-' }}</td>
+                        <td><b>Kode Pos</b></td><td>${kodePos}</td>
+                        <td><b>No KIP</b></td><td>${noKip}</td>
                     </tr>
                 </table>
 
@@ -1008,51 +1119,51 @@ function printFormulir(id) {
                     <tbody>
                     <tr>
                         <td><b>NIK</b></td>
-                        <td>{{ $row->dataSiswa->nik_ayah ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->nik_ibu ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->nik_wali ?? '-' }}</td>
+                        <td>${nikAyah}</td>
+                        <td>${nikIbu}</td>
+                        <td>${nikWali}</td>
                     </tr>
                     <tr>
                         <td><b>Nama Lengkap</b></td>
-                        <td>{{ $row->dataSiswa->nama_ayah ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->nama_ibu ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->nama_wali ?? '-' }}</td>
+                        <td>${namaAyah}</td>
+                        <td>${namaIbu}</td>
+                        <td>${namaWali}</td>
                     </tr>
                     <tr>
                         <td><b>Tempat, Tgl Lahir</b></td>
-                        <td>{{ $row->dataSiswa->tempat_lahir_ayah ?? '-' }}, {{ $row->dataSiswa->tanggal_lahir_ayah ? \Carbon\Carbon::parse($row->dataSiswa->tanggal_lahir_ayah)->format('d-m-Y') : '-' }}</td>
-                        <td>{{ $row->dataSiswa->tempat_lahir_ibu ?? '-' }}, {{ $row->dataSiswa->tanggal_lahir_ibu ? \Carbon\Carbon::parse($row->dataSiswa->tanggal_lahir_ibu)->format('d-m-Y') : '-' }}</td>
-                        <td>{{ $row->dataSiswa->tempat_lahir_wali ?? '-' }}, {{ $row->dataSiswa->tanggal_lahir_wali ? \Carbon\Carbon::parse($row->dataSiswa->tanggal_lahir_wali)->format('d-m-Y') : '-' }}</td>
+                        <td>${tempatLahirAyah}, ${tanggalLahirAyah}</td>
+                        <td>${tempatLahirIbu}, ${tanggalLahirIbu}</td>
+                        <td>${tempatLahirWali}, ${tanggalLahirWali}</td>
                     </tr>
                     <tr>
                         <td><b>Pendidikan</b></td>
-                        <td>{{ $row->dataSiswa->pendidikan_ayah ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->pendidikan_ibu ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->pendidikan_wali ?? '-' }}</td>
+                        <td>${pendidikanAyah}</td>
+                        <td>${pendidikanIbu}</td>
+                        <td>${pendidikanWali}</td>
                     </tr>
                     <tr>
                         <td><b>Pekerjaan</b></td>
-                        <td>{{ $row->dataSiswa->pekerjaan_ayah ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->pekerjaan_ibu ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->pekerjaan_wali ?? '-' }}</td>
+                        <td>${pekerjaanAyah}</td>
+                        <td>${pekerjaanIbu}</td>
+                        <td>${pekerjaanWali}</td>
                     </tr>
                     <tr>
                         <td><b>Penghasilan</b></td>
-                        <td>{{ $row->dataSiswa->penghasilan_ayah ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->penghasilan_ibu ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->penghasilan_wali ?? '-' }}</td>
+                        <td>${penghasilanAyah}</td>
+                        <td>${penghasilanIbu}</td>
+                        <td>${penghasilanWali}</td>
                     </tr>
                     <tr>
                         <td><b>No HP</b></td>
-                        <td>{{ $row->dataSiswa->no_hp_ayah ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->no_hp_ibu ?? '-' }}</td>
-                        <td>{{ $row->dataSiswa->no_hp_wali ?? '-' }}</td>
+                        <td>${noHpAyah}</td>
+                        <td>${noHpIbu}</td>
+                        <td>${noHpWali}</td>
                     </tr>
                     </tbody>
                 </table>
 
                 <div class="footer">
-                    Dicetak pada: {{ \Carbon\Carbon::now()->format('d-m-Y H:i:s') }}
+                    Dicetak pada: ${new Date().toLocaleString('id-ID')}
                 </div>
             </div>
         </body>
