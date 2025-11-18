@@ -32,6 +32,7 @@ use App\Http\Controllers\Siswa\SiswaAuthController as SiswaAuthController;
 use App\Http\Controllers\Siswa\DashboardController as DashboardSiswaController;
 use App\Http\Controllers\Siswa\SiswaFormController as SiswaFormController;
 use App\Http\Controllers\Siswa\SiswaPembayaranController as SiswaPembayaranController;
+use App\Http\Controllers\Siswa\SiswaPengumumanController as SiswaPengumumanController;
 
 // ===== FRONTEND =====
 Route::get('/', [HomeController::class, 'index'])->name('frontend.home');
@@ -243,6 +244,11 @@ Route::prefix('siswa')->group(function () {
         Route::post('/pembayaran', [SiswaPembayaranController::class, 'store'])->name('siswa.pembayaran.store');
         Route::put('/pembayaran/{id}', [SiswaPembayaranController::class, 'update'])->name('siswa.pembayaran.update');
         Route::delete('/pembayaran/{id}', [SiswaPembayaranController::class, 'destroy'])->name('siswa.pembayaran.destroy');
+
+        // Routes Pengumuman
+        Route::get('/pengumuman', [SiswaPengumumanController::class, 'index'])->name('siswa.pengumuman.index');
+        Route::get('/pengumuman/{id}', [SiswaPengumumanController::class, 'show'])->name('siswa.pengumuman.show');
+        Route::get('/pengumuman/search', [SiswaPengumumanController::class, 'search'])->name('siswa.pengumuman.search');
         
     });
 });

@@ -104,9 +104,9 @@
           <input type="text" name="judul" class="form-control" placeholder="Contoh: Pendaftaran Gelombang 1 Dibuka" required>
         </div>
         <div class="mb-3">
-          <label>Isi Pengumuman</label>
-          <textarea name="isi" class="form-control" rows="6" placeholder="Masukkan isi pengumuman..." required></textarea>
-          <small class="text-muted">Gunakan format teks biasa atau HTML sederhana</small>
+            <label>Isi Pengumuman</label>
+            <textarea id="editor" name="isi" class="form-control" rows="6" placeholder="Masukkan isi pengumuman..."></textarea>
+            <small class="text-muted">Gunakan format teks biasa atau HTML sederhana</small>
         </div>
         <div class="row">
           <div class="col-md-6">
@@ -149,8 +149,8 @@
           <input type="text" name="judul" value="{{ $row->judul }}" class="form-control" required>
         </div>
         <div class="mb-3">
-          <label>Isi Pengumuman</label>
-          <textarea name="isi" class="form-control" rows="6" required>{{ $row->isi }}</textarea>
+            <label>Isi Pengumuman</label>
+            <textarea id="editor{{ $row->id }}" name="isi" class="form-control" rows="6">{{ old('isi', $row->isi) }}</textarea>
         </div>
         <div class="row">
           <div class="col-md-6">
@@ -191,6 +191,7 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/41.0.0/classic/ckeditor.js"></script>
 <script>
   // Konfirmasi Hapus
   document.querySelectorAll('.form-delete').forEach(form => {
@@ -219,5 +220,44 @@
       showConfirmButton: false
     });
   @endif
+
+  ClassicEditor
+    .create(document.querySelector('#editor'), {
+        toolbar: [
+            'heading', '|',
+            'bold', 'italic', 'underline', 'link', 'bulletedList', 'numberedList', '|',
+            'insertTable', 'imageUpload', 'blockQuote', 'mediaEmbed', '|',
+            'undo', 'redo'
+        ]
+    })
+    .catch(error => {
+        console.error(error);
+    });
+
+// CKEditor untuk masing-masing modal edit
+@foreach ($data as $row)
+$('#editPengumumanModal{{ $row->id }}').on('shown.bs.modal', function () {
+    if (!$(this).data('ckeditor-initialized')) {
+        ClassicEditor
+            .create(document.querySelector('#editor{{ $row->id }}'), {
+                toolbar: [
+                    'heading', '|',
+                    'bold', 'italic', 'underline', 'link', 'bulletedList', 'numberedList', '|',
+                    'insertTable', 'imageUpload', 'blockQuote', 'mediaEmbed', '|',
+                    'undo', 'redo'
+                ]
+            })
+            .then(editor => {
+                $(this).data('ckeditorInstance', editor); // Simpan instance editor
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        $(this).data('ckeditor-initialized', true); // Tandai sudah diinisialisasi
+    }
+});
+@endforeach
+
 </script>
 @endpush

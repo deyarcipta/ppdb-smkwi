@@ -44,8 +44,8 @@
         <div>Pembayaran</div>
       </a>
     </li>
-    <li class="menu-item">
-      <a href="#" class="menu-link">
+    <li class="menu-item {{ Request::is('siswa/pengumuman*') ? 'active' : '' }}">
+      <a href="{{ route('siswa.pengumuman.index') }}" class="menu-link">
         <i class="menu-icon bx bx-news"></i>
         <div>Pengumuman</div>
       </a>
