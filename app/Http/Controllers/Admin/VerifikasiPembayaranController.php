@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
 use App\Models\MasterBiaya;
 use App\Models\DataSiswa;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\TemplatePesan;
@@ -76,6 +77,11 @@ class VerifikasiPembayaranController extends Controller
                 'verified_by' => auth()->id(),
                 'verified_at' => now()
             ]);
+
+            ActivityLog::logManual(
+                "Memverifikasi pembayaran #{$pembayaran->id} - {$pembayaran->dataSiswa->nama_lengkap}",
+                'verify'
+            );
 
             // ✅ Jika status diverifikasi, cek apakah PPDB sudah lunas dan update is_paid
             if ($request->status === 'diverifikasi' && $pembayaran->dataSiswa) {
@@ -386,6 +392,11 @@ class VerifikasiPembayaranController extends Controller
         if ($pembayaran->bukti_pembayaran) {
             Storage::delete('public/' . $pembayaran->bukti_pembayaran);
         }
+
+        ActivityLog::logManual(
+                "Menghapus pembayaran #{$pembayaran->id} - {$pembayaran->dataSiswa->nama_lengkap}",
+                'delete'
+            );
         
         $pembayaran->delete();
 

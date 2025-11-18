@@ -10,10 +10,14 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Login Admin - PPDB Wisata Indonesia</title>
+    @php
+      $pengaturan = \App\Models\PengaturanAplikasi::first();
+      $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
+      $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB SMK WI';
+    @endphp
+    <title>Login Admin - PPDB SMK Wisata Indonesia</title>
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('sneat/img/logowi.png') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset($logo) }}" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -54,7 +58,7 @@
                         <div class="app-brand justify-content-center mb-4">
                             <a href="{{ url('/') }}" class="app-brand-link gap-2">
                                 <span class="app-brand-logo demo">
-                                    <img src="{{ asset('sneat/img/logowi.png') }}" alt="Logo" width="30">
+                                    <img src="{{ asset($logo) }}" alt="Logo" width="30">
                                 </span>
                                 <span class="app-brand-text demo text-body fw-bold">PPDB Wisata Indonesia</span>
                             </a>

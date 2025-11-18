@@ -7,6 +7,7 @@ use App\Models\UserSiswa;
 use App\Models\PembayaranSiswa;
 use App\Models\MasterBiaya;
 use App\Models\TemplatePesan;
+use App\Models\ActivityLog;
 use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -74,6 +75,11 @@ class DataTerverifikasiController extends Controller
                 
                 // Refresh data untuk memastikan
                 $user->dataSiswa->refresh();
+
+                ActivityLog::logManual(
+                    "Memverifikasi pendaftaran #{$user->dataSiswa->id} - {$user->dataSiswa->nama_lengkap}",
+                    'verify'
+                );
 
                 // ✅ Kirim pesan WhatsApp hanya jika status berubah menjadi "diterima"
                 if ($request->status_pendaftar === 'diterima' && $statusSebelumnya !== 'diterima') {
@@ -162,6 +168,13 @@ class DataTerverifikasiController extends Controller
     public function destroy($id)
     {
         $user = UserSiswa::findOrFail($id);
+        // Hapus pembayaran siswa terkait (misal punya relasi 'pembayaran')
+        $user->pembayaran()->delete();
+
+        ActivityLog::logManual(
+            "Menghapus pendaftaran #{$user->id} - {$user->dataSiswa->nama_lengkap}",
+            'delete'
+        );
         $user->delete();
 
         return back()->with('success', 'Data pendaftar terverifikasi berhasil dihapus!');

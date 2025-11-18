@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\DataSiswa;
 use App\Models\Pembayaran;
 use App\Models\Jurusan;
+use App\Models\ActivityLog;
 
 class DashboardController extends Controller
 {
@@ -43,6 +44,8 @@ class DashboardController extends Controller
         // Data pembayaran pending dari tabel pembayaran
         $pembayaranPending = Pembayaran::where('status', 'pending')->count();
 
+        // Ambil aktivitas admin terbaru
+        $aktivitasTerbaru = ActivityLog::terbaru(5)->get();
         return view('admin.dashboard', compact(
             'totalPendaftar',
             'pendingVerifikasi',
@@ -51,7 +54,8 @@ class DashboardController extends Controller
             'jurusanLabels',
             'jurusanData',
             'pendaftarTerbaru',
-            'pembayaranPending'
+            'pembayaranPending',
+            'aktivitasTerbaru'
         ));
     }
 }

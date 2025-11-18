@@ -169,7 +169,7 @@
     </div>
   </div>
 
-  <div class="col-lg-6 col-md-12">
+<div class="col-lg-6 col-md-12">
     <!-- Aktivitas Admin Terbaru -->
     <div class="card">
       <div class="card-header">
@@ -177,42 +177,35 @@
       </div>
       <div class="card-body">
         <div class="timeline">
+          @forelse($aktivitasTerbaru as $aktivitas)
           <div class="timeline-item">
-            <div class="timeline-marker bg-primary"></div>
+            <div class="timeline-marker bg-{{ $aktivitas->color ?? 'primary' }}"></div>
             <div class="timeline-content">
-              <h6 class="mb-1">Super Admin</h6>
-              <p class="mb-1">Menambah data pendaftar baru</p>
-              <small class="text-muted">22 Okt 2025, 10:15</small>
+              <h6 class="mb-1">{{ $aktivitas->admin->name ?? 'Admin' }}</h6>
+              <p class="mb-1">{{ $aktivitas->description }}</p>
+              <small class="text-muted">{{ $aktivitas->created_at->format('d M Y, H:i') }}</small>
             </div>
           </div>
-          <div class="timeline-item">
-            <div class="timeline-marker bg-warning"></div>
-            <div class="timeline-content">
-              <h6 class="mb-1">Admin 1</h6>
-              <p class="mb-1">Menghapus data tidak valid</p>
-              <small class="text-muted">22 Okt 2025, 09:45</small>
-            </div>
+          @empty
+          <div class="text-center py-3">
+            <i class="bx bx-time display-4 text-muted mb-2"></i>
+            <p class="text-muted mb-0">Belum ada aktivitas admin</p>
           </div>
-          <div class="timeline-item">
-            <div class="timeline-marker bg-info"></div>
-            <div class="timeline-content">
-              <h6 class="mb-1">Admin 2</h6>
-              <p class="mb-1">Mengupdate status pendaftar</p>
-              <small class="text-muted">21 Okt 2025, 16:20</small>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-marker bg-success"></div>
-            <div class="timeline-content">
-              <h6 class="mb-1">Super Admin</h6>
-              <p class="mb-1">Memverifikasi pembayaran</p>
-              <small class="text-muted">21 Okt 2025, 14:30</small>
-            </div>
-          </div>
+          @endforelse
         </div>
+        
+        @if($aktivitasTerbaru->count() > 0)
+        <div class="text-center mt-3">
+           {{-- <a href="#" class="btn btn-sm btn-outline-primary"> --}}
+          <a href="{{ route('admin.aktivitas.index') }}" class="btn btn-sm btn-outline-primary">
+            Lihat Semua Aktivitas
+          </a>
+        </div>
+        @endif
       </div>
     </div>
   </div>
+</div>
 
 </div>
 @endsection

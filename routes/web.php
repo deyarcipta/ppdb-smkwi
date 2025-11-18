@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\PendaftaranSiswaController;
 use App\Http\Controllers\Admin\DashboardController as DashboardAdminController;
+use App\Http\Controllers\Admin\AktivitasController as AktivitasAdminController;
 use App\Http\Controllers\Admin\AuthController as AuthAdminController;
 use App\Http\Controllers\Admin\TahunAjaranController as TahunAjaranAdminController;
 use App\Http\Controllers\Admin\JurusanController as JurusanAdminController;
@@ -54,6 +55,16 @@ Route::prefix('w1s4t4')->group(function () {
             // Dashboard
             Route::get('/dashboard', [DashboardAdminController::class, 'index'])
                 ->name('admin.dashboard');
+
+            // Aktivitas Admin
+            Route::get('/aktivitas', [AktivitasAdminController::class, 'index'])
+                ->name('admin.aktivitas.index');
+            Route::get('/aktivitas/search', [AktivitasAdminController::class, 'search'])
+                ->name('admin.aktivitas.search');
+            Route::delete('/aktivitas/{id}', [AktivitasAdminController::class, 'destroy'])
+                ->name('admin.aktivitas.destroy');
+            Route::delete('/aktivitas-clear', [AktivitasAdminController::class, 'clear'])
+                ->name('admin.aktivitas.clear');
 
             // Tahun Ajaran
             Route::resource('tahun-ajaran', TahunAjaranAdminController::class)
