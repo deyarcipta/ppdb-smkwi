@@ -442,7 +442,7 @@ class DashboardController extends Controller
         }
         
         // Step 5: Review/Verifikasi Data (DIPINDAH KE POSISI INI)
-        if ($dataSiswa && $dataSiswa->is_paid && !$dataSiswa->status_pendaftar == 'diterima') {
+        if ($dataSiswa && $dataSiswa->is_paid && $dataSiswa->status_pendaftar != 'diterima') {
             return 5;
         }
         
