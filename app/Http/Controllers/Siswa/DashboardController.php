@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\Pembayaran;
+use App\Models\InfoPembayaran;
 use App\Models\Jurusan;
 use App\Models\DataSiswa;
 use App\Models\MasterBiaya;
+use App\Models\PengaturanAplikasi;
 use App\Services\ProgressService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -43,6 +45,12 @@ class DashboardController extends Controller
         // Tentukan apakah harus menampilkan form upload
         $showUploadForm = !$pembayaran || $pembayaran->status == 'ditolak';
 
+        // Ambil data info pembayaran
+        $infoPembayaran = InfoPembayaran::where('status', 1)->first();
+
+        // Ambil data setting
+        $pengaturan_aplikasi = PengaturanAplikasi::first();
+
         // Tentukan step berdasarkan progress
         $currentStep = $this->getCurrentStep($pembayaran, $dataSiswa);
         
@@ -54,6 +62,8 @@ class DashboardController extends Controller
             'dataSiswa', 
             'masterPPDB',
             'pembayaran',
+            'infoPembayaran',
+            'pengaturan_aplikasi',
             'showUploadForm',
             'currentStep', 
             'statusText', 

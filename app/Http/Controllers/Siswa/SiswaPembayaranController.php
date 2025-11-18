@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
+use App\Models\InfoPembayaran;
 use App\Models\DataSiswa;
 use App\Models\MasterBiaya;
 use Illuminate\Http\Request;
@@ -30,6 +31,9 @@ class SiswaPembayaranController extends Controller
             // Ambil data biaya PPDB
             $MasterBiaya = MasterBiaya::where('status', 1)->get();
 
+            // Ambil data info pembayaran
+            $infoPembayaran = InfoPembayaran::where('status', 1)->first();
+
             // Hitung total biaya, total dibayar, dan sisa bayar
             $totalBiaya = $MasterBiaya->sum('total_biaya');
             $totalDibayar = $pembayaran->where('status', 'diverifikasi')->sum('jumlah');
@@ -46,6 +50,7 @@ class SiswaPembayaranController extends Controller
 
             return view('siswa.pembayaran.index', compact(
                 'pembayaran',
+                'infoPembayaran',
                 'MasterBiaya',
                 'siswa',
                 'totalBiaya',

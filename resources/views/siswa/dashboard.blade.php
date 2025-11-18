@@ -70,9 +70,9 @@
               <div class="mb-3" id="info-transfer" style="display: none;">
                 <div class="alert alert-primary">
                   <h6 class="alert-heading">Informasi Transfer Bank:</h6>
-                  <p class="mb-1"><strong>Bank:</strong> BCA</p>
-                  <p class="mb-1"><strong>No. Rekening:</strong> 1234 5678 9012</p>
-                  <p class="mb-1"><strong>Atas Nama:</strong> SMP Contoh Jakarta</p>
+                  <p class="mb-1"><strong>Bank:</strong> {{ $infoPembayaran->nama_bank }}</p>
+                  <p class="mb-1"><strong>No. Rekening:</strong> {{ $infoPembayaran->nomor_rekening }}</p>
+                  <p class="mb-1"><strong>Atas Nama:</strong> {{ $infoPembayaran->atas_nama }}</p>
                   <p class="mb-0"><strong>Jumlah:</strong> Rp 100.000</p>
                 </div>
               </div>
@@ -116,11 +116,11 @@
                   <h6 class="card-title">Butuh Bantuan?</h6>
                   <p class="small mb-2">
                     <i class='bx bx-phone me-2'></i>
-                    <strong>Telepon:</strong> (021) 1234-5678
+                    <strong>Telepon:</strong> {{$pengaturan_aplikasi->telepon ?? '021-12345678'}}
                   </p>
                   <p class="small mb-0">
                     <i class='bx bx-envelope me-2'></i>
-                    <strong>Email:</strong> admin@smpteladan.sch.id
+                    <strong>Email:</strong> {{$pengaturan_aplikasi->email ?? '-'}}
                   </p>
                 </div>
               </div>
