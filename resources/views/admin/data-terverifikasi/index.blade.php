@@ -165,54 +165,35 @@
     }
 @endphp
 <div class="modal fade" id="detailModal{{ $row->id }}" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
+
+            <!-- Header -->
             <div class="modal-header">
-                <h5 class="modal-title">Detail Data Siswa</h5>
+                <h5 class="modal-title">Detail Lengkap Data Siswa</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
+            <!-- Body -->
             <div class="modal-body">
-                <div class="row">
+
+                <!-- Informasi Akun & Pendaftaran -->
+                <div class="row mb-4">
                     <div class="col-md-6">
-                        <h6 class="mb-3 text-primary">Informasi Akun</h6>
-                        <div class="mb-2">
-                            <strong>Username:</strong> {{ $row->username }}
-                        </div>
-                        <div class="mb-2">
-                            <strong>Password:</strong> {{ $row->password_plain ?? 'password123' }}
-                        </div>
-                        <div class="mb-2">
-                            <strong>Status Akun:</strong>
-                            <span class="badge bg-success text-white">Aktif</span>
-                        </div>
-                        <div class="mb-2">
-                            <strong>Gelombang:</strong> {{ $row->dataSiswa->gelombang->nama_gelombang ?? '-' }}
-                        </div>
-                        <div class="mb-2">
-                            <strong>Jurusan:</strong> {{ $row->dataSiswa->jurusan->nama_jurusan ?? '-' }}
-                        </div>
+                        <h6 class="mb-3 text-primary">Informasi Akun & Pendaftaran</h6>
+                        <div><strong>Username:</strong> {{ $row->username }}</div>
+                        <div><strong>Password:</strong> {{ $row->password_plain ?? 'password123' }}</div>
+                        <div><strong>Status Akun:</strong> <span class="badge bg-success text-white">Aktif</span></div>
+                        <div><strong>No. Pendaftaran:</strong> {{ $row->dataSiswa->no_pendaftaran ?? '-' }}</div>
+                        <div><strong>Gelombang:</strong> {{ $row->dataSiswa->gelombang->nama_gelombang ?? '-' }}</div>
+                        <div><strong>Jurusan:</strong> {{ $row->dataSiswa->jurusan->nama_jurusan ?? '-' }}</div>
+                        <div><strong>Tanggal Daftar:</strong> {{ $row->created_at->format('d M Y H:i') }}</div>
+                        <div><strong>Terakhir Update:</strong> {{ $row->updated_at->format('d M Y H:i') }}</div>
                     </div>
+
                     <div class="col-md-6">
-                        <h6 class="mb-3 text-primary">Informasi Pribadi</h6>
-                        <div class="mb-2">
-                            <strong>Nama Lengkap:</strong> {{ $row->dataSiswa->nama_lengkap ?? '-' }}
-                        </div>
-                        <div class="mb-2">
-                            <strong>Asal Sekolah:</strong> {{ $row->dataSiswa->asal_sekolah ?? '-' }}
-                        </div>
-                        <div class="mb-2">
-                            <strong>No HP:</strong> {{ $row->dataSiswa->no_hp ?? '-' }}
-                        </div>
-                        <div class="mb-2">
-                            <strong>Email:</strong> {{ $row->email ?? '-' }}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <h6 class="mb-3 text-primary">Status Pendaftaran</h6>
-                        <div class="mb-2">
+                        <h6 class="mb-3 text-primary">Status & Progress</h6>
+                        <div>
                             <strong>Status Pendaftar:</strong>
                             @if($row->dataSiswa?->status_pendaftar == 'diterima')
                                 <span class="badge bg-success text-white">Diterima</span>
@@ -222,20 +203,193 @@
                                 <span class="badge bg-warning text-white">Pending</span>
                             @endif
                         </div>
-                        <div class="mb-2">
+                        {{-- <div class="mt-1"><strong>Status Verifikasi:</strong> {!! $row->dataSiswa?->status_verifikasi_label ?? '<span class="badge bg-warning">Belum Verifikasi</span>' !!}</div> --}}
+                        <div class="mt-1">
                             <strong>Status Pembayaran:</strong>
-                            <span class="badge {{ $badgeClass }} text-white">
-                                {{ $statusText }}
-                            </span>
+                            <span class="badge {{ $badgeClass }} text-white">{{ $statusText }}</span>
                         </div>
-                        <div class="mb-2">
-                            <strong>Total Biaya:</strong> Rp {{ number_format($totalBiaya, 0, ',', '.') }}
+                        <div class="mt-1">
+                            <strong>Formulir Lengkap:</strong>
+                            {!! $row->dataSiswa?->is_form_completed ? '<span class="badge bg-success">Lengkap</span>' : '<span class="badge bg-warning">Belum Lengkap</span>' !!}
                         </div>
-                        <div class="mb-2">
-                            <strong>Total Dibayar:</strong> Rp {{ number_format($totalBayar, 0, ',', '.') }}
+                        <div>
+                            <strong>Progress Formulir:</strong>
+                            <div class="progress mt-1" style="height: 8px;">
+                                <div class="progress-bar" role="progressbar" style="width: {{ $row->dataSiswa?->progress_formulir ?? 0 }}%"></div>
+                            </div>
+                            <small>{{ $row->dataSiswa?->progress_formulir ?? 0 }}%</small>
                         </div>
-                        <div class="mb-2">
-                            <strong>Sisa Pembayaran:</strong> 
+                    </div>
+                </div>
+
+                <!-- Informasi Pribadi -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="mb-3 text-primary">Informasi Pribadi</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div><strong>NISN:</strong> {{ $row->dataSiswa->nisn ?? '-' }}</div>
+                                <div><strong>NIK:</strong> {{ $row->dataSiswa->nik ?? '-' }}</div>
+                                <div><strong>No. KK:</strong> {{ $row->dataSiswa->no_kk ?? '-' }}</div>
+                                <div><strong>Nama Lengkap:</strong> {{ $row->dataSiswa->nama_lengkap ?? '-' }}</div>
+                                <div><strong>Tempat Lahir:</strong> {{ $row->dataSiswa->tempat_lahir ?? '-' }}</div>
+                                <div><strong>Tanggal Lahir:</strong> {{ $row->dataSiswa->tanggal_lahir ? $row->dataSiswa->tanggal_lahir->format('d M Y') : '-' }}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div><strong>Jenis Kelamin:</strong> {{ $row->dataSiswa->jenis_kelamin ?? '-' }}</div>
+                                <div><strong>Agama:</strong> {{ $row->dataSiswa->agama ?? '-' }}</div>
+                                <div><strong>No. HP:</strong> {{ $row->dataSiswa->no_hp ?? '-' }}</div>
+                                <div><strong>Email:</strong> {{ $row->email ?? '-' }}</div>
+                                <div><strong>Asal Sekolah:</strong> {{ $row->dataSiswa->asal_sekolah ?? '-' }}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div><strong>Ukuran Baju:</strong> {{ $row->dataSiswa->ukuran_baju ?? '-' }}</div>
+                                <div><strong>Hobi:</strong> {{ $row->dataSiswa->hobi ?? '-' }}</div>
+                                <div><strong>Cita-cita:</strong> {{ $row->dataSiswa->cita_cita ?? '-' }}</div>
+                                <div><strong>Anak Ke:</strong> {{ $row->dataSiswa->anak_ke ?? '-' }}</div>
+                                <div><strong>Jumlah Saudara:</strong> {{ $row->dataSiswa->jumlah_saudara ?? '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alamat Lengkap -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="mb-3 text-primary">Alamat Lengkap</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div><strong>Alamat:</strong> {{ $row->dataSiswa->alamat ?? '-' }}</div>
+                                <div><strong>RT/RW:</strong> {{ ($row->dataSiswa->rt ?? '-') }}/{{ ($row->dataSiswa->rw ?? '-') }}</div>
+                                <div><strong>Desa/Kelurahan:</strong> {{ $row->dataSiswa->desa ?? '-' }}</div>
+                                <div><strong>Kecamatan:</strong> {{ $row->dataSiswa->kecamatan ?? '-' }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div><strong>Kota/Kabupaten:</strong> {{ $row->dataSiswa->kota ?? '-' }}</div>
+                                <div><strong>Provinsi:</strong> {{ $row->dataSiswa->provinsi ?? '-' }}</div>
+                                <div><strong>Kode Pos:</strong> {{ $row->dataSiswa->kode_pos ?? '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Kesehatan -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="mb-3 text-primary">Data Kesehatan & Kondisi</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div><strong>Tinggi Badan:</strong> {{ $row->dataSiswa->tinggi_badan ? $row->dataSiswa->tinggi_badan . ' cm' : '-' }}</div>
+                                <div><strong>Berat Badan:</strong> {{ $row->dataSiswa->berat_badan ? $row->dataSiswa->berat_badan . ' kg' : '-' }}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div><strong>Status dalam Keluarga:</strong> {{ $row->dataSiswa->status_dalam_keluarga ?? '-' }}</div>
+                                <div><strong>Tinggal Bersama:</strong> {{ $row->dataSiswa->tinggal_bersama ?? '-' }}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div><strong>Jarak ke Sekolah:</strong> {{ $row->dataSiswa->jarak_kesekolah ? $row->dataSiswa->jarak_kesekolah . ' km' : '-' }}</div>
+                                <div><strong>Waktu Tempuh:</strong> {{ $row->dataSiswa->waktu_tempuh ? $row->dataSiswa->waktu_tempuh . ' menit' : '-' }}</div>
+                                <div><strong>Transportasi:</strong> {{ $row->dataSiswa->transportasi ?? '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Ayah -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="mb-3 text-primary">Data Ayah</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div><strong>NIK Ayah:</strong> {{ $row->dataSiswa->nik_ayah ?? '-' }}</div>
+                                <div><strong>Nama Ayah:</strong> {{ $row->dataSiswa->nama_ayah ?? '-' }}</div>
+                                <div><strong>Tempat Lahir Ayah:</strong> {{ $row->dataSiswa->tempat_lahir_ayah ?? '-' }}</div>
+                                <div><strong>Tanggal Lahir Ayah:</strong> {{ $row->dataSiswa->tanggal_lahir_ayah ? $row->dataSiswa->tanggal_lahir_ayah->format('d M Y') : '-' }}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div><strong>Pendidikan Ayah:</strong> {{ $row->dataSiswa->pendidikan_ayah ?? '-' }}</div>
+                                <div><strong>Pekerjaan Ayah:</strong> {{ $row->dataSiswa->pekerjaan_ayah ?? '-' }}</div>
+                                <div><strong>Penghasilan Ayah:</strong> 
+                                    {{ $row->dataSiswa->penghasilan_ayah ?? '-' }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div><strong>No. HP Ayah:</strong> {{ $row->dataSiswa->no_hp_ayah ?? '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Ibu -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="mb-3 text-primary">Data Ibu</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div><strong>NIK Ibu:</strong> {{ $row->dataSiswa->nik_ibu ?? '-' }}</div>
+                                <div><strong>Nama Ibu:</strong> {{ $row->dataSiswa->nama_ibu ?? '-' }}</div>
+                                <div><strong>Tempat Lahir Ibu:</strong> {{ $row->dataSiswa->tempat_lahir_ibu ?? '-' }}</div>
+                                <div><strong>Tanggal Lahir Ibu:</strong> {{ $row->dataSiswa->tanggal_lahir_ibu ? $row->dataSiswa->tanggal_lahir_ibu->format('d M Y') : '-' }}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div><strong>Pendidikan Ibu:</strong> {{ $row->dataSiswa->pendidikan_ibu ?? '-' }}</div>
+                                <div><strong>Pekerjaan Ibu:</strong> {{ $row->dataSiswa->pekerjaan_ibu ?? '-' }}</div>
+                                <div><strong>Penghasilan Ibu:</strong> 
+                                    {{ $row->dataSiswa->penghasilan_ibu ?? '-' }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div><strong>No. HP Ibu:</strong> {{ $row->dataSiswa->no_hp_ibu ?? '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Wali (Jika Ada) -->
+                @if($row->dataSiswa?->nik_wali || $row->dataSiswa?->nama_wali)
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="mb-3 text-primary">Data Wali</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div><strong>NIK Wali:</strong> {{ $row->dataSiswa->nik_wali ?? '-' }}</div>
+                                    <div><strong>Nama Wali:</strong> {{ $row->dataSiswa->nama_wali ?? '-' }}</div>
+                                    <div><strong>Tempat Lahir Wali:</strong> {{ $row->dataSiswa->tempat_lahir_wali ?? '-' }}</div>
+                                    <div><strong>Tanggal Lahir Wali:</strong> {{ $row->dataSiswa->tanggal_lahir_wali ? $row->dataSiswa->tanggal_lahir_wali->format('d M Y') : '-' }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div><strong>Pendidikan Wali:</strong> {{ $row->dataSiswa->pendidikan_wali ?? '-' }}</div>
+                                    <div><strong>Pekerjaan Wali:</strong> {{ $row->dataSiswa->pekerjaan_wali ?? '-' }}</div>
+                                    <div><strong>Penghasilan Wali:</strong> 
+                                        {{ $row->dataSiswa->penghasilan_wali ?? '-' }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div><strong>No. HP Wali:</strong> {{ $row->dataSiswa->no_hp_wali ?? '-' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Informasi Tambahan -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="mb-3 text-primary">Informasi Tambahan</h6>
+                        <div><strong>No. KIP:</strong> {{ $row->dataSiswa->no_kip ?? '-' }}</div>
+                        <div><strong>Referensi:</strong> {{ $row->dataSiswa->referensi ?? '-' }}</div>
+                        <div><strong>Keterangan Referensi:</strong> {{ $row->dataSiswa->ket_referensi ?? '-' }}</div>
+                    </div>
+                </div>
+
+                <!-- Informasi Pembayaran -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="mb-3 text-primary">Informasi Pembayaran</h6>
+                        <div><strong>Total Biaya:</strong> Rp {{ number_format($totalBiaya, 0, ',', '.') }}</div>
+                        <div><strong>Total Dibayar:</strong> Rp {{ number_format($totalBayar, 0, ',', '.') }}</div>
+                        <div>
+                            <strong>Sisa Pembayaran:</strong>
                             @if($totalBayar >= $totalBiaya)
                                 <span class="text-success">LUNAS</span>
                             @else
@@ -243,19 +397,10 @@
                             @endif
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <h6 class="mb-3 text-primary">Informasi Tambahan</h6>
-                        <div class="mb-2">
-                            <strong>Tanggal Daftar:</strong> {{ $row->created_at->format('d M Y') }}
-                        </div>
-                        <div class="mb-2">
-                            <strong>Terakhir Update:</strong> {{ $row->updated_at->format('d M Y H:i') }}
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Riwayat Pembayaran -->
-                <div class="row mt-4">
+                <div class="row mb-4">
                     <div class="col-12">
                         <h6 class="mb-3 text-primary">Riwayat Pembayaran</h6>
                         @if($row->pembayaran->count() > 0)
@@ -271,20 +416,20 @@
                                     </thead>
                                     <tbody>
                                         @foreach($row->pembayaran as $pembayaran)
-                                        <tr>
-                                            <td>{{ $pembayaran->created_at->format('d M Y') }}</td>
-                                            <td>Rp {{ number_format($pembayaran->jumlah, 0, ',', '.') }}</td>
-                                            <td>
-                                                @if($pembayaran->status == 'diverifikasi')
-                                                    <span class="badge bg-success">Terverifikasi</span>
-                                                @elseif($pembayaran->status == 'pending')
-                                                    <span class="badge bg-warning">Menunggu</span>
-                                                @else
-                                                    <span class="badge bg-danger">Ditolak</span>
-                                                @endif
-                                            </td>
-                                            <td>{{ $pembayaran->ket_pendaftaran ?? '-' }}</td>
-                                        </tr>
+                                            <tr>
+                                                <td>{{ $pembayaran->created_at->format('d M Y H:i') }}</td>
+                                                <td>Rp {{ number_format($pembayaran->jumlah, 0, ',', '.') }}</td>
+                                                <td>
+                                                    @if($pembayaran->status == 'diverifikasi')
+                                                        <span class="badge bg-success">Terverifikasi</span>
+                                                    @elseif($pembayaran->status == 'pending')
+                                                        <span class="badge bg-warning">Menunggu</span>
+                                                    @else
+                                                        <span class="badge bg-danger">Ditolak</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $pembayaran->ket_pendaftaran ?? '-' }}</td>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -297,23 +442,29 @@
                     </div>
                 </div>
 
+                <!-- Catatan Khusus -->
                 @if($row->dataSiswa?->ket_pendaftaran)
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <h6 class="mb-3 text-primary">Catatan</h6>
-                        <div class="alert alert-light border">
-                            {{ $row->dataSiswa->ket_pendaftaran }}
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="mb-3 text-primary">Catatan Khusus</h6>
+                            <div class="alert alert-light border">
+                                <strong>Catatan:</strong> {{ $row->dataSiswa->ket_pendaftaran }}
+                            </div>
                         </div>
                     </div>
-                </div>
                 @endif
+
             </div>
+
+            <!-- Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
+
         </div>
     </div>
 </div>
+
 @endforeach
 
 <!-- Modal Edit Status -->

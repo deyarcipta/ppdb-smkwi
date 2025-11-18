@@ -263,7 +263,13 @@ class DataSiswa extends Model
     {
         $fields = [
             'nama_lengkap', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin',
-            'no_hp', 'asal_sekolah', 'alamat', 'jurusan_id', 'gelombang_id'
+            'no_hp', 'asal_sekolah', 'agama', 'alamat', 'rt', 'rw',
+            'desa', 'kecamatan', 'kota', 'provinsi', 'kode_pos',
+            'anak_ke', 'jumlah_saudara', 'tinggi_badan', 'berat_badan', 'nik_ayah', 'nama_ayah', 'tanggal_lahir_ayah', 'pendidikan_ayah',
+            'pekerjaan_ayah', 'penghasilan_ayah', 'no_hp_ayah',
+            'nik_ibu', 'nama_ibu', 'tanggal_lahir_ibu', 'pendidikan_ibu',
+            'pekerjaan_ibu', 'penghasilan_ibu', 'no_hp_ibu', 'nik_wali', 'nama_wali', 'tanggal_lahir_wali', 'pendidikan_wali',
+            'pekerjaan_wali', 'penghasilan_wali', 'no_hp_wali',
         ];
 
         $filled = 0;
