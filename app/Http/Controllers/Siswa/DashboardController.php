@@ -42,6 +42,10 @@ class DashboardController extends Controller
             ->latest()
             ->first();
 
+        $pembayaranPPDB = Pembayaran::where('user_id', $user->id)
+            ->where('jenis_pembayaran', 'ppdb')
+            ->get();
+
         // Tentukan apakah harus menampilkan form upload
         $showUploadForm = !$pembayaran || $pembayaran->status == 'ditolak';
 
@@ -62,6 +66,7 @@ class DashboardController extends Controller
             'dataSiswa', 
             'masterPPDB',
             'pembayaran',
+            'pembayaranPPDB',
             'infoPembayaran',
             'pengaturan_aplikasi',
             'showUploadForm',

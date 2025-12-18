@@ -18,7 +18,7 @@
                         <tr>
                             <th width="40">#</th>
                             <th>No Daftar</th>
-                            <th>Password</th>
+                            {{-- <th>Password</th> --}}
                             <th width="200">Nama Pendaftar</th>
                             <th width="200">Asal Sekolah</th>
                             <th>Gelombang</th>
@@ -26,7 +26,7 @@
                             <th>Total Bayar</th>
                             <th>Status Bayar</th>
                             <th>Status</th>
-                            <th width="120">Action</th>
+                            <th width="140">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,7 +62,6 @@
                         <tr>
                             <td class="text-center">{{ $data->firstItem() + $key }}</td>
                             <td class="text-center">{{ $row->username }}</td>
-                            <td class="text-center">{{ $row->password_plain ?? 'password123' }}</td>
                             <td style="min-width: 200px;">{{ $row->dataSiswa->nama_lengkap ?? '-' }}</td>
                             <td style="min-width: 200px;">{{ $row->dataSiswa->asal_sekolah ?? '-' }}</td>
                             <td class="text-center">Gelombang 1</td>
@@ -99,6 +98,15 @@
                                     <button class="btn btn-warning btn-sm p-1" data-bs-toggle="modal" data-bs-target="#editStatusModal{{ $row->id }}" title="Edit Status">
                                         <i class="bx bx-edit fs-12"></i>
                                     </button>
+
+                                    <!-- Tombol Reset Password (Form langsung) -->
+                                    <form action="{{ route('data-terverifikasi.reset-password') }}" method="POST" class="d-inline form-reset-password">
+                                        @csrf
+                                        <input type="hidden" name="user_id" value="{{ $row->id }}">
+                                        <button type="submit" class="btn btn-secondary btn-sm p-1" title="Reset Password">
+                                            <i class="bx bx-refresh fs-12"></i>
+                                        </button>
+                                    </form>
 
                                     <!-- Tombol Hapus -->
                                     <form action="{{ route('data-terverifikasi.destroy', $row->id) }}" method="POST" class="d-inline form-delete">
@@ -203,7 +211,6 @@
                                 <span class="badge bg-warning text-white">Pending</span>
                             @endif
                         </div>
-                        {{-- <div class="mt-1"><strong>Status Verifikasi:</strong> {!! $row->dataSiswa?->status_verifikasi_label ?? '<span class="badge bg-warning">Belum Verifikasi</span>' !!}</div> --}}
                         <div class="mt-1">
                             <strong>Status Pembayaran:</strong>
                             <span class="badge {{ $badgeClass }} text-white">{{ $statusText }}</span>
@@ -598,7 +605,6 @@
     padding: 0.35em 0.65em;
 }
 
-/* Modal Edit Status Styles */
 .modal-header.bg-primary {
     border-bottom: 2px solid #0d6efd;
 }
@@ -618,8 +624,8 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-// Konfirmasi Hapus
 document.addEventListener('DOMContentLoaded', function() {
+    // Konfirmasi Hapus
     document.querySelectorAll('.form-delete').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -633,6 +639,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+
+    // Konfirmasi Reset Password
+    document.querySelectorAll('.form-reset-password').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            
+            Swal.fire({
+                title: 'Reset Password',
+                html: `<p>Anda yakin ingin mereset password siswa ini?</p>
+                       <p>Password akan diubah menjadi: <code>password123</code></p>
+                       <p class="text-danger"><small>Tindakan ini tidak dapat dibatalkan!</small></p>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ffc107',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Reset Password',
                 cancelButtonText: 'Batal',
                 reverseButtons: true
             }).then((result) => {
@@ -732,6 +764,19 @@ document.addEventListener('DOMContentLoaded', function() {
         title: 'Gagal!',
         text: '{{ session('error') }}',
         confirmButtonText: 'OK'
+    });
+    @endif
+
+    // Success message untuk reset password
+    @if(session('password_reset'))
+    Swal.fire({
+        icon: 'success',
+        title: 'Password Berhasil Direset!',
+        html: '<p>Password telah berhasil direset.</p>' +
+              '<p>Password baru: <code>password123</code></p>' +
+              '<p>Harap catat password ini dan berikan ke siswa.</p>',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#ffc107'
     });
     @endif
 });

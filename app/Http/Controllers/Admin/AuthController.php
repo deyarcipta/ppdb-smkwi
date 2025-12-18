@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -70,6 +73,69 @@ class AuthController extends Controller
         }
 
         return back()->withErrors(['email' => 'Email atau password salah.'])->withInput();
+    }
+
+    /**
+     * Update the user's password.
+     */
+    public function updatePassword(Request $request)
+    {
+        // Validasi input yang lebih sederhana
+        $validator = Validator::make($request->all(), [
+            'current_password' => ['required', 'current_password'],
+            'new_password' => [
+                'required',
+                'confirmed',
+                'min:8',
+                'regex:/[a-zA-Z]/',    // minimal ada huruf
+                'regex:/[0-9]/',       // minimal ada angka
+            ],
+            'new_password_confirmation' => ['required'],
+        ], [
+            'current_password.required' => 'Password lama wajib diisi.',
+            'current_password.current_password' => 'Password lama tidak sesuai.',
+            'new_password.required' => 'Password baru wajib diisi.',
+            'new_password.confirmed' => 'Konfirmasi password baru tidak sesuai.',
+            'new_password.min' => 'Password baru minimal 8 karakter.',
+            'new_password.regex' => 'Password baru harus mengandung minimal 1 huruf dan 1 angka.',
+            'new_password_confirmation.required' => 'Konfirmasi password baru wajib diisi.',
+        ]);
+
+        // Custom validation message untuk regex
+        $validator->sometimes('new_password.regex', function ($input) {
+            return preg_match('/[a-zA-Z]/', $input->new_password) && 
+                   preg_match('/[0-9]/', $input->new_password);
+        }, function ($input) {
+            return !(preg_match('/[a-zA-Z]/', $input->new_password) && 
+                    preg_match('/[0-9]/', $input->new_password));
+        });
+
+        // Jika validasi gagal
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('error', 'Gagal mengubah password. Silakan periksa kembali data yang Anda masukkan.');
+        }
+
+        try {
+            // Update password
+            $request->user()->update([
+                'password' => Hash::make($request->new_password),
+            ]);
+
+            // Return success response
+            return redirect()->back()
+                ->with('success', 'Password berhasil diperbarui!');
+
+        } catch (\Exception $e) {
+            // Log error
+            \Log::error('Password update error: ' . $e->getMessage());
+
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan. Silakan coba lagi.')
+                ->withInput();
+        }
     }
 
     /**

@@ -2,6 +2,9 @@
 @section('title', 'Dashboard Siswa')
 
 @section('content')
+@php
+    $siswaId = auth()->user()->id;
+@endphp
 <!-- Header Welcome -->
 <div class="row">
   <div class="col-lg-12 mb-4 order-0">
@@ -28,7 +31,7 @@
 <div class="row mb-4">
   <div class="col-12">
     <div class="card">
-      <div class="card-header">
+      <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="card-title mb-0">
           <i class='bx bx-upload me-2'></i>
           @if($pembayaran && $pembayaran->status == 'ditolak')
@@ -308,7 +311,7 @@
         <p class="text-muted mb-4">
           Silakan lengkapi formulir pendaftaran dengan data yang benar dan lengkap.
         </p>
-        <a href="{{route('siswa.formulir')}}" class="btn btn-info btn-lg">
+        <a href="{{ route('siswa.form') }}" class="btn btn-info btn-lg">
           <i class='bx bx-edit me-2'></i>Isi Formulir
         </a>
       </div>
@@ -335,7 +338,9 @@
 
         @php
           // Ambil semua data pembayaran PPDB
-          $pembayaranPPDB = null;
+          $pembayaranPPDB = Pembayaran::where('user_id', auth()->user()->id)
+            ->where('jenis_pembayaran', 'ppdb')
+            ->get();
           $totalDibayar = 0;
           $statusPembayaran = 'belum_bayar';
           
@@ -346,7 +351,7 @@
           
           // Atau menggunakan cara alternatif dengan query langsung
           if(!$pembayaranPPDB || $pembayaranPPDB->count() == 0) {
-              $pembayaranPPDB = \App\Models\Pembayaran::where('user_id', $dataSiswa->id)
+              $pembayaranPPDB = \App\Models\Pembayaran::where('user_id', auth()->user()->id)
                   ->where('jenis_pembayaran', 'ppdb')
                   ->get();
           }
@@ -541,10 +546,12 @@
         </div>
         
         <div class="d-flex justify-content-center gap-3 mt-4">
-          <a href="#" class="btn btn-outline-primary">
+          <!-- Tombol Lihat Formulir dengan Modal -->
+          <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailModal{{ $siswaId }}">
             <i class='bx bx-file me-2'></i>Lihat Formulir
-          </a>
-          <a href="#" class="btn btn-outline-success">
+          </button>
+          
+          <a href="{{ route('siswa.pengumuman.index') }}" class="btn btn-outline-success">
             <i class='bx bx-news me-2'></i>Pengumuman
           </a>
         </div>
@@ -553,6 +560,608 @@
   </div>
 </div>
 @endif
+
+<!-- Modal Formulir untuk Siswa -->
+<div class="modal fade" id="detailModal{{ $siswaId }}" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true"
+     data-nama="{{ $dataSiswa->nama_lengkap ?? '-' }}"
+     data-no-pendaftaran="{{ $dataSiswa->no_pendaftaran ?? '-' }}"
+     data-nisn="{{ $dataSiswa->nisn ?? '-' }}"
+     data-nik="{{ $dataSiswa->nik ?? '-' }}"
+     data-no-kk="{{ $dataSiswa->no_kk ?? '-' }}"
+     data-tempat-lahir="{{ $dataSiswa->tempat_lahir ?? '-' }}"
+     data-tanggal-lahir="{{ $dataSiswa->tanggal_lahir ? \Carbon\Carbon::parse($dataSiswa->tanggal_lahir)->format('d-m-Y') : '-' }}"
+     data-jenis-kelamin="{{ $dataSiswa->jenis_kelamin ?? '-' }}"
+     data-agama="{{ $dataSiswa->agama ?? '-' }}"
+     data-no-hp="{{ $dataSiswa->no_hp ?? '-' }}"
+     data-asal-sekolah="{{ $dataSiswa->asal_sekolah ?? '-' }}"
+     data-alamat="{{ $dataSiswa->alamat ?? '-' }}"
+     data-rt="{{ $dataSiswa->rt ?? '-' }}"
+     data-rw="{{ $dataSiswa->rw ?? '-' }}"
+     data-desa="{{ $dataSiswa->desa ?? '-' }}"
+     data-kecamatan="{{ $dataSiswa->kecamatan ?? '-' }}"
+     data-kota="{{ $dataSiswa->kota ?? '-' }}"
+     data-provinsi="{{ $dataSiswa->provinsi ?? '-' }}"
+     data-kode-pos="{{ $dataSiswa->kode_pos ?? '-' }}"
+     data-tinggi-badan="{{ $dataSiswa->tinggi_badan ?? '-' }}"
+     data-berat-badan="{{ $dataSiswa->berat_badan ?? '-' }}"
+     data-anak-ke="{{ $dataSiswa->anak_ke ?? '-' }}"
+     data-jumlah-saudara="{{ $dataSiswa->jumlah_saudara ?? '-' }}"
+     data-status-dalam-keluarga="{{ $dataSiswa->status_dalam_keluarga ?? '-' }}"
+     data-tinggal-bersama="{{ $dataSiswa->tinggal_bersama ?? '-' }}"
+     data-jarak-kesekolah="{{ $dataSiswa->jarak_kesekolah ?? '-' }}"
+     data-waktu-tempuh="{{ $dataSiswa->waktu_tempuh ?? '-' }}"
+     data-transportasi="{{ $dataSiswa->transportasi ?? '-' }}"
+     data-ukuran-baju="{{ $dataSiswa->ukuran_baju ?? '-' }}"
+     data-hobi="{{ $dataSiswa->hobi ?? '-' }}"
+     data-cita-cita="{{ $dataSiswa->cita_cita ?? '-' }}"
+     data-tahun-lulus="{{ $dataSiswa->tahun_lulus ?? '-' }}"
+     data-no-kip="{{ $dataSiswa->no_kip ?? '-' }}"
+     data-referensi="{{ $dataSiswa->referensi ?? '-' }}"
+     data-ket-referensi="{{ $dataSiswa->ket_referensi ?? '-' }}"
+     data-nik-ayah="{{ $dataSiswa->nik_ayah ?? '-' }}"
+     data-nama-ayah="{{ $dataSiswa->nama_ayah ?? '-' }}"
+     data-tempat-lahir-ayah="{{ $dataSiswa->tempat_lahir_ayah ?? '-' }}"
+     data-tanggal-lahir-ayah="{{ $dataSiswa->tanggal_lahir_ayah ? \Carbon\Carbon::parse($dataSiswa->tanggal_lahir_ayah)->format('d-m-Y') : '-' }}"
+     data-pendidikan-ayah="{{ $dataSiswa->pendidikan_ayah ?? '-' }}"
+     data-pekerjaan-ayah="{{ $dataSiswa->pekerjaan_ayah ?? '-' }}"
+     data-penghasilan-ayah="{{ $dataSiswa->penghasilan_ayah ?? '-' }}"
+     data-no-hp-ayah="{{ $dataSiswa->no_hp_ayah ?? '-' }}"
+     data-nik-ibu="{{ $dataSiswa->nik_ibu ?? '-' }}"
+     data-nama-ibu="{{ $dataSiswa->nama_ibu ?? '-' }}"
+     data-tempat-lahir-ibu="{{ $dataSiswa->tempat_lahir_ibu ?? '-' }}"
+     data-tanggal-lahir-ibu="{{ $dataSiswa->tanggal_lahir_ibu ? \Carbon\Carbon::parse($dataSiswa->tanggal_lahir_ibu)->format('d-m-Y') : '-' }}"
+     data-pendidikan-ibu="{{ $dataSiswa->pendidikan_ibu ?? '-' }}"
+     data-pekerjaan-ibu="{{ $dataSiswa->pekerjaan_ibu ?? '-' }}"
+     data-penghasilan-ibu="{{ $dataSiswa->penghasilan_ibu ?? '-' }}"
+     data-no-hp-ibu="{{ $dataSiswa->no_hp_ibu ?? '-' }}"
+     data-nik-wali="{{ $dataSiswa->nik_wali ?? '-' }}"
+     data-nama-wali="{{ $dataSiswa->nama_wali ?? '-' }}"
+     data-tempat-lahir-wali="{{ $dataSiswa->tempat_lahir_wali ?? '-' }}"
+     data-tanggal-lahir-wali="{{ $dataSiswa->tanggal_lahir_wali ? \Carbon\Carbon::parse($dataSiswa->tanggal_lahir_wali)->format('d-m-Y') : '-' }}"
+     data-pendidikan-wali="{{ $dataSiswa->pendidikan_wali ?? '-' }}"
+     data-pekerjaan-wali="{{ $dataSiswa->pekerjaan_wali ?? '-' }}"
+     data-penghasilan-wali="{{ $dataSiswa->penghasilan_wali ?? '-' }}"
+     data-no-hp-wali="{{ $dataSiswa->no_hp_wali ?? '-' }}"
+     data-gelombang="{{ $dataSiswa->gelombang->nama_gelombang ?? '-' }}"
+     data-jurusan="{{ $dataSiswa->jurusan->nama_jurusan ?? '-' }}"
+     data-email="{{ auth()->user()->email ?? '-' }}"
+     data-tanggal-daftar="{{ auth()->user()->created_at->format('d-m-Y H:i') }}">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="detailModalLabel">Formulir Pendaftaran Lengkap</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @php
+                    // Hitung total pembayaran yang sudah diverifikasi
+                    $totalBayar = isset($dataSiswa->pembayaran) ? $dataSiswa->pembayaran->where('status', 'diverifikasi')->sum('jumlah') : 0;
+                    $statusPembayaran = 'belum_bayar';
+                    $badgeClass = 'bg-secondary';
+                    $statusText = 'Belum Bayar';
+                    
+                    $totalBiayaPPDB = isset($masterPPDB->total_biaya) ? $masterPPDB->total_biaya : 0;
+                    
+                    if ($totalBayar > 0) {
+                        if ($totalBayar >= $totalBiayaPPDB) {
+                            $statusPembayaran = 'lunas';
+                            $badgeClass = 'bg-success';
+                            $statusText = 'Lunas';
+                        } else {
+                            $statusPembayaran = 'belum_lunas';
+                            $badgeClass = 'bg-warning';
+                            $statusText = 'Belum Lunas';
+                        }
+                    }
+                    
+                    // Cek jika ada pembayaran pending
+                    $pembayaranPending = isset($dataSiswa->pembayaran) && $dataSiswa->pembayaran->where('status', 'pending')->count() > 0;
+                    if ($pembayaranPending) {
+                        $statusPembayaran = 'menunggu_verifikasi';
+                        $badgeClass = 'bg-info';
+                        $statusText = 'Menunggu Verifikasi';
+                    }
+                @endphp
+                
+                <!-- Informasi Akun & Pendaftaran -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0 text-primary">Informasi Akun & Pendaftaran</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Username:</strong></div>
+                                    <div class="col-sm-8">{{ auth()->user()->username ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Password:</strong></div>
+                                    <div class="col-sm-8">••••••••</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Email:</strong></div>
+                                    <div class="col-sm-8">{{ auth()->user()->email ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Status Akun:</strong></div>
+                                    <div class="col-sm-8">
+                                        @if($currentStep >= 6)
+                                            <span class="badge bg-success text-white">DITERIMA</span>
+                                        @else
+                                            <span class="badge bg-warning text-white">Dalam Proses</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0 text-primary">Informasi Pendaftaran</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>No. Pendaftaran:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->no_pendaftaran ?? auth()->user()->username }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Gelombang:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->gelombang->nama_gelombang ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Jurusan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->jurusan->nama_jurusan ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Tanggal Daftar:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->created_at->format('d M Y H:i') ?? '-' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Pribadi -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-primary">Data Pribadi</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Nama Lengkap:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->nama_lengkap ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>NISN:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->nisn ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>NIK:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->nik ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>No. KK:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->no_kk ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Jenis Kelamin:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->jenis_kelamin ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Tempat Lahir:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->tempat_lahir ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Tanggal Lahir:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->tanggal_lahir ? \Carbon\Carbon::parse($dataSiswa->tanggal_lahir)->format('d M Y') : '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Agama:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->agama ?? '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>No. HP:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->no_hp ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Email:</strong></div>
+                                    <div class="col-sm-8">{{ auth()->user()->email ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Ukuran Baju:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->ukuran_baju ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Hobi:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->hobi ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Cita-cita:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->cita_cita ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Anak Ke:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->anak_ke ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Jumlah Saudara:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->jumlah_saudara ?? '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Tinggi Badan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->tinggi_badan ? $dataSiswa->tinggi_badan . ' cm' : '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Berat Badan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->berat_badan ? $dataSiswa->berat_badan . ' kg' : '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Asal Sekolah:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->asal_sekolah ?? '-' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alamat -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-primary">Alamat Tempat Tinggal</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Alamat Lengkap:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->alamat ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>RT/RW:</strong></div>
+                                    <div class="col-sm-8">
+                                        @if($dataSiswa->rt || $dataSiswa->rw)
+                                            RT {{ $dataSiswa->rt ?? '-' }} / RW {{ $dataSiswa->rw ?? '-' }}
+                                        @else
+                                            -
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Desa/Kelurahan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->desa ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Kecamatan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->kecamatan ?? '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Kota/Kabupaten:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->kota ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Provinsi:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->provinsi ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Kode Pos:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->kode_pos ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Status dalam Keluarga:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->status_dalam_keluarga ?? '-' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informasi Tempat Tinggal -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-primary">Informasi Tempat Tinggal</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Tinggal Bersama:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->tinggal_bersama ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Jarak ke Sekolah:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->jarak_kesekolah ? $dataSiswa->jarak_kesekolah . ' km' : '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Waktu Tempuh:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->waktu_tempuh ? $dataSiswa->waktu_tempuh . ' menit' : '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Transportasi:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->transportasi ?? '-' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Ayah -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-primary">Data Ayah</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>NIK Ayah:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->nik_ayah ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Nama Ayah:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->nama_ayah ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Tempat Lahir:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->tempat_lahir_ayah ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Tanggal Lahir:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->tanggal_lahir_ayah ? \Carbon\Carbon::parse($dataSiswa->tanggal_lahir_ayah)->format('d M Y') : '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Pendidikan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->pendidikan_ayah ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Pekerjaan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->pekerjaan_ayah ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Penghasilan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->penghasilan_ayah ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>No. HP:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->no_hp_ayah ?? '-' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Ibu -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-primary">Data Ibu</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>NIK Ibu:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->nik_ibu ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Nama Ibu:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->nama_ibu ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Tempat Lahir:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->tempat_lahir_ibu ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Tanggal Lahir:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->tanggal_lahir_ibu ? \Carbon\Carbon::parse($dataSiswa->tanggal_lahir_ibu)->format('d M Y') : '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Pendidikan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->pendidikan_ibu ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Pekerjaan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->pekerjaan_ibu ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Penghasilan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->penghasilan_ibu ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>No. HP:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->no_hp_ibu ?? '-' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Wali (jika ada) -->
+                @if($dataSiswa->nik_wali || $dataSiswa->nama_wali)
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-primary">Data Wali</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>NIK Wali:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->nik_wali ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Nama Wali:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->nama_wali ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Tempat Lahir:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->tempat_lahir_wali ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Tanggal Lahir:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->tanggal_lahir_wali ? \Carbon\Carbon::parse($dataSiswa->tanggal_lahir_wali)->format('d M Y') : '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Pendidikan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->pendidikan_wali ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Pekerjaan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->pekerjaan_wali ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Penghasilan:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->penghasilan_wali ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>No. HP:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->no_hp_wali ?? '-' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Informasi Tambahan -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-primary">Informasi Tambahan</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>No. KIP:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->no_kip ?? '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Referensi:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->referensi ?? '-' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        @if($dataSiswa->ket_referensi)
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="row mb-2">
+                                    <div class="col-sm-2"><strong>Keterangan Referensi:</strong></div>
+                                    <div class="col-sm-10">{{ $dataSiswa->ket_referensi }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Informasi Pembayaran -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-primary">Informasi Pembayaran</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="row mb-2">
+                                    <div class="col-sm-6"><strong>Total Biaya PPDB:</strong></div>
+                                    <div class="col-sm-6">Rp {{ number_format($totalBiayaPPDB, 0, ',', '.') }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-6"><strong>Total Dibayar:</strong></div>
+                                    <div class="col-sm-6">Rp {{ number_format($totalBayar, 0, ',', '.') }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-6"><strong>Sisa Pembayaran:</strong></div>
+                                    <div class="col-sm-6">
+                                        @if($totalBayar >= $totalBiayaPPDB)
+                                            <span class="text-success">LUNAS</span>
+                                        @else
+                                            Rp {{ number_format($totalBiayaPPDB - $totalBayar, 0, ',', '.') }}
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-6"><strong>Status:</strong></div>
+                                    <div class="col-sm-6">
+                                        <span class="badge {{ $badgeClass }} text-white">{{ $statusText }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <h6 class="text-muted">Riwayat Pembayaran</h6>
+                                @if(isset($dataSiswa->pembayaran) && $dataSiswa->pembayaran->count() > 0)
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tanggal</th>
+                                                    <th>Jumlah</th>
+                                                    <th>Status</th>
+                                                    <th>Keterangan</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($dataSiswa->pembayaran as $pembayaran)
+                                                <tr>
+                                                    <td>{{ $pembayaran->created_at->format('d M Y') }}</td>
+                                                    <td>Rp {{ number_format($pembayaran->jumlah, 0, ',', '.') }}</td>
+                                                    <td>
+                                                        @if($pembayaran->status == 'diverifikasi')
+                                                            <span class="badge bg-success">Terverifikasi</span>
+                                                        @elseif($pembayaran->status == 'pending')
+                                                            <span class="badge bg-warning">Menunggu</span>
+                                                        @else
+                                                            <span class="badge bg-danger">Ditolak</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $pembayaran->catatan ?? '-' }}</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <div class="alert alert-light border text-center">
+                                        <i class="bx bx-info-circle"></i> Belum ada riwayat pembayaran
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class='bx bx-x me-1'></i>Tutup
+                </button>
+                <button type="button" class="btn btn-primary" onclick="printFormulir({{ $siswaId }})">
+                    <i class='bx bx-printer me-1'></i>Print Formulir
+                </button>
+                {{-- <button type="button" class="btn btn-success" onclick="downloadFormulir()">
+                    <i class='bx bx-download me-1'></i>Download PDF
+                </button> --}}
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- CSS Styles -->
 <style>
@@ -689,246 +1298,40 @@
   box-shadow: 0 1px 3px rgba(13, 110, 253, 0.3);
 }
 
-/* Card Hover Effects */
-.card-hover {
-  transition: all 0.3s ease;
-  cursor: pointer;
+/* Modal Styles */
+.modal-xl {
+  max-width: 1200px;
 }
 
-.card-hover:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Background Gradient */
-.bg-gradient-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-
-/* Avatar Styles */
-.avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.5rem;
-}
-
-.avatar-lg {
-  width: 3rem;
-  height: 3rem;
-  font-size: 1.25rem;
-}
-
-.bg-label-primary {
-  background-color: rgba(13, 110, 253, 0.1);
-  color: #0d6efd;
-}
-
-.bg-label-success {
-  background-color: rgba(25, 135, 84, 0.1);
-  color: #198754;
-}
-
-.bg-label-warning {
-  background-color: rgba(255, 193, 7, 0.1);
-  color: #ffc107;
-}
-
-.bg-label-info {
-  background-color: rgba(13, 202, 240, 0.1);
-  color: #0dcaf0;
-}
-
-.jurusan-card {
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  height: 100%;
-}
-
-.jurusan-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-.jurusan-card.selected {
-  border-color: #0d6efd;
-  background-color: rgba(13, 110, 253, 0.05);
-}
-
-.jurusan-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.jurusan-kuota {
-  font-size: 0.8rem;
-}
-
-.kuota-terisi {
-  color: #dc3545;
-  font-weight: 600;
-}
-
-.kuota-tersedia {
-  color: #198754;
-  font-weight: 600;
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .step-title {
-    font-size: 0.7rem;
-  }
-  
-  .step-label {
-    font-size: 0.7rem;
-  }
-  
-  .step-circle {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .progress-connector {
-    top: 25px;
-  }
-}
-
-@media (max-width: 992px) {
-  .progress-modern {
-    margin: 1.5rem 0;
-  }
-  
-  .step-content {
-    padding: 0 5px;
-  }
-}
-
-@media (max-width: 768px) {
-  .progress-modern {
-    flex-direction: column;
-    gap: 2rem;
-    margin: 1rem 0;
-  }
-  
-  .progress-connector {
-    display: none;
-  }
-  
-  .progress-step {
-    flex-direction: row;
-    text-align: left;
-    width: 100%;
-    align-items: center;
-    gap: 1rem;
-  }
-  
-  .step-circle {
-    margin-right: 0;
-    margin-bottom: 0;
-    flex-shrink: 0;
-  }
-  
-  .step-content {
-    align-items: flex-start;
-    text-align: left;
-    padding: 0;
-    flex: 1;
-  }
-  
-  .step-label,
-  .step-title {
-    text-align: left;
-    width: auto;
-  }
-  
-  .step-title {
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .progress-step {
-    gap: 0.75rem;
-  }
-  
-  .step-circle {
-    width: 45px;
-    height: 45px;
-  }
-  
-  .step-number {
-    font-size: 1rem;
-  }
-  
-  .step-icon {
-    font-size: 1.25rem;
-  }
-  
-  .step-label {
-    font-size: 0.7rem;
-    margin-bottom: 0.125rem;
-  }
-  
-  .step-title {
-    font-size: 0.7rem;
-    line-height: 1.2;
-  }
-}
-
-/* Utility Classes for Text */
-.text-center {
-  text-align: center !important;
-}
-
-.text-start {
-  text-align: left !important;
-}
-
-.text-end {
-  text-align: right !important;
-}
-
-/* Smooth transitions for all interactive elements */
-.progress-step,
-.step-circle,
-.step-content,
-.step-label,
-.step-title,
-.progress-connector {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Focus states for accessibility */
-.progress-step:focus-within .step-circle {
-  outline: 2px solid #0d6efd;
-  outline-offset: 2px;
-}
-
-/* Print Styles */
+/* Print Styles untuk Formulir */
 @media print {
-  .progress-modern {
-    break-inside: avoid;
+  body * {
+    visibility: hidden;
   }
-  
-  .progress-step.active .step-circle {
-    background: #0d6efd !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  #detailModal{{ $siswaId }}, #detailModal{{ $siswaId }} * {
+    visibility: visible;
   }
-  
-  .progress-connector.active {
-    background: #0d6efd !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  #detailModal{{ $siswaId }} {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .modal-footer {
+    display: none !important;
   }
 }
 </style>
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('sneat/js/printFormulir.js') }}"></script>
 <script>
+// Fungsi untuk print formulir
+window.printFormulir = function(id) {
+    doPrintFormulir(id, "detailModal");
+};
 document.addEventListener('DOMContentLoaded', function() {
     // JavaScript untuk upload bukti pembayaran
     const fileInput = document.getElementById('bukti_pembayaran');
@@ -1254,6 +1657,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Fungsi untuk download formulir sebagai PDF
+    window.downloadFormulir = function() {
+        Swal.fire({
+            title: 'Download Formulir',
+            text: 'Apakah Anda ingin mengunduh formulir sebagai PDF?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Download',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Tampilkan loading
+                Swal.fire({
+                    title: 'Menyiapkan PDF...',
+                    text: 'Sedang memproses formulir Anda',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Kirim request untuk generate PDF
+                setTimeout(() => {
+                    // Simulasi download (ganti dengan endpoint yang sesuai)
+                    const link = document.createElement('a');
+                    link.href = '{{ route("siswa.download-formulir") }}';
+                    link.target = '_blank';
+                    link.click();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Formulir sedang didownload',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }, 1500);
+            }
+        });
+    };
 
     // Debug info
     console.log('Route get-jurusan:', '{{ route("siswa.get-jurusan") }}');

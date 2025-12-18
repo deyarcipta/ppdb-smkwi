@@ -56,6 +56,9 @@ Route::prefix('w1s4t4')->group(function () {
             Route::get('/dashboard', [DashboardAdminController::class, 'index'])
                 ->name('admin.dashboard');
 
+            Route::put('/password-update', [AuthAdminController::class, 'updatePassword'])
+                ->name('admin.password.update');
+
             // Aktivitas Admin
             Route::get('/aktivitas', [AktivitasAdminController::class, 'index'])
                 ->name('admin.aktivitas.index');
@@ -125,6 +128,8 @@ Route::prefix('w1s4t4')->group(function () {
 
             // Data Terverifikasi
             Route::get('data-terverifikasi', [DataTerverifikasiAdminController::class, 'index'])->name('data-terverifikasi.index');
+            Route::post('/data-terverifikasi/reset-password', [DataTerverifikasiAdminController::class, 'resetPassword'])
+            ->name('data-terverifikasi.reset-password');
             Route::post('data-terverifikasi/update', [DataTerverifikasiAdminController::class, 'update'])->name('data-terverifikasi.update');
             Route::delete('data-terverifikasi/{id}', [DataTerverifikasiAdminController::class, 'destroy'])->name('data-terverifikasi.destroy');
 
@@ -240,6 +245,9 @@ Route::prefix('siswa')->group(function () {
     Route::middleware(['auth:siswa'])->group(function () {
         Route::get('/dashboard', [DashboardSiswaController::class, 'index'])->name('siswa.dashboard');
 
+        Route::put('/password/update', [SiswaAuthController::class, 'updatePassword'])
+            ->name('siswa.password.update');
+
         // Upload Bukti Pembayaran Formulir
         Route::post('/upload-bukti-formulir', [DashboardSiswaController::class, 'uploadBuktiFormulir'])->name('siswa.upload-bukti-formulir');
 
@@ -249,6 +257,10 @@ Route::prefix('siswa')->group(function () {
 
         Route::get('/create', [SiswaFormController::class, 'create'])->name('siswa.formulir');
         Route::post('/store', [SiswaFormController::class, 'store'])->name('siswa.formulir.store');
+
+        // Route untuk siswa download formulir
+        Route::get('/download-formulir', [SiswaFormController::class, 'downloadFormulir'])
+            ->name('siswa.download-formulir');
 
          // Routes Pembayaran - Semua dalam satu halaman index dengan modal
         Route::get('/pembayaran', [SiswaPembayaranController::class, 'index'])->name('siswa.pembayaran.index');

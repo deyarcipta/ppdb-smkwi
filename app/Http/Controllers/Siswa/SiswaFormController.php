@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\DataSiswa;
+use App\Models\UserSiswa;
 use App\Models\Jurusan;
 use App\Models\GelombangPendaftaran;
 use App\Services\ProgressService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class SiswaFormController extends Controller
 {
@@ -263,6 +266,43 @@ class SiswaFormController extends Controller
         ], [
             'nama_lengkap.required' => 'Nama lengkap wajib diisi',
         ]);
+    }
+
+    public function downloadFormulir()
+    {
+        try {
+            // Ambil data siswa yang login
+            $user = auth()->user();
+            $siswa = UserSiswa::with(['dataSiswa', 'dataSiswa.jurusan', 'dataSiswa.gelombang', 'pembayaran'])
+                ->where('id', $user->id)
+                ->firstOrFail();
+
+            // Pastikan siswa sudah mengisi formulir
+            if (!$siswa->dataSiswa) {
+                return back()->with('error', 'Anda belum mengisi formulir pendaftaran');
+            }
+
+            // Data untuk PDF
+            $data = [
+                'siswa' => $siswa,
+                'dataSiswa' => $siswa->dataSiswa,
+                'totalBayar' => $siswa->pembayaran->where('status', 'diverifikasi')->sum('jumlah'),
+                'totalBiayaPPDB' => $totalBiayaPPDB ?? 0, // Sesuaikan dengan data biaya PPDB
+                'tanggal' => now()->format('d F Y'),
+            ];
+
+            // Generate PDF
+            $pdf = Pdf::loadView('formulir.pdf', $data);
+            
+            // Nama file PDF
+            $filename = 'Formulir_Pendaftaran_' . $siswa->dataSiswa->nama_lengkap . '_' . $siswa->dataSiswa->no_pendaftaran . '.pdf';
+            
+            // Download PDF
+            return $pdf->download($filename);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengunduh formulir: ' . $e->getMessage());
+        }
     }
 
 }

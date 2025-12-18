@@ -27,7 +27,9 @@
         rel="stylesheet" />
 
     <!-- Icons -->
-    <link rel="stylesheet" href="{{ asset('sneat/vendor/fonts/boxicons.css') }}" />
+    <link rel="stylesheet" href="{{ asset('sneat/vendor/fonts/iconify-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('sneat/vendor/fonts/fontawesome.css') }}">
+    <link rel="stylesheet" href="{{ asset('sneat/vendor/fonts/flag-icons.css') }}">
 
     <!-- Core CSS -->
     <link rel="stylesheet" href="{{ asset('sneat/vendor/css/core.css') }}" />
@@ -43,6 +45,23 @@
     <!-- Helpers -->
     <script src="{{ asset('sneat/vendor/js/helpers.js') }}"></script>
     <script src="{{ asset('sneat/js/config.js') }}"></script>
+    
+    <!-- Style untuk toggle password -->
+    <style>
+    .toggle-password {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .toggle-password:hover {
+        background-color: #f8f9fa;
+        border-color: #d9dee3;
+    }
+
+    .toggle-password:active {
+        background-color: #e9ecef;
+    }
+    </style>
 </head>
 
 <body>
@@ -105,13 +124,14 @@
                                 <label class="form-label" for="password">Password</label>
                                 <div class="input-group input-group-merge">
                                     <input type="password"
-                                           id="password"
-                                           class="form-control"
-                                           name="password"
-                                           placeholder="••••••••"
-                                           required />
-                                    <span class="input-group-text cursor-pointer">
-                                        <i class="bx bx-hide"></i>
+                                        id="password"
+                                        class="form-control"
+                                        name="password"
+                                        placeholder="••••••••"
+                                        required />
+                                    <span class="input-group-text cursor-pointer toggle-password" 
+                                        >
+                                        <i class="bx bx-low-vision" data-target="password"></i>
                                     </span>
                                 </div>
                             </div>
@@ -130,11 +150,6 @@
                                 </button>
                             </div>
                         </form>
-
-                        <p class="text-center">
-                            <span>Belum punya akun?</span>
-                            <a href="#" class="text-primary">Daftar di sini</a>
-                        </p>
                     </div>
                 </div>
                 <!-- /Login Card -->
@@ -153,5 +168,91 @@
 
     <script src="{{ asset('sneat/vendor/js/menu.js') }}"></script>
     <script src="{{ asset('sneat/js/main.js') }}"></script>
+    
+    <!-- JavaScript untuk toggle password -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fungsi untuk toggle password visibility
+        function togglePasswordVisibility(button) {
+            const targetId = button.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            const iconElement = button.querySelector('i');
+            
+            if (!passwordInput) {
+                console.error('Password input not found with ID:', targetId);
+                return;
+            }
+            
+            // Toggle type password/text
+            const currentType = passwordInput.getAttribute('type');
+            const newType = currentType === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', newType);
+            
+            console.log('Toggling password input type from', currentType, 'to', newType);
+            
+            // Toggle icon - coba beberapa kemungkinan icon
+            if (newType === 'text') {
+                // Password sekarang terlihat
+                if (iconElement.classList.contains('bx-low-vision')) {
+                    iconElement.classList.remove('bx-low-vision');
+                    iconElement.classList.add('bx-show');
+                } else if (iconElement.classList.contains('bx-lock')) {
+                    iconElement.classList.remove('bx-lock');
+                    iconElement.classList.add('bx-lock-open');
+                } else if (iconElement.classList.contains('fa-eye-slash')) {
+                    iconElement.classList.remove('fa-eye-slash');
+                    iconElement.classList.add('fa-eye');
+                }
+                button.setAttribute('title', 'Sembunyikan password');
+            } else {
+                // Password sekarang tersembunyi
+                if (iconElement.classList.contains('bx-show')) {
+                    iconElement.classList.remove('bx-show');
+                    iconElement.classList.add('bx-low-vision');
+                } else if (iconElement.classList.contains('bx-lock-open')) {
+                    iconElement.classList.remove('bx-lock-open');
+                    iconElement.classList.add('bx-lock');
+                } else if (iconElement.classList.contains('fa-eye')) {
+                    iconElement.classList.remove('fa-eye');
+                    iconElement.classList.add('fa-eye-slash');
+                }
+                button.setAttribute('title', 'Tampilkan password');
+            }
+            
+            // Fokus kembali ke input setelah toggle
+            setTimeout(() => {
+                passwordInput.focus();
+            }, 10);
+        }
+        
+        // Event listener untuk semua toggle buttons
+        document.querySelectorAll('.toggle-password').forEach(function(button) {
+            // Set initial title
+            button.setAttribute('title', 'Tampilkan password');
+            button.setAttribute('aria-label', 'Tampilkan password');
+            button.setAttribute('role', 'button');
+            button.setAttribute('tabindex', '0');
+            
+            // Click event
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                togglePasswordVisibility(this);
+            });
+            
+            // Keyboard support
+            button.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                    e.preventDefault();
+                    togglePasswordVisibility(this);
+                }
+            });
+        });
+        
+        // Debug: Log untuk memastikan script berjalan
+        console.log('Password toggle script loaded');
+        console.log('Toggle password buttons found:', document.querySelectorAll('.toggle-password').length);
+    });
+    </script>
 </body>
 </html>

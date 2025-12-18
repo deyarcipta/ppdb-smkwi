@@ -11,6 +11,7 @@ use App\Models\ActivityLog;
 use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 
 class DataTerverifikasiController extends Controller
 {
@@ -38,7 +39,7 @@ class DataTerverifikasiController extends Controller
         return view('admin.data-terverifikasi.index', compact('data', 'totalBiaya'));
     }
 
-     public function update(Request $request)
+    public function update(Request $request)
     {
         $request->validate([
             'id' => 'required|exists:users_siswa,id',
@@ -98,6 +99,30 @@ class DataTerverifikasiController extends Controller
         } catch (\Exception $e) {
             Log::error('Update status error: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users_siswa,id'
+        ]);
+
+        try {
+            $user = UserSiswa::findOrFail($request->user_id);
+            
+            // Reset password ke default
+            $newPassword = 'password123';
+            $user->password = Hash::make($newPassword);
+            $user->save();
+
+            return back()->with([
+                'success' => 'Password berhasil direset',
+                'password_reset' => true
+            ]);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mereset password: ' . $e->getMessage());
         }
     }
 
