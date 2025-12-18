@@ -27,7 +27,7 @@
     </li>
 
     <!-- Data Master -->
-    <li class="menu-item {{ Request::is('w1s4t4/tahun-ajaran*') || Request::is('w1s4t4/jurusan*') || Request::is('w1s4t4/gelombang*') || Request::is('w1s4t4/kuota-jurusan*') || Request::is('w1s4t4/template-pesan*') ? 'open active' : '' }}">
+    <li class="menu-item {{ Request::is('w1s4t4/tahun-ajaran*') || Request::is('w1s4t4/jurusan*') || Request::is('w1s4t4/gelombang*') || Request::is('w1s4t4/kuota-jurusan*') || Request::is('w1s4t4/template-pesan*') || Request::is('w1s4t4/data-smp*') ? 'open active' : '' }}">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon bx bx-data"></i>
         <div>Data Master</div>
@@ -38,6 +38,7 @@
         <li class="menu-item {{ Request::is('w1s4t4/gelombang*') ? 'active' : '' }}"><a href="{{ route('gelombang.index') }}" class="menu-link">Gelombang Pendaftaran</a></li>
         <li class="menu-item {{ Request::is('w1s4t4/kuota-jurusan*') ? 'active' : '' }}"><a href="{{ route('kuota-jurusan.index') }}" class="menu-link">Kuota Per Jurusan</a></li>
         <li class="menu-item {{ Request::is('w1s4t4/template-pesan*') ? 'active' : '' }}"><a href="{{ route('template-pesan.index') }}" class="menu-link">Template Pesan</a></li>
+        <li class="menu-item {{ Request::is('w1s4t4/data-smp*') ? 'active' : '' }}"><a href="{{ route('data-smp.index') }}" class="menu-link">Data SMP</a></li>
       </ul>
     </li>
 

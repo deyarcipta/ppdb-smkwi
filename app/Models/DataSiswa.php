@@ -27,6 +27,7 @@ class DataSiswa extends Model
         'jenis_kelamin',
         'no_hp',
         'asal_sekolah',
+        'id_smp',
         'agama',
         'ukuran_baju',
         'hobi',
@@ -102,6 +103,11 @@ class DataSiswa extends Model
     public function user()
     {
         return $this->belongsTo(UserSiswa::class, 'user_id');
+    }
+
+    public function dataSmp()
+    {
+        return $this->belongsTo(DataSmp::class, 'id_smp', 'id_smp');
     }
 
     /**

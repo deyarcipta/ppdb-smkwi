@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\JurusanController as JurusanAdminController;
 use App\Http\Controllers\Admin\GelombangPendaftaranController as GelombangPendaftaranAdminController;
 use App\Http\Controllers\Admin\KuotaJurusanController as KuotaJurusanAdminController;
 use App\Http\Controllers\Admin\TemplatePesanController as TemplatePesanAdminController;
+use App\Http\Controllers\Admin\DataSmpController as DataSmpAdminController;
 use App\Http\Controllers\Admin\VerifikasiPendaftarController as VerifikasiPendaftarAdminController;
 use App\Http\Controllers\Admin\DataTerverifikasiController as DataTerverifikasiAdminController;
 use App\Http\Controllers\Admin\DataDiterimaController as DataDiterimaAdminController;
@@ -108,6 +109,10 @@ Route::prefix('w1s4t4')->group(function () {
                 ->name('template-pesan.aktifkan');
             Route::get('template-pesan/{id}/nonaktifkan', [TemplatePesanAdminController::class, 'nonaktifkan'])
                 ->name('template-pesan.nonaktifkan');
+
+            // Data SMP
+            Route::resource('data-smp', DataSmpAdminController::class)
+                ->except(['show', 'create', 'edit']);
             
             // Verifikasi Pendaftar
             Route::get('verifikasi-pendaftar', [VerifikasiPendaftarAdminController::class, 'index'])->name('verifikasi-pendaftar.index');

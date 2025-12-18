@@ -431,16 +431,12 @@
                     <label for="asal_sekolah" class="form-label required">Asal Sekolah</label>
                     <select class="form-select" id="asal_sekolah" name="asal_sekolah" required>
                         <option value="" selected disabled>--Pilih Asal Sekolah--</option>
-                        <option value="SMP Negeri 1 Bogor">SMP Negeri 1 Bogor</option>
-                        <option value="SMP Negeri 2 Bogor">SMP Negeri 2 Bogor</option>
-                        <option value="SMP Negeri 3 Bogor">SMP Negeri 3 Bogor</option>
-                        <option value="SMP Negeri 4 Bogor">SMP Negeri 4 Bogor</option>
-                        <option value="SMP Negeri 5 Bogor">SMP Negeri 5 Bogor</option>
-                        <option value="SMP Negeri 6 Bogor">SMP Negeri 6 Bogor</option>
-                        <option value="SMP Negeri 7 Bogor">SMP Negeri 7 Bogor</option>
-                        <option value="SMP Negeri 8 Bogor">SMP Negeri 8 Bogor</option>
-                        <option value="SMP Negeri 9 Bogor">SMP Negeri 9 Bogor</option>
-                        <option value="SMP Negeri 10 Bogor">SMP Negeri 10 Bogor</option>
+                        @foreach($dataSmp as $smp)
+                            <option value="{{ $smp->nama_smp }}" 
+                                {{ old('asal_sekolah', $dataSiswa->asal_sekolah ?? '') == $smp->nama_smp ? 'selected' : '' }}>
+                                {{ $smp->nama_smp }}
+                            </option>
+                        @endforeach
                         <option value="SMP Lainnya">SMP Lainnya</option>
                     </select>
                     <div class="invalid-feedback" id="asal-sekolah-error"></div>

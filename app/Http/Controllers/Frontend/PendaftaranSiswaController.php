@@ -7,6 +7,7 @@ use App\Models\UserSiswa;
 use App\Models\DataSiswa;
 use App\Models\GelombangPendaftaran;
 use App\Models\TahunAjaran;
+use App\Models\DataSmp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +27,8 @@ class PendaftaranSiswaController extends Controller
 
     public function showForm()
     {
-        return view('frontend.pendaftaran');
+        $dataSmp = DataSmp::all();
+        return view('frontend.pendaftaran', compact('dataSmp'));
     }
 
     public function store(Request $request)
