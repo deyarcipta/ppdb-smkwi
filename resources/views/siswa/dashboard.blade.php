@@ -311,7 +311,7 @@
         <p class="text-muted mb-4">
           Silakan lengkapi formulir pendaftaran dengan data yang benar dan lengkap.
         </p>
-        <a href="{{ route('siswa.form') }}" class="btn btn-info btn-lg">
+        <a href="{{ route('siswa.formulir') }}" class="btn btn-info btn-lg">
           <i class='bx bx-edit me-2'></i>Isi Formulir
         </a>
       </div>
