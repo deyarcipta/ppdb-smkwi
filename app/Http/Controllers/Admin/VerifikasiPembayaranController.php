@@ -127,7 +127,7 @@ class VerifikasiPembayaranController extends Controller
             $totalBiayaPPDB = $masterBiaya->total_biaya;
 
             // Hitung total yang sudah dibayar untuk PPDB oleh siswa ini
-            $totalDibayar = Pembayaran::where('user_id', $dataSiswa->id)
+            $totalDibayar = Pembayaran::where('user_id', $dataSiswa->user_id)
                 ->where('jenis_pembayaran', 'ppdb')
                 ->where('status', 'diverifikasi')
                 ->sum('jumlah');
@@ -137,7 +137,7 @@ class VerifikasiPembayaranController extends Controller
 
             // Update status is_paid di data_siswa
             if ($isLunas) {
-                DataSiswa::where('user_id', $dataSiswa->id)->update([
+                DataSiswa::where('user_id', $dataSiswa->user_id)->update([
                     'is_paid' => 1,
                 ]);
                 
@@ -147,6 +147,7 @@ class VerifikasiPembayaranController extends Controller
                 DataSiswa::where('id', $dataSiswa->id)->update([
                     'is_paid' => 0
                 ]);
+                Log::info("Status pembayaran PPDB untuk siswa {$dataSiswa->nama_lengkap} diupdate menjadi tidak");
             }
 
             return $isLunas;
