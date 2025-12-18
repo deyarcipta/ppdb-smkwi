@@ -92,7 +92,7 @@ class VerifikasiPendaftarController extends Controller
                 '{tahun_ajaran}' => "{$currentYear}/{$nextYear}",
                 '{rekening}' => '1234567890',
                 '{an}' => 'SMK Wisata Indonesia',
-                '{no_admin}' => '0852-1234-5678',
+                '{no_admin}' => '0852-1815-0720',
                 '{url_sistem}' => 'https://ppdb.wisataindonesia.sch.id',
             ];
 
