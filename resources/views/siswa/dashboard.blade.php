@@ -1178,7 +1178,7 @@
 
 <!-- CSS Styles -->
 <style>
-/* Progress Modern Style */
+/* Progress Modern Style - RESPONSIVE dengan tampilan desktop dipertahankan */
 .progress-modern {
   display: flex;
   justify-content: space-between;
@@ -1187,6 +1187,7 @@
   margin: 2rem 0;
 }
 
+/* TAMPILAN DESKTOP (dipertahankan seperti sebelumnya) */
 .progress-step {
   display: flex;
   flex-direction: column;
@@ -1258,14 +1259,6 @@
   }
 }
 
-.step-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  padding: 0 8px;
-}
-
 .step-label {
   font-size: 0.75rem;
   font-weight: 700;
@@ -1309,6 +1302,207 @@
 .progress-connector.active {
   background: #0d6efd;
   box-shadow: 0 1px 3px rgba(13, 110, 253, 0.3);
+}
+
+/* RESPONSIVE BREAKPOINTS - Hanya untuk mobile/tablet */
+
+/* Tablet Landscape dan kecil (768px - 992px) */
+@media (max-width: 992px) {
+  .progress-step {
+    min-width: 90px;
+  }
+  
+  .step-circle {
+    width: 55px;
+    height: 55px;
+  }
+  
+  .step-number {
+    font-size: 1rem;
+  }
+  
+  .step-icon {
+    font-size: 1.3rem;
+  }
+  
+  .step-label {
+    font-size: 0.7rem;
+  }
+  
+  .step-title {
+    font-size: 0.7rem;
+  }
+  
+  .progress-connector {
+    top: 27px;
+  }
+}
+
+/* Tablet Portrait (576px - 768px) */
+@media (max-width: 768px) {
+  .progress-modern {
+    padding: 0 5px;
+  }
+  
+  .progress-step {
+    min-width: 80px;
+  }
+  
+  .step-circle {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .step-number {
+    font-size: 0.9rem;
+  }
+  
+  .step-icon {
+    font-size: 1.2rem;
+  }
+  
+  .step-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.3px;
+  }
+  
+  .step-title {
+    font-size: 0.65rem;
+  }
+  
+  .progress-connector {
+    margin: 0 0.3rem;
+    top: 25px;
+  }
+}
+
+/* Mobile Landscape (480px - 576px) */
+@media (max-width: 576px) {
+  .progress-modern {
+    padding: 0 3px;
+    margin: 1.5rem 0;
+  }
+  
+  .progress-step {
+    min-width: 70px;
+  }
+  
+  .step-circle {
+    width: 45px;
+    height: 45px;
+    border-width: 2px;
+    margin-bottom: 0.4rem;
+  }
+  
+  .step-number {
+    font-size: 0.85rem;
+  }
+  
+  .step-icon {
+    font-size: 1.1rem;
+  }
+  
+  .step-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2px;
+    margin-bottom: 0.2rem;
+  }
+  
+  .step-title {
+    font-size: 0.6rem;
+    line-height: 1.2;
+  }
+  
+  .progress-connector {
+    height: 2px;
+    margin: 0 0.2rem;
+    top: 22px;
+  }
+  
+  .progress-step.active .step-circle {
+    transform: scale(1.05);
+  }
+}
+
+/* Mobile Portrait (kurang dari 480px) */
+@media (max-width: 480px) {
+  .progress-modern {
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 10px;
+    margin: 1.2rem 0;
+  }
+  
+  .progress-step {
+    flex: 0 0 auto;
+    width: 70px;
+    padding: 0 2px;
+  }
+  
+  .step-circle {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .step-number {
+    font-size: 0.8rem;
+  }
+  
+  .step-icon {
+    font-size: 1rem;
+  }
+  
+  .step-label {
+    font-size: 0.55rem;
+  }
+  
+  .step-title {
+    font-size: 0.55rem;
+  }
+  
+  .progress-connector {
+    min-width: 10px;
+    top: 20px;
+  }
+  
+  /* Pastikan semua step tetap terlihat dengan scrolling horizontal */
+  .progress-modern::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .progress-modern::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+  }
+  
+  .progress-modern::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+  }
+  
+  .progress-modern::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+}
+
+/* Very Small Mobile (kurang dari 360px) */
+@media (max-width: 360px) {
+  .progress-step {
+    width: 65px;
+  }
+  
+  .step-circle {
+    width: 38px;
+    height: 38px;
+  }
+  
+  .step-label {
+    font-size: 0.5rem;
+  }
+  
+  .step-title {
+    font-size: 0.5rem;
+  }
 }
 
 /* Modal Styles */
