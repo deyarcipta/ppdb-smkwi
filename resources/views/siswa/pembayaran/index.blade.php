@@ -481,11 +481,13 @@
                                 <select class="form-select @error('jenis_pembayaran') is-invalid @enderror" 
                                         id="jenis_pembayaran" name="jenis_pembayaran" required>
                                     <option value="">Pilih Jenis Pembayaran</option>
-                                    @foreach($MasterBiaya as $biaya)
-                                        <option value="{{ $biaya->jenis_biaya }}" 
-                                            {{ old('jenis_pembayaran') == $biaya->jenis_biaya ? 'selected' : '' }}>
-                                            {{ strtoupper(str_replace('_', ' ', $biaya->jenis_biaya)) }} - Rp {{ number_format($biaya->total_biaya, 0, ',', '.') }}
-                                        </option>
+                                     @foreach($MasterBiaya as $biaya)
+                                        @if($biaya->jenis_biaya !== 'formulir')
+                                            <option value="{{ $biaya->jenis_biaya }}" 
+                                                {{ old('jenis_pembayaran') == $biaya->jenis_biaya ? 'selected' : '' }}>
+                                                {{ strtoupper(str_replace('_', ' ', $biaya->jenis_biaya)) }} - Rp {{ number_format($biaya->total_biaya, 0, ',', '.') }}
+                                            </option>
+                                        @endif
                                     @endforeach
                                 </select>
                                 @error('jenis_pembayaran')
