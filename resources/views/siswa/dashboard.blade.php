@@ -397,15 +397,15 @@
                 <label class="form-label text-muted small mb-1">Status Pembayaran</label>
                 <div>
                   @if($statusPembayaran == 'lunas')
-                    <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">
+                    <span class="badge bg-success bg-opacity-20 text-light border border-success border-opacity-25 px-3 py-2 rounded-pill">
                       <i class='bx bx-check-circle me-1'></i>Lunas
                     </span>
                   @elseif($statusPembayaran == 'belum_lunas')
-                    <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-25 px-3 py-2 rounded-pill">
+                    <span class="badge bg-warning bg-opacity-20 text-dark border border-warning border-opacity-25 px-3 py-2 rounded-pill">
                       <i class='bx bx-time-five me-1'></i>Belum Lunas
                     </span>
                   @else
-                    <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25 px-3 py-2 rounded-pill">
+                    <span class="badge bg-danger bg-opacity-20 text-light border border-danger border-opacity-25 px-3 py-2 rounded-pill">
                       <i class='bx bx-x-circle me-1'></i>Belum Bayar
                     </span>
                   @endif
