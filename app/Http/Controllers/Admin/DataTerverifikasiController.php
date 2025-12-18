@@ -179,7 +179,7 @@ class DataTerverifikasiController extends Controller
             '{tanggal_mpls}' => "1 Agustus {$currentYear}",
             '{tanggal_awal_semester}' => "5 Agustus {$currentYear}",
             '{alamat_sekolah}' => "Jl. Pendidikan No. 123, Jakarta",
-            '{no_admin}' => "0852-1234-5678",
+            '{no_admin}' => '0852-1815-0720',
             '{email_sekolah}' => "ppdb@smkwisataindonesia.sch.id",
             '{url_sistem}' => "https://ppdb.wisataindonesia.sch.id",
             
