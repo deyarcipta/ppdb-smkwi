@@ -337,34 +337,47 @@
         </div>
 
         @php
-          // Ambil semua data pembayaran PPDB
-          $pembayaranPPDB = Pembayaran::where('user_id', auth()->user()->id)
-            ->where('jenis_pembayaran', 'ppdb')
-            ->get();
+          // Inisialisasi variable
+          $totalBiaya = $masterPPDB->total_biaya ?? 0;
           $totalDibayar = 0;
+          $sisaPembayaran = $totalBiaya;
           $statusPembayaran = 'belum_bayar';
           
-          // Cek jika relasi pembayaran ada dan tidak null
-          if(isset($dataSiswa->pembayaran) && !empty($dataSiswa->pembayaran)) {
+          // Ambil data pembayaran
+          if (isset($dataSiswa->pembayaran) && $dataSiswa->pembayaran->isNotEmpty()) {
+              // Gunakan data dari relasi jika ada
               $pembayaranPPDB = $dataSiswa->pembayaran->where('jenis_pembayaran', 'ppdb');
-          }
-          
-          // Atau menggunakan cara alternatif dengan query langsung
-          if(!$pembayaranPPDB || $pembayaranPPDB->count() == 0) {
-              $pembayaranPPDB = \App\Models\Pembayaran::where('user_id', auth()->user()->id)
+          } else {
+              // Query langsung jika relasi tidak ada
+              $pembayaranPPDB = \App\Models\Pembayaran::where('user_id', auth()->id())
                   ->where('jenis_pembayaran', 'ppdb')
                   ->get();
           }
           
-          // Hitung total yang sudah dibayar
-          if($pembayaranPPDB && $pembayaranPPDB->count() > 0) {
-              $totalDibayar = $pembayaranPPDB->sum('jumlah');
-              $statusPembayaran = ($totalDibayar >= ($masterPPDB->total_biaya ?? 0)) ? 'lunas' : 'belum_lunas';
+          // Proses perhitungan jika ada data pembayaran
+          if ($pembayaranPPDB && $pembayaranPPDB->isNotEmpty()) {
+              // Hitung total pembayaran yang sudah diverifikasi
+              $totalDibayar = $pembayaranPPDB->where('status', 'diverifikasi')->sum('jumlah');
+              $sisaPembayaran = $totalBiaya - $totalDibayar;
+              
+              // Tentukan status berdasarkan total pembayaran
+              if ($totalDibayar >= $totalBiaya) {
+                  $statusPembayaran = 'lunas';
+              } elseif ($totalDibayar > 0) {
+                  $statusPembayaran = 'belum_lunas';
+              }
+              
+              // Override status jika ada pembayaran pending
+              if ($pembayaranPPDB->where('status', 'pending')->isNotEmpty()) {
+                  $statusPembayaran = 'menunggu_verifikasi';
+              }
+              
+              // Override status jika ada pembayaran ditolak
+              if ($pembayaranPPDB->where('status', 'ditolak')->isNotEmpty()) {
+                  $statusPembayaran = 'ditolak';
+              }
           }
-
-          $totalBiaya = $masterPPDB->total_biaya ?? 0;
-          $sisaPembayaran = $totalBiaya - $totalDibayar;
-        @endphp
+      @endphp
 
         <!-- Detail Pembayaran -->
         <div class="card bg-light border-0 mb-4">
