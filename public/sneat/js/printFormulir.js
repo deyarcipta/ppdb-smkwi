@@ -307,8 +307,8 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                         <td class="photo-cell" rowspan="4">
                             ${
                                 fotoSiswa
-                                    ? `<img src="/uploads/foto_siswa/${fotoSiswa}" 
-                                    style="width:80px;height:120px;object-fit:cover;border:1px solid #000;">`
+                                    ? `<img src="${window.location.origin}/uploads/foto_siswa/${fotoSiswa}"
+                                       style="width:80px;height:120px;object-fit:cover;border:1px solid #000;">`
                                     : `FOTO<br>2x3`
                             }
                         </td>
