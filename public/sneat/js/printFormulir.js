@@ -22,6 +22,7 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
     // Ambil data dari data attributes
     const namaLengkap = modal.getAttribute("data-nama");
     const noPendaftaran = modal.getAttribute("data-no-pendaftaran");
+    const fotoSiswa = modal.getAttribute("data-foto-siswa");
     const nisn = modal.getAttribute("data-nisn");
     const nik = modal.getAttribute("data-nik");
     const noKk = modal.getAttribute("data-no-kk");
@@ -303,7 +304,14 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                         <th colspan="2" class="section-title">DATA PRIBADI SISWA</th>
                     </tr>
                     <tr>
-                        <td class="photo-cell" rowspan="4">FOTO<br>2x3</td>
+                        <td class="photo-cell" rowspan="4">
+                            ${
+                                fotoSiswa
+                                    ? `<img src="/uploads/foto_siswa/${fotoSiswa}" 
+                                    style="width:80px;height:120px;object-fit:cover;border:1px solid #000;">`
+                                    : `FOTO<br>2x3`
+                            }
+                        </td>
                         <td width="35%"><b>NISN</b></td>
                         <td>${nisn}</td>
                     </tr>

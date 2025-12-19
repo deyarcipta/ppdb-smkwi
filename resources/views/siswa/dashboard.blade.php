@@ -578,6 +578,7 @@
 <div class="modal fade" id="detailModal{{ $siswaId }}" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true"
      data-nama="{{ $dataSiswa->nama_lengkap ?? '-' }}"
      data-no-pendaftaran="{{ $dataSiswa->no_pendaftaran ?? '-' }}"
+     data-foto-siswa="{{ $dataSiswa->foto_siswa}}"
      data-nisn="{{ $dataSiswa->nisn ?? '-' }}"
      data-nik="{{ $dataSiswa->nik ?? '-' }}"
      data-no-kk="{{ $dataSiswa->no_kk ?? '-' }}"
@@ -1120,7 +1121,7 @@
                             </div>
                             <div class="col-md-8">
                                 <h6 class="text-muted">Riwayat Pembayaran</h6>
-                                @if(isset($dataSiswa->pembayaran) && $dataSiswa->pembayaran->count() > 0)
+                                @if(isset($pembayaranPPDB) && $pembayaranPPDB->count() > 0)
                                     <div class="table-responsive">
                                         <table class="table table-sm table-bordered">
                                             <thead>
@@ -1132,7 +1133,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach($dataSiswa->pembayaran as $pembayaran)
+                                                @foreach($pembayaranPPDB as $pembayaran)
                                                 <tr>
                                                     <td>{{ $pembayaran->created_at->format('d M Y') }}</td>
                                                     <td>Rp {{ number_format($pembayaran->jumlah, 0, ',', '.') }}</td>

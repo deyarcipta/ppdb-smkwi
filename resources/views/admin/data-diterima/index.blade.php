@@ -153,6 +153,7 @@
      data-nama="{{ $row->dataSiswa->nama_lengkap ?? $row->username }}"
      data-no-pendaftaran="{{ $row->dataSiswa->no_pendaftaran ?? $row->username }}"
      data-nisn="{{ $row->dataSiswa->nisn ?? '-' }}"
+     data-foto-siswa="{{ $row->dataSiswa->foto_siswa}}"
      data-nik="{{ $row->dataSiswa->nik ?? '-' }}"
      data-no-kk="{{ $row->dataSiswa->no_kk ?? '-' }}"
      data-tempat-lahir="{{ $row->dataSiswa->tempat_lahir ?? '-' }}"
