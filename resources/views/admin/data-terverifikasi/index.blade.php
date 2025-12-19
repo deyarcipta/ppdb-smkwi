@@ -5,15 +5,33 @@
 <div class="container-fluid p-0">
     <div class="card card-full-width">
         <div class="card-header d-flex justify-content-between align-items-center">
+
+            <!-- Judul (KIRI) -->
             <h5 class="mb-0">Data Terverifikasi</h5>
-            <div class="text-muted small">
-                Total: {{ $data->total() }} Data Terverifikasi
+
+            <!-- Kanan: Search + Total -->
+            <div class="d-flex align-items-center gap-3">
+
+                <!-- Form Search -->
+                <div class="input-group input-group-sm" style="width: 300px;">
+                    <span class="input-group-text">
+                        <i class="bx bx-search"></i>
+                    </span>
+                    <input type="text" id="searchTable" class="form-control"
+                        placeholder="Cari No Daftar / Nama / Asal Sekolah / No HP...">
+                </div>
+
+                <!-- Total -->
+                <div class="text-muted small">
+                    Total: {{ $data->total() }} Data Terverifikasi
+                </div>
+
             </div>
         </div>
 
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-sm table-bordered table-hover align-middle">
+                <table id="dataTable" class="table table-sm table-bordered table-hover align-middle">
                     <thead class="table-light text-center">
                         <tr>
                             <th width="40">#</th>
@@ -779,6 +797,21 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmButtonColor: '#ffc107'
     });
     @endif
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchTable');
+    const table = document.getElementById('dataTable');
+    const rows = table.querySelectorAll('tbody tr');
+
+    searchInput.addEventListener('keyup', function () {
+        const keyword = this.value.toLowerCase();
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(keyword) ? '' : 'none';
+        });
+    });
 });
 </script>
 @endpush

@@ -200,6 +200,36 @@
 
 @push('styles')
 <style>
+
+/* 🔥 POTONG JARAK KE FOOTER */
+.statistik-wrapper {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    min-height: auto !important;
+}
+
+/* Hilangkan min-height bawaan layout */
+.content-wrapper {
+    min-height: auto !important;
+    padding-bottom: 0 !important;
+}
+
+/* Rapikan row */
+.statistik-row {
+    margin-bottom: 0.5rem !important;
+}
+
+/* Card tidak menambah jarak */
+.card {
+    margin-bottom: 0.5rem !important;
+}
+
+/* Footer nempel */
+.footer,
+.layout-footer {
+    margin-top: 0 !important;
+}
+
 .container-xxl.flex-grow-1.container-p-y {
     padding-top: 0.75rem !important;
     padding-bottom: 0.25rem !important;
@@ -211,10 +241,6 @@
 
 .row {
     margin-bottom: 0.5rem !important;
-}
-
-.content-wrapper {
-    padding-bottom: 0 !important;
 }
 
 .card-title {

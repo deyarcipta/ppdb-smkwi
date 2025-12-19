@@ -18,7 +18,8 @@
 
   <!-- Fonts & Icons -->
   <link rel="stylesheet" href="{{ asset('sneat/vendor/fonts/iconify-icons.css') }}">
-  <link rel="stylesheet" href="{{ asset('sneat/vendor/fonts/fontawesome.css') }}">
+  <!-- Font Awesome 6 CDN -->
+  <link rel="stylesheet" href="{{ asset('sneat/fontawesome/css/all.min.css') }}">
   <link rel="stylesheet" href="{{ asset('sneat/vendor/fonts/flag-icons.css') }}">
   <link rel="stylesheet" href="{{ asset('sneat/vendor/fonts/boxicons.css') }}">
 
