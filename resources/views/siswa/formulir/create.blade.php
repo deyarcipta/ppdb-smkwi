@@ -15,10 +15,23 @@
         <!-- Sidebar Profil -->
         <div class="col-lg-3 mb-4">
             <div class="card shadow-lg border-0 profile-card">
-                <div class="profile-header">
+                <div class="profile-header d-flex flex-column align-items-center text-center" >
                     <div class="profile-img">
-                        <i class="fas fa-user-graduate"></i>
+                        <label for="foto_siswa" class="upload-trigger">
+                            <img id="previewFoto" src="{{ $existingData->foto_siswa 
+                                ? asset('uploads/foto_siswa/'.$existingData->foto_siswa) 
+                                : '' }}" 
+                                class="foto-preview {{ $existingData->foto_siswa ? '' : 'd-none' }}">
+
+                            <i class="fas fa-user-graduate {{ $existingData->foto_siswa ? 'd-none' : '' }}"></i>
+                            <span class="upload-text {{ $existingData->foto_siswa ? 'd-none' : '' }}">
+                                Klik untuk upload<br>Ukuran 2x3 (maks 2MB)
+                            </span>
+                        </label>
+
+                        <input type="file" id="foto_siswa" accept="image/*" hidden>
                     </div>
+
                     <h5 class="mb-1" style="color: whitesmoke"> {{ $existingData->nama_lengkap ?? '-' }}</h5>
                     <p class="mb-2">PPDB Tahun {{ $existingData->gelombang->tahunAjaran->nama ?? '-' }}</p>
                     @if($progress['total'] == 100)
@@ -95,12 +108,11 @@
                         <div class="card-body">
                             <h6 class="card-title"><i class="fas fa-info-circle me-2 text-primary"></i>Informasi</h6>
                             <p class="card-text small">
-                                Pastikan semua data yang Anda isi sudah benar sebelum mengirim formulir. 
-                                Data yang sudah dikirim tidak dapat diubah.
+                                Pastikan semua data yang Anda isi sudah benar sebelum mengirim formulir.
                             </p>
                             <div class="d-grid">
                                 <button class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-download me-1"></i> Unduh Panduan
+                                    Unduh Panduan
                                 </button>
                             </div>
                         </div>
@@ -1134,21 +1146,41 @@
 
 .profile-img {
     width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 5px solid rgba(255, 255, 255, 0.3);
-    margin: 0 auto 15px;
+    height: 180px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #f8f9fa;
     overflow: hidden;
-    background-color: #fff;
+    position: relative;
+    cursor: pointer;
+}
+
+.upload-trigger {
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
+}
+
+.foto-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .profile-img i {
-    font-size: 50px;
-    color: #3498db;
+    font-size: 48px;
+    color: #aaa;
 }
+
+.upload-text {
+    font-size: 12px;
+    color: #777;
+    margin-top: 6px;
+}
+
 
 .status-badge {
     padding: 0.25rem 0.75rem;
@@ -1513,6 +1545,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize progress
     updateProgress('data-diri');
+});
+
+document.getElementById('foto_siswa').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    // preview instan
+    const preview = document.getElementById('previewFoto');
+    preview.src = URL.createObjectURL(file);
+    preview.classList.remove('d-none');
+
+    document.querySelector('.profile-img i').classList.add('d-none');
+    document.querySelector('.upload-text').classList.add('d-none');
+
+    const formData = new FormData();
+    formData.append('foto_siswa', file);
+    formData.append('_token', '{{ csrf_token() }}');
+
+    fetch("{{ route('siswa.uploadFoto') }}", {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            preview.src = res.foto_url + '?v=' + new Date().getTime();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: res.message,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: res.message ?? 'Upload gagal'
+            });
+        }
+    })
+    .catch(() => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan server'
+        });
+    });
 });
 </script>
 @endsection

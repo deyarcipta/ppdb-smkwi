@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class SiswaFormController extends Controller
 {
@@ -265,6 +266,54 @@ class SiswaFormController extends Controller
             'no_hp_wali' => 'nullable|string|max:15',
         ], [
             'nama_lengkap.required' => 'Nama lengkap wajib diisi',
+        ]);
+    }
+
+    public function uploadFoto(Request $request)
+    {
+        $request->validate([
+            'foto_siswa' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        // ambil data siswa berdasarkan user login
+        $siswa = DataSiswa::where('user_id', auth()->id())->first();
+
+        if (!$siswa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data siswa tidak ditemukan'
+            ], 404);
+        }
+
+        /* ===============================
+        HAPUS FOTO LAMA (JIKA ADA)
+        =============================== */
+        if ($siswa->foto_siswa) {
+            $oldPath = public_path('uploads/foto_siswa/' . $siswa->foto_siswa);
+            if (File::exists($oldPath)) {
+                File::delete($oldPath);
+            }
+        }
+
+        /* ===============================
+        UPLOAD FOTO BARU
+        =============================== */
+        $file = $request->file('foto_siswa');
+        $filename = 'siswa_' . $siswa->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+        $file->move(public_path('uploads/foto_siswa'), $filename);
+
+        /* ===============================
+        UPDATE DATABASE
+        =============================== */
+        $siswa->update([
+            'foto_siswa' => $filename
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Foto berhasil diperbarui',
+            'foto_url' => asset('uploads/foto_siswa/' . $filename)
         ]);
     }
 

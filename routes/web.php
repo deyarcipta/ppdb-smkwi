@@ -261,6 +261,7 @@ Route::prefix('siswa')->group(function () {
         Route::post('/pilih-jurusan', [DashboardSiswaController::class, 'pilihJurusan'])->name('siswa.pilih-jurusan');
 
         Route::get('/create', [SiswaFormController::class, 'create'])->name('siswa.formulir');
+        Route::post('/upload-foto', [SiswaFormController::class, 'uploadFoto'])->name('siswa.uploadFoto');
         Route::post('/store', [SiswaFormController::class, 'store'])->name('siswa.formulir.store');
 
         // Route untuk siswa download formulir

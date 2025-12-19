@@ -12,7 +12,19 @@
         <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center" href="#" data-bs-toggle="dropdown">
           <span class="fw-semibold me-2 d-none d-sm-inline">{{ Auth::guard('siswa')->user()->dataSiswa->nama_lengkap ?? 'Siswa' }}</span>
           <div class="avatar avatar-online">
-            <img src="{{ asset('sneat/img/avatars/1.png') }}" alt="Siswa" class="w-px-40 h-auto rounded-circle" />
+            <img 
+              src="{{ Auth::guard('siswa')->user()->dataSiswa->foto_siswa 
+                  ? asset('uploads/foto_siswa/' . Auth::guard('siswa')->user()->dataSiswa->foto_siswa) 
+                  : asset('sneat/img/avatars/1.png') 
+              }}" 
+              alt="Siswa"
+              class="rounded-circle"
+              style="
+                  width: 40px;
+                  height: 40px;
+                  object-fit: cover;
+              "
+          />
           </div>
         </a>
         <ul class="dropdown-menu dropdown-menu-end">

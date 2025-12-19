@@ -26,6 +26,7 @@ class DataSiswa extends Model
         'tanggal_lahir',
         'jenis_kelamin',
         'no_hp',
+        'foto_siswa',
         'asal_sekolah',
         'id_smp',
         'agama',
@@ -51,7 +52,7 @@ class DataSiswa extends Model
         'transportasi',
         'no_kip',
         'referensi',
-        'ket_referensi', // Diubah dari ket_refrensi menjadi ket_referensi (benar)
+        'ket_referensi',
         'nik_ayah',
         'nama_ayah',
         'tempat_lahir_ayah',
