@@ -19,7 +19,7 @@
                     <div class="profile-img">
                         <label for="foto_siswa" class="upload-trigger">
                             <img id="previewFoto" src="{{ $existingData->foto_siswa 
-                                ? asset('uploads/foto_siswa/'.$existingData->foto_siswa) 
+                                ? Storage::url($existingData->foto_siswa) 
                                 : '' }}" 
                                 class="foto-preview {{ $existingData->foto_siswa ? '' : 'd-none' }}">
 

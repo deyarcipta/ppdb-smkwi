@@ -289,31 +289,34 @@ class SiswaFormController extends Controller
         HAPUS FOTO LAMA (JIKA ADA)
         =============================== */
         if ($siswa->foto_siswa) {
-            $oldPath = public_path('uploads/foto_siswa/' . $siswa->foto_siswa);
-            if (File::exists($oldPath)) {
-                File::delete($oldPath);
+            if (Storage::disk('public')->exists($siswa->foto_siswa)) {
+                Storage::disk('public')->delete($siswa->foto_siswa);
             }
         }
 
         /* ===============================
-        UPLOAD FOTO BARU
+        UPLOAD FOTO BARU (storeAs)
         =============================== */
-        $file = $request->file('foto_siswa');
-        $filename = 'siswa_' . $siswa->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+        if ($request->hasFile('foto_siswa')) {
+            $foto = $request->file('foto_siswa');
 
-        $file->move(public_path('uploads/foto_siswa'), $filename);
+            $fileName = 'siswa_' . $siswa->id . '_' . time() . '.' . $foto->getClientOriginalExtension();
 
-        /* ===============================
-        UPDATE DATABASE
-        =============================== */
-        $siswa->update([
-            'foto_siswa' => $filename
-        ]);
+            // simpan ke storage/app/public/foto_siswa
+            $path = $foto->storeAs('foto_siswa', $fileName, 'public');
+
+            /* ===============================
+            UPDATE DATABASE
+            =============================== */
+            $siswa->update([
+                'foto_siswa' => $path
+            ]);
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Foto berhasil diperbarui',
-            'foto_url' => asset('uploads/foto_siswa/' . $filename)
+            'foto_url' => asset('storage/' . $siswa->foto_siswa)
         ]);
     }
 

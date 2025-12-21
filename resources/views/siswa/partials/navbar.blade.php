@@ -14,7 +14,7 @@
           <div class="avatar avatar-online">
             <img 
               src="{{ Auth::guard('siswa')->user()->dataSiswa->foto_siswa 
-                  ? asset('uploads/foto_siswa/' . Auth::guard('siswa')->user()->dataSiswa->foto_siswa) 
+                  ? asset('storage/' . Auth::guard('siswa')->user()->dataSiswa->foto_siswa) 
                   : asset('sneat/img/avatars/1.png') 
               }}" 
               alt="Siswa"

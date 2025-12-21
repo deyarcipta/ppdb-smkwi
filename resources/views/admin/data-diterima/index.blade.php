@@ -122,6 +122,20 @@
     </div>
 </div>
 
+{{-- Kirim Data Pengaturan Ke printFomulir.js --}}
+@php
+    $pengaturan = \App\Models\PengaturanAplikasi::first();
+@endphp
+
+<div id="appConfig"
+     data-nama-aplikasi="{{ $pengaturan->nama_aplikasi ?? 'PPDB SMK WI' }}"
+     data-nama-sekolah="{{ $pengaturan->nama_sekolah ?? '-' }}"
+     data-logo-sekolah="{{ $pengaturan->logo ? Storage::url($pengaturan->logo) : asset('sneat/img/logowi.png') }}"
+     data-alamat-sekolah="{{ $pengaturan->alamat ?? '-' }}"
+     data-telepon-sekolah="{{ $pengaturan->telepon ?? '-' }}"
+     data-email-sekolah="{{ $pengaturan->email ?? '-' }}">
+</div>
+
 <!-- Modal Detail Formulir Lengkap Siswa -->
 @foreach ($data as $row)
 @php
@@ -217,7 +231,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Formulir Pendaftaran Lengkap - {{ $row->dataSiswa->nama_lengkap ?? $row->username }}</h5>
+                <h5 class="modal-title text-white">Formulir Pendaftaran Lengkap - {{ $row->dataSiswa->nama_lengkap ?? $row->username }}</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">

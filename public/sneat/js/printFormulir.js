@@ -8,6 +8,7 @@
 window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
     const modalId = typeof id === "number" ? `${modalPrefix}${id}` : id;
     const modal = document.getElementById(modalId);
+    const configEl = document.getElementById("appConfig");
 
     if (!modal) {
         Swal.fire({
@@ -18,6 +19,13 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
         });
         return;
     }
+    const APP_CONFIG = {
+        namasekolah: configEl.dataset.namaSekolah,
+        namaaplikasi: configEl.dataset.namaAplikasi,
+        alamatsekolah: configEl.dataset.alamatSekolah,
+        teleponsekolah: configEl.dataset.teleponSekolah,
+        emailsekolah: configEl.dataset.emailSekolah,
+    };
 
     // Ambil data dari data attributes
     const namaLengkap = modal.getAttribute("data-nama");
@@ -178,7 +186,8 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                 }
 
                 .header-text h2 {
-                    font-size: 9.5pt;
+                    font-size: 8.5pt;
+                    font-weight: normal;
                     margin: 2px 0 0 0;
                 }
 
@@ -193,6 +202,7 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                     font-weight: bold;
                     text-decoration: underline;
                     margin-bottom: -6px;
+                    margin-top: 0px;
                 }
 
                 .form-number {
@@ -273,8 +283,10 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
             <div class="container">
                 <div class="header">
                     <div class="header-text">
-                        <h1>SMK WISATA INDONESIA</h1>
-                        <h2>Jl. Raya Lenteng Agung I, Jakarta Selatan – Telp. (021) xxxx xxxx</h2>
+                        <h1>${APP_CONFIG.namasekolah}</h1>
+                        <h2>${APP_CONFIG.alamatsekolah} – Telp. ${
+        APP_CONFIG.teleponsekolah
+    }</h2>
                     </div>
                 </div>
 
@@ -307,8 +319,8 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                         <td class="photo-cell" rowspan="4">
                             ${
                                 fotoSiswa
-                                    ? `<img src="${window.location.origin}/uploads/foto_siswa/${fotoSiswa}"
-                                       style="width:80px;height:120px;object-fit:cover;border:1px solid #000;">`
+                                    ? `<img src="/storage/${fotoSiswa}" 
+                                    style="width:80px;height:120px;object-fit:cover;border:1px solid #000;">`
                                     : `FOTO<br>2x3`
                             }
                         </td>
