@@ -25,47 +25,89 @@
   <script src="{{ asset('sneat/vendor/js/helpers.js') }}"></script>
 
   <style>
-    /* ======== PERBAIKAN JARAK DAN TAMPILAN ======== */
-    body {
-      background-color: #f8f9fa !important;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+    /* ======== PERBAIKAN SCROLL SIDEBAR DROPDOWN ======== */
+    html, body {
+      height: 100%;
+      overflow: hidden; /* Mencegah scroll di body */
     }
 
     .layout-wrapper {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+      height: 100vh;
+      overflow: hidden; /* Mencegah scroll di wrapper utama */
     }
 
     .layout-container {
-      flex: 1;
-      display: flex;
+      height: 100%;
+      overflow: hidden; /* Mencegah scroll di container */
     }
 
-    .layout-page {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+    /* Sidebar TANPA scrollbar visible */
+    .layout-menu {
+      height: 100vh !important;
+      overflow-y: hidden !important; /* Ubah dari auto menjadi hidden */
+      overflow-x: hidden !important;
     }
 
+    /* Menu inner tanpa scrollbar */
+    .menu-inner {
+      overflow-y: hidden !important;
+      overflow-x: hidden !important;
+    }
+
+    /* Konten utama bisa discroll jika konten panjang */
     .content-wrapper {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0 !important;
-      padding-bottom: 0 !important;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
     }
 
+    /* Hilangkan scrollbar dari browser */
+    .layout-menu::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    .layout-menu {
+      -ms-overflow-style: none !important;  /* IE and Edge */
+      scrollbar-width: none !important;  /* Firefox */
+    }
+
+    .menu-inner::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    .menu-inner {
+      -ms-overflow-style: none !important;  /* IE and Edge */
+      scrollbar-width: none !important;  /* Firefox */
+    }
+
+    /* Pastikan konten di dalam tidak menyebabkan scroll di luar */
     .container-xxl.flex-grow-1.container-p-y {
-      flex: 1;
-      padding-top: 1rem !important;
-      padding-bottom: 0.25rem !important;
-      margin-bottom: 0 !important;
+      min-height: auto;
+      overflow: visible;
     }
 
-    /* Perbaikan utama untuk mengurangi jarak */
+    /* Hapus overflow dari halaman utama */
+    .layout-page {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Footer tetap di bawah */
+    footer.footer {
+      padding: 0.75rem 0;
+      background-color: #fff;
+      border-top: 1px solid #e4e6e8;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6c757d;
+      flex-shrink: 0;
+    }
+
+    /* Konten utama */
     .container-p-y {
       padding-top: 1rem !important;
       padding-bottom: 0.25rem !important;
@@ -77,45 +119,28 @@
       border-radius: 0.75rem;
     }
 
-    /* Footer agar rapat di bawah content */
-    footer.footer {
-      padding: 0.75rem 0;
-      background-color: #fff;
-      border-top: 1px solid #e4e6e8;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #6c757d;
-      margin-top: auto !important;
-      flex-shrink: 0;
-    }
-
-    /* Pastikan tidak ada margin tambahan di wrapper footer */
-    .content-wrapper > :last-child {
-      margin-bottom: 0 !important;
-    }
-
-    /* Perbaiki z-index Swal agar selalu di atas elemen Sneat */
+    /* Perbaikan z-index Swal */
     .swal2-container {
       z-index: 9999 !important;
     }
 
-    /* Jika navbar tetap muncul efek abu-abu di belakang swal */
     .swal2-backdrop-show {
       backdrop-filter: blur(3px);
     }
 
-    /* Responsif: pastikan navbar dan toggle tampil di HP */
+    /* Navbar */
     .layout-navbar {
       position: sticky;
       top: 0;
       z-index: 1040;
+      flex-shrink: 0;
     }
 
     .layout-menu-toggle {
       cursor: pointer;
     }
 
-    /* ======== STYLE PAGINATION GLOBAL ======== */
+    /* Pagination */
     .pagination-btn {
       border-radius: 6px !important;
       min-width: 36px;
@@ -147,7 +172,7 @@
       box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
     }
 
-    /* Reduce spacing between table and pagination */
+    /* Table spacing */
     .card-body {
       padding-bottom: 0.5rem;
     }
@@ -158,23 +183,7 @@
       padding-top: 1rem;
     }
 
-    /* Perbaikan tambahan untuk konten yang pendek */
-    .main-content {
-      min-height: calc(100vh - 200px);
-    }
-
-    /* Hilangkan margin dan padding yang tidak perlu */
-    .layout-content-navbar .content-wrapper {
-      padding: 0 !important;
-    }
-
-    /* Pastikan content area tidak memiliki spacing berlebihan */
-    .container-xxl {
-      padding-left: 1rem !important;
-      padding-right: 1rem !important;
-    }
-
-    /* Style untuk logo di navbar dan sidebar */
+    /* Logo */
     .app-brand-logo img {
       max-height: 40px;
       width: auto;
@@ -183,6 +192,11 @@
     .navbar-brand img {
       max-height: 35px;
       width: auto;
+    }
+
+    /* Untuk mobile: pastikan overlay tidak menyebabkan scroll */
+    .layout-overlay {
+      overflow: hidden !important;
     }
   </style>
 </head>
@@ -260,31 +274,6 @@
         confirmButtonText: 'OK'
       });
     @endif
-
-    // Script tambahan untuk memastikan footer tetap di bawah
-    document.addEventListener('DOMContentLoaded', function() {
-      function adjustFooter() {
-        const contentWrapper = document.querySelector('.content-wrapper');
-        const containerP_y = document.querySelector('.container-xxl.flex-grow-1.container-p-y');
-        
-        if (contentWrapper && containerP_y) {
-          const contentHeight = containerP_y.scrollHeight;
-          const windowHeight = window.innerHeight;
-          const wrapperHeight = contentWrapper.scrollHeight;
-          
-          // Jika konten pendek, pastikan footer tetap di bawah
-          if (contentHeight < windowHeight * 0.7) {
-            contentWrapper.style.minHeight = 'calc(100vh - 200px)';
-          } else {
-            contentWrapper.style.minHeight = 'auto';
-          }
-        }
-      }
-
-      // Panggil saat load dan resize
-      adjustFooter();
-      window.addEventListener('resize', adjustFooter);
-    });
   </script>
 </body>
 </html>

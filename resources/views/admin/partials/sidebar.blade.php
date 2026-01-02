@@ -32,7 +32,7 @@
         <i class="menu-icon bx bx-data"></i>
         <div>Data Master</div>
       </a>
-      <ul class="menu-sub ps-4">
+      <ul class="menu-sub">
         <li class="menu-item {{ Request::is('w1s4t4/tahun-ajaran*') ? 'active' : '' }}"><a href="{{ route('tahun-ajaran.index') }}" class="menu-link">Tahun Ajaran</a></li>
         <li class="menu-item {{ Request::is('w1s4t4/jurusan*') ? 'active' : '' }}"><a href="{{ route('jurusan.index') }}" class="menu-link">Jurusan</a></li>
         <li class="menu-item {{ Request::is('w1s4t4/gelombang*') ? 'active' : '' }}"><a href="{{ route('gelombang.index') }}" class="menu-link">Gelombang Pendaftaran</a></li>
@@ -48,7 +48,7 @@
         <i class="menu-icon bx bx-user"></i>
         <div>Data Pendaftar</div>
       </a>
-      <ul class="menu-sub ps-4">
+      <ul class="menu-sub">
         {{-- <li class="menu-item {{ Request::is('w1s4t4/verifikasi-pendaftar*') ? 'active' : '' }}"><a href="{{ route('verifikasi-pendaftar.index') }}" class="menu-link">Verifikasi Pendaftar</a></li> --}}
         <li class="menu-item {{ Request::is('w1s4t4/data-terverifikasi*') ? 'active' : '' }}"><a href="{{ route('data-terverifikasi.index') }}" class="menu-link">Data Pendaftar</a></li>
         <li class="menu-item {{ Request::is('w1s4t4/data-diterima*') ? 'active' : '' }}"><a href="{{ route('data-diterima.index') }}" class="menu-link">Data Diterima</a></li>
@@ -62,7 +62,7 @@
         <i class="menu-icon bx bx-money"></i>
         <div>Pembayaran</div>
       </a>
-      <ul class="menu-sub ps-4">
+      <ul class="menu-sub">
         <li class="menu-item {{ Request::is('w1s4t4/master-biaya*') ? 'active' : '' }}"><a href="{{ route('master-biaya.index') }}" class="menu-link">Mater Biaya</a></li>
         <li class="menu-item {{ Request::is('w1s4t4/verifikasi-pembayaran*') ? 'active' : '' }}"><a href="{{ route('verifikasi-pembayaran.index') }}" class="menu-link">Verifikasi Pembayaran</a></li>
         <li class="menu-item {{ Request::is('w1s4t4/pembayaran*') ? 'active' : '' }}"><a href="{{ route('pembayaran.index') }}" class="menu-link">Data Pembayaran</a></li>
@@ -76,7 +76,7 @@
         <i class="menu-icon bx bx-edit"></i>
         <div>Data Ujian / Seleksi</div>
       </a>
-      <ul class="menu-sub ps-4">
+      <ul class="menu-sub">
         <li class="menu-item"><a href="#" class="menu-link">Input Nilai Seleksi</a></li>
         <li class="menu-item"><a href="#" class="menu-link">Hasil Seleksi</a></li>
       </ul>
@@ -96,7 +96,7 @@
         <i class="menu-icon bx bx-globe"></i>
         <div>Web</div>
       </a>
-      <ul class="menu-sub ps-4">
+      <ul class="menu-sub">
         <li class="menu-item {{ Request::is('w1s4t4/kontak-pendaftaran*') ? 'active' : '' }}"><a href="{{ route('kontak-pendaftaran.index') }}" class="menu-link">Kontak Pendaftaran</a></li>
         <li class="menu-item {{ Request::is('w1s4t4/info-pembayaran*') ? 'active' : '' }}"><a href="{{ route('info-pembayaran.index') }}" class="menu-link">Info Pembayaran</a></li>
         <li class="menu-item {{ Request::is('w1s4t4/persyaratan-pendaftaran*') ? 'active' : '' }}"><a href="{{ route('persyaratan-pendaftaran.index') }}" class="menu-link">Info Persyaratan</a></li>
@@ -125,7 +125,7 @@
         <i class="menu-icon bx bx-broadcast"></i>
         <div>Pengumuman</div>
       </a>
-      <ul class="menu-sub ps-4">
+      <ul class="menu-sub">
         <li class="menu-item"><a href="#" class="menu-link">Data Pengumuman</a></li>
         <li class="menu-item"><a href="#" class="menu-link">Hasil Kelulusan</a></li>
       </ul>
