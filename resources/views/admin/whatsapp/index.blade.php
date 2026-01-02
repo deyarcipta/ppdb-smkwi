@@ -82,12 +82,14 @@
 
 @push('scripts')
 <script>
+const WA_BASE_URL = 'https://ppdb.smkwisataindonesia.sch.id/wa-api';
+
 /* =====================
    CHECK STATUS WA
 ===================== */
 async function checkStatus() {
     try {
-        const health = await fetch('http://localhost:3000/health');
+        const health = await fetch(`${WA_BASE_URL}/health`);
         const healthData = await health.json();
 
         if (healthData.connected === true) {
@@ -98,7 +100,7 @@ async function checkStatus() {
             return;
         }
 
-        const qrRes = await fetch('http://localhost:3000/qr');
+        const qrRes = await fetch(`${WA_BASE_URL}/qr`);
         const qrData = await qrRes.json();
 
         if (qrData.status === 'qr') {
@@ -115,6 +117,7 @@ async function checkStatus() {
     } catch (e) {
         document.getElementById('wa-status').innerText =
             '❌ WhatsApp server tidak aktif';
+        console.error(e);
     }
 }
 
@@ -140,9 +143,8 @@ async function refreshLog() {
     }
 }
 
-/* INTERVAL */
-setInterval(checkStatus, 3000);     // status WA
-setInterval(refreshLog, 10000);     // histori pesan
+setInterval(checkStatus, 3000);
+setInterval(refreshLog, 10000);
 
 checkStatus();
 </script>
