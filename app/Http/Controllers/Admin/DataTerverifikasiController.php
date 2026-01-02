@@ -184,7 +184,7 @@ class DataTerverifikasiController extends Controller
             '{alamat_sekolah}' => "Jl. Pendidikan No. 123, Jakarta",
             '{no_admin}' => '0852-1815-0720',
             '{email_sekolah}' => "ppdb@smkwisataindonesia.sch.id",
-            '{url_sistem}' => "https://ppdb.wisataindonesia.sch.id",
+            '{url_sistem}' => "https://ppdb.smkwisataindonesia.sch.id/siswa",
             
             // Tambahan placeholder untuk fleksibilitas
             '{sekolah}' => 'SMK Wisata Indonesia',
