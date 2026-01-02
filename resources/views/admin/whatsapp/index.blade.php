@@ -92,7 +92,7 @@ async function checkStatus() {
         const health = await fetch(`${WA_BASE_URL}/health`);
         const healthData = await health.json();
 
-        if (healthData.connected === true) {
+        if (healthData.status === 'connected' && healthData.ready === true) {
             document.getElementById('wa-status').innerText =
                 '✅ WhatsApp sudah terhubung';
             document.getElementById('wa-connected').style.display = 'block';
