@@ -281,7 +281,7 @@ class PendaftaranSiswaController extends Controller
                 '{rekening}' => '1234567890',
                 '{an}' => 'SMK Wisata Indonesia',
                 '{no_admin}' => '0852-1815-0720',
-                '{url_sistem}' => 'https://ppdb.wisataindonesia.sch.id/siswa',
+                '{url_sistem}' => 'https://ppdb.smkwisataindonesia.sch.id/siswa',
             ];
 
             $message = strtr($template->isi_pesan, $placeholders);
