@@ -190,8 +190,10 @@ class VerifikasiPembayaranController extends Controller
 
             $message = strtr($template->isi_pesan, $placeholders);
 
-            // Kirim pesan
-            return $this->whatsappService->sendMessage($phoneNumber, $message);
+            $jenisPesan = strtr($template->judul, $placeholders);
+
+            // Kirim pesan WhatsApp
+            $result = $this->whatsappService->sendMessage($phoneNumber, $message, $jenisPesan);
 
         } catch (\Exception $e) {
             Log::error('Error sendVerificationMessage: ' . $e->getMessage());

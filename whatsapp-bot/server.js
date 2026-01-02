@@ -1,24 +1,28 @@
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const express = require("express");
-const qrcode = require("qrcode-terminal");
+const QRCode = require("qrcode");
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
-// Configuration
+// ================= CONFIG =================
 const config = {
     PORT: process.env.PORT || 3000,
     MAX_RECONNECT_ATTEMPTS: 5,
     RECONNECT_INTERVAL: 10000,
-    HEALTH_CHECK_INTERVAL: 300000, // 5 minutes
+    HEALTH_CHECK_INTERVAL: 300000, // 5 menit
 };
 
-// State management
+// ================= STATE =================
 let client = null;
 let isConnected = false;
 let reconnectAttempts = 0;
 let isInitializing = false;
+let lastQr = null;
 
+// ================= INIT FUNCTION =================
 function initializeWhatsApp() {
     if (isInitializing) {
         console.log("ℹ️ Initialization already in progress...");
@@ -26,7 +30,7 @@ function initializeWhatsApp() {
     }
 
     if (client && client.info) {
-        console.log("ℹ️ Client already connected, skipping reinitialization");
+        console.log("ℹ️ Client already connected");
         return;
     }
 
@@ -40,55 +44,55 @@ function initializeWhatsApp() {
                 clientId: "ppdb-bot",
             }),
             puppeteer: {
-                headless: true,
-                args: ["--no-sandbox", "--disable-setuid-sandbox"],
-                executablePath:
-                    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                headless: "new",
+                args: [],
             },
             takeoverOnConflict: true,
             takeoverTimeoutMs: 0,
             restartOnAuthFail: true,
         });
 
-        client.on("qr", (qr) => {
-            console.log("📱 QR CODE - SCAN SEKARANG:");
-            qrcode.generate(qr, { small: true });
-            console.log("➡️ WhatsApp > Menu > Linked Devices > Scan QR Code");
+        // ================= EVENTS =================
+
+        client.on("qr", async (qr) => {
+            console.log("📱 QR RECEIVED");
+
+            try {
+                lastQr = await QRCode.toDataURL(qr);
+            } catch (err) {
+                console.error("❌ QR Convert Error:", err);
+                lastQr = null;
+            }
+
             isConnected = false;
             reconnectAttempts = 0;
             isInitializing = false;
         });
 
+        client.on("authenticated", () => {
+            console.log("✅ AUTHENTICATED - Session saved");
+            isInitializing = false;
+        });
+
         client.on("ready", () => {
-            console.log("✅ WHATSAPP BOT READY & CONNECTED!");
+            console.log("✅ WHATSAPP BOT READY");
             isConnected = true;
+            lastQr = null;
             reconnectAttempts = 0;
             isInitializing = false;
         });
 
-        client.on("authenticated", () => {
-            console.log("✅ AUTHENTICATED - Session tersimpan!");
-            isInitializing = false;
-        });
-
         client.on("auth_failure", (msg) => {
-            console.error("❌ AUTH FAILED:", msg);
+            console.error("❌ AUTH FAILURE:", msg);
             isConnected = false;
             isInitializing = false;
             reconnectAttempts++;
 
             if (reconnectAttempts <= config.MAX_RECONNECT_ATTEMPTS) {
                 console.log(
-                    `🔄 Attempting reconnect (${reconnectAttempts}/${config.MAX_RECONNECT_ATTEMPTS}) in 10s...`
+                    `🔄 Reconnecting (${reconnectAttempts}/${config.MAX_RECONNECT_ATTEMPTS})...`
                 );
-                setTimeout(
-                    () => initializeWhatsApp(),
-                    config.RECONNECT_INTERVAL
-                );
-            } else {
-                console.error(
-                    "❌ Max reconnection attempts reached. Manual intervention required."
-                );
+                setTimeout(initializeWhatsApp, config.RECONNECT_INTERVAL);
             }
         });
 
@@ -100,95 +104,121 @@ function initializeWhatsApp() {
 
             if (reconnectAttempts <= config.MAX_RECONNECT_ATTEMPTS) {
                 console.log(
-                    `🔄 Auto-reconnecting (${reconnectAttempts}/${config.MAX_RECONNECT_ATTEMPTS}) in 5s...`
+                    `🔄 Auto reconnect (${reconnectAttempts}/${config.MAX_RECONNECT_ATTEMPTS})`
                 );
-                setTimeout(() => initializeWhatsApp(), 5000);
-            } else {
-                console.error(
-                    "❌ Max reconnection attempts reached. Please check WhatsApp connection."
-                );
+                setTimeout(initializeWhatsApp, 5000);
             }
         });
 
-        client.on("error", (error) => {
-            console.error("❌ CLIENT ERROR:", error);
+        client.on("error", (err) => {
+            console.error("❌ CLIENT ERROR:", err);
             isInitializing = false;
         });
 
         client.initialize();
-    } catch (error) {
-        console.error("❌ Initialization error:", error);
+    } catch (err) {
+        console.error("❌ INIT ERROR:", err);
         isInitializing = false;
-        setTimeout(() => initializeWhatsApp(), config.RECONNECT_INTERVAL);
+        setTimeout(initializeWhatsApp, config.RECONNECT_INTERVAL);
     }
 }
 
-// API Routes (same as before with improvements)
+// ================= API ROUTES =================
+
+// 🔹 Ambil QR untuk Laravel
+app.get("/qr", (req, res) => {
+    if (isConnected) {
+        return res.json({
+            status: "connected",
+            qr: null,
+        });
+    }
+
+    if (!lastQr) {
+        return res.json({
+            status: "waiting",
+            qr: null,
+        });
+    }
+
+    res.json({
+        status: "qr",
+        qr: lastQr,
+    });
+});
+
+// 🔹 Kirim pesan
 app.post("/send-message", async (req, res) => {
     if (!isConnected) {
-        initializeWhatsApp();
         return res.status(503).json({
             success: false,
-            error: "WhatsApp bot not connected",
-            note: "Reconnection in progress",
+            message: "WhatsApp belum terhubung",
         });
     }
 
     try {
         const { phone, message } = req.body;
-        const formattedPhone = phone.replace(/\D/g, "");
-        const chatId = formattedPhone + "@c.us";
 
-        const sentMessage = await client.sendMessage(chatId, message);
+        // 1️⃣ Bersihkan nomor
+        const formattedPhone = phone.replace(/\D/g, "");
+
+        // 2️⃣ Resolve number ke WhatsApp ID
+        const numberId = await client.getNumberId(formattedPhone);
+
+        if (!numberId) {
+            return res.status(404).json({
+                success: false,
+                message: "Nomor WhatsApp tidak terdaftar",
+            });
+        }
+
+        // 3️⃣ Kirim pesan
+        const sent = await client.sendMessage(numberId._serialized, message);
 
         res.json({
             success: true,
-            messageId: sentMessage.id._serialized,
+            messageId: sent.id._serialized,
         });
-    } catch (error) {
-        console.error("❌ Send message error:", error);
+    } catch (err) {
+        console.error("❌ SEND ERROR:", err);
         res.status(500).json({
             success: false,
-            error: error.message,
+            error: err.message,
         });
     }
 });
 
+// 🔹 Health check
 app.get("/health", (req, res) => {
     res.json({
-        status: isConnected ? "connected" : "disconnected",
-        ready: isConnected,
-        reconnectAttempts: reconnectAttempts,
-        isInitializing: isInitializing,
+        connected: isConnected,
+        reconnectAttempts,
+        isInitializing,
         timestamp: new Date().toISOString(),
     });
 });
 
-// Start server
+// ================= SERVER START =================
 app.listen(config.PORT, () => {
-    console.log(
-        `🚀 WhatsApp API Server running on http://localhost:${config.PORT}`
-    );
+    console.log(`🚀 WhatsApp API running at http://localhost:${config.PORT}`);
     initializeWhatsApp();
 });
 
-// Periodic health check
+// ================= PERIODIC CHECK =================
 setInterval(() => {
     if (
         !isConnected &&
         reconnectAttempts < config.MAX_RECONNECT_ATTEMPTS &&
         !isInitializing
     ) {
-        console.log("🔄 Periodic health check - attempting reconnect...");
+        console.log("🔄 Health check reconnect...");
         initializeWhatsApp();
     }
 }, config.HEALTH_CHECK_INTERVAL);
 
-// Graceful shutdown
-process.on("SIGINT", () => {
-    console.log("🛑 Shutting down gracefully...");
-    if (client) {
-        client.destroy();
-    }
+// ================= GRACEFUL SHUTDOWN =================
+process.on("SIGINT", async () => {
+    console.log("🛑 Shutting down...");
+    if (client) await client.destroy();
     process.exit(0);
 });

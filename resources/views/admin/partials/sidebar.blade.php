@@ -112,6 +112,14 @@
         <div>Pengumuman</div>
       </a>
     </li>
+
+    {{-- WhatsApp Bot --}}
+    <li class="menu-item {{ Request::is('w1s4t4/whatsapp*') ? 'active' : '' }}">
+      <a href="{{ route('whatsapp.index') }}" class="menu-link">
+        <i class="menu-icon bx bx-message-square-dots"></i>
+        <div>WhatsApp Bot</div>
+      </a>
+    </li>
     {{-- <li class="menu-item">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon bx bx-broadcast"></i>

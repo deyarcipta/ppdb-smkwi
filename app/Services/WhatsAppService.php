@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
+use App\Models\WhatsappLog;
 
 class WhatsAppService
 {
@@ -18,7 +19,7 @@ class WhatsAppService
         ]);
     }
 
-    public function sendMessage($phone, $message)
+    public function sendMessage($phone, $message, $jenisPesan)
     {
         try {
             // Format nomor telepon
@@ -29,12 +30,21 @@ class WhatsAppService
             $response = $this->client->post('/send-message', [
                 'json' => [
                     'phone' => $formattedPhone,
-                    'message' => $message
+                    'message' => $message,
+                    'jenis_pesan' => $jenisPesan,
                 ],
                 'headers' => [
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
                 ]
+            ]);
+            // ✅ SIMPAN LOG BERHASIL
+            WhatsappLog::create([
+                'nomor_tujuan' => $phone,
+                'jenis_pesan'  => $jenisPesan,
+                'isi_pesan'    => $message,
+                'status'       => 'sent',
+                'sent_at'      => now(),
             ]);
             
             $result = json_decode($response->getBody(), true);
@@ -43,6 +53,14 @@ class WhatsAppService
             return $result;
             
         } catch (\Exception $e) {
+             // ❌ SIMPAN LOG GAGAL
+            WhatsappLog::create([
+                'nomor_tujuan'  => $phone,
+                'jenis_pesan'   => $jenisPesan,
+                'isi_pesan'     => $message,
+                'status'        => 'failed',
+                'error_message' => $e->getMessage(),
+            ]);
             Log::error('Gagal mengirim WhatsApp: ' . $e->getMessage());
             return [
                 'success' => false, 

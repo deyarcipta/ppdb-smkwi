@@ -99,8 +99,10 @@ class VerifikasiPendaftarController extends Controller
             // Ganti placeholder dalam isi pesan
             $message = strtr($template->isi_pesan, $placeholders);
 
+            $jenisPesan = strtr($template->judul, $placeholders);
+
             // Kirim pesan WhatsApp
-            return $this->whatsappService->sendMessage($phoneNumber, $message);
+            $result = $this->whatsappService->sendMessage($phoneNumber, $message, $jenisPesan);
 
         } catch (\Exception $e) {
             Log::error('Error sendMessage: ' . $e->getMessage());

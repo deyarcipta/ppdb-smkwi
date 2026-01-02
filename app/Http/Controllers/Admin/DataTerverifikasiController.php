@@ -145,8 +145,11 @@ class DataTerverifikasiController extends Controller
             // Ganti placeholder dengan data aktual
             $message = strtr($template->isi_pesan, $placeholders);
 
+             // Ganti placeholder dengan data aktual
+            $jenisPesan = strtr($template->judul, $placeholders);
+
             // Kirim pesan WhatsApp
-            $result = $this->whatsappService->sendMessage($phoneNumber, $message);
+            $result = $this->whatsappService->sendMessage($phoneNumber, $message, $jenisPesan);
 
             if ($result['success']) {
                 Log::info("Pesan penerimaan berhasil dikirim ke: {$phoneNumber}");

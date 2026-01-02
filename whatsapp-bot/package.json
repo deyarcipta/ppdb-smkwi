@@ -9,8 +9,10 @@
     "install-windows": "npm install whatsapp-web.js express qrcode-terminal puppeteer"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "puppeteer": "^21.11.0",
+    "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
     "whatsapp-web.js": "^1.23.0"
   }

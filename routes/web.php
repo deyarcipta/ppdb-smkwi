@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\PersyaratanPendaftaranController as PersyaratanPe
 use App\Http\Controllers\Admin\TestimoniAlumniController as TestimoniAlumniAdminController;
 use App\Http\Controllers\Admin\FaqController as FaqAdminController;
 use App\Http\Controllers\Admin\PengumumanController as PengumumanAdminController; 
+use App\Http\Controllers\Admin\WhatsappAdminController as WhatsappAdminController;
 use App\Http\Controllers\Admin\UserManagementController as UserManagementAdminController;
 use App\Http\Controllers\Admin\PengaturanAplikasiController as PengaturanAplikasiAdminController;
 
@@ -186,6 +187,13 @@ Route::prefix('w1s4t4')->group(function () {
                 ->name('info-pembayaran.aktifkan');
             Route::get('info-pembayaran/{id}/nonaktifkan', [InfoPembayaranAdminController::class, 'nonaktifkan'])
                 ->name('info-pembayaran.nonaktifkan');
+
+            Route::get('/admin/whatsapp', [WhatsappAdminController::class, 'index'])
+                ->name('whatsapp.index');
+
+            Route::get('/admin/whatsapp/status', [WhatsappAdminController::class, 'status'])
+                ->name('whatsapp.status');
+
 
             //Info Persyaratan Pendaftaran
             Route::resource('persyaratan-pendaftaran', PersyaratanPendaftaranAdminController::class)
