@@ -45,7 +45,7 @@ function initializeWhatsApp() {
             }),
             puppeteer: {
                 headless: "new",
-                args: [],
+                args: ["--no-sandbox", "--disable-setuid-sandbox"],
             },
             takeoverOnConflict: true,
             takeoverTimeoutMs: 0,
