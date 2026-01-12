@@ -481,14 +481,25 @@
                                 <select class="form-select @error('jenis_pembayaran') is-invalid @enderror" 
                                         id="jenis_pembayaran" name="jenis_pembayaran" required>
                                     <option value="">Pilih Jenis Pembayaran</option>
-                                     @foreach($MasterBiaya as $biaya)
-                                        @if($biaya->jenis_biaya !== 'formulir')
+                                    
+                                    <!-- Opsi untuk pembayaran tertentu -->
+                                    @foreach($MasterBiaya as $biaya)
+                                        @if($biaya->jenis_biaya !== 'formulir' && $biaya->jenis_biaya !== 'full')
                                             <option value="{{ $biaya->jenis_biaya }}" 
                                                 {{ old('jenis_pembayaran') == $biaya->jenis_biaya ? 'selected' : '' }}>
-                                                {{ strtoupper(str_replace('_', ' ', $biaya->jenis_biaya)) }} - Rp {{ number_format($biaya->total_biaya, 0, ',', '.') }}
+                                                {{ strtoupper(str_replace('_', ' ', $biaya->jenis_biaya)) }} - 
+                                                Rp {{ number_format($biaya->total_biaya, 0, ',', '.') }}
                                             </option>
                                         @endif
                                     @endforeach
+                                    
+                                    <!-- Opsi untuk bayar semua sekaligus -->
+                                    @php
+                                        $totalAll = $MasterBiaya->where('jenis_biaya', '!=', 'formulir')->sum('total_biaya');
+                                    @endphp
+                                    <option value="semua" {{ old('jenis_pembayaran') == 'semua' ? 'selected' : '' }}>
+                                        BAYAR SEMUA SEKALIGUS - Rp {{ number_format($totalAll, 0, ',', '.') }}
+                                    </option>
                                 </select>
                                 @error('jenis_pembayaran')
                                     <div class="invalid-feedback">{{ $message }}</div>
