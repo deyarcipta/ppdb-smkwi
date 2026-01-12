@@ -127,8 +127,8 @@
 
 @push('scripts')
 <script>
-const WA_BASE_URL = 'http://localhost:3000';
-// const WA_BASE_URL = 'https://ppdb.smkwisataindonesia.sch.id/wa-api';
+// const WA_BASE_URL = 'http://localhost:3000';
+const WA_BASE_URL = 'https://ppdb.smkwisataindonesia.sch.id/wa-api';
 
 // Status elements
 const statusEl = document.getElementById('wa-status');
