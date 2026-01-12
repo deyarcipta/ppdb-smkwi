@@ -1422,6 +1422,39 @@
     .card-body.p-4 {
         padding: 1.5rem !important;
     }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .form-actions .btn-lg {
+        font-size: 1.1rem !important;
+        padding: 0.8rem 1rem !important;
+    }
+}
+
+/* Untuk layar sangat kecil (mobile kecil) */
+@media (max-width: 480px) {
+    .form-actions .btn {
+        padding: 0.65rem 0.9rem;
+        font-size: 0.95rem;
+    }
+    
+    .form-actions .btn-lg {
+        font-size: 1rem !important;
+        padding: 0.7rem 0.9rem !important;
+    }
+    
+    .form-actions .btn i {
+        font-size: 0.9em;
+    }
 }
 
 /* Error styling */

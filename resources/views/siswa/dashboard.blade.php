@@ -96,7 +96,7 @@
                 <input type="file" class="form-control" id="bukti_pembayaran" name="bukti_pembayaran" accept="image/*,.pdf" required>
                 <div class="form-text">
                   <span id="file-requirements">
-                    Format: JPG, PNG, PDF (Maks. 2MB)
+                    Format: JPG, PNG, PDF (Maks. 5MB)
                   </span>
                 </div>
               </div>
@@ -1591,9 +1591,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (fileInfo) fileInfo.style.display = 'none';
 
             if (file) {
-                // Validasi ukuran file (2MB = 2097152 bytes)
-                if (file.size > 2097152) {
-                    showFileError('❌ Ukuran file terlalu besar! Maksimal 2MB.');
+                // Validasi ukuran file (5MB = 5242880 bytes)
+                if (file.size > 5242880) {
+                    showFileError('❌ Ukuran file terlalu besar! Maksimal 5MB.');
                     return;
                 }
 

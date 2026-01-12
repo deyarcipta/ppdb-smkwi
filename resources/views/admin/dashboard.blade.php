@@ -162,7 +162,7 @@
         </div>
         @if($pendaftarTerbaru->count() > 0)
         <div class="card-footer text-center">
-          <a href="{{ route('verifikasi-pendaftar.index') }}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+          <a href="{{ route('data-terverifikasi.index') }}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
         </div>
         @endif
       </div>

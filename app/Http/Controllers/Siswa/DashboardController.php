@@ -84,13 +84,13 @@ class DashboardController extends Controller
         // Validasi dengan pesan custom
         $validator = Validator::make($request->all(), [
             'metode_pembayaran' => 'required|string',
-            'bukti_pembayaran' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'bukti_pembayaran' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'keterangan' => 'nullable|string|max:500'
         ], [
             'bukti_pembayaran.required' => 'Bukti pembayaran harus diupload.',
             'bukti_pembayaran.file' => 'File yang diupload harus berupa file.',
             'bukti_pembayaran.mimes' => 'Format file harus JPG, JPEG, PNG, atau PDF.',
-            'bukti_pembayaran.max' => 'Ukuran file tidak boleh lebih dari 2MB.',
+            'bukti_pembayaran.max' => 'Ukuran file tidak boleh lebih dari 5MB.',
             'keterangan.max' => 'Keterangan tidak boleh lebih dari 500 karakter.'
         ]);
 
@@ -113,9 +113,9 @@ class DashboardController extends Controller
                 $file = $request->file('bukti_pembayaran');
                 
                 // Cek ukuran file lagi (double check)
-                if ($file->getSize() > 2097152) { // 2MB in bytes
+                if ($file->getSize() > 5242880) { // 5MB in bytes
                     return redirect()->back()
-                        ->with('error', 'Ukuran file terlalu besar. Maksimal 2MB.')
+                        ->with('error', 'Ukuran file terlalu besar. Maksimal 5MB.')
                         ->withInput();
                 }
 

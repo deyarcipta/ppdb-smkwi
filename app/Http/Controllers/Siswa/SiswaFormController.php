@@ -272,7 +272,7 @@ class SiswaFormController extends Controller
     public function uploadFoto(Request $request)
     {
         $request->validate([
-            'foto_siswa' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'foto_siswa' => 'required|image|mimes:jpg,jpeg,png|max:5120',
         ]);
 
         // ambil data siswa berdasarkan user login
