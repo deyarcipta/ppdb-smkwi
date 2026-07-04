@@ -22,30 +22,89 @@ let reconnectAttempts = 0;
 let isInitializing = false;
 let lastQr = null;
 
-// ================= INIT FUNCTION =================
-function initializeWhatsApp() {
-    if (isInitializing) {
-        console.log("ℹ️ Initialization already in progress...");
-        return;
-    }
+// ================= UTILITIES =================
 
-    if (client && client.info) {
-        console.log("ℹ️ Client already connected");
+/**
+ * Membungkus Promise dengan batas waktu (timeout)
+ */
+function withTimeout(promise, ms, errorMessage = "Timeout") {
+    let timeoutId;
+    const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+            reject(new Error(errorMessage));
+        }, ms);
+    });
+    return Promise.race([
+        promise.then((res) => {
+            clearTimeout(timeoutId);
+            return res;
+        }),
+        timeoutPromise,
+    ]);
+}
+
+/**
+ * Menghancurkan client WhatsApp yang aktif dan membersihkan memori/Puppeteer
+ */
+async function destroyClient() {
+    if (client) {
+        console.log("🔄 Menghancurkan instance client WhatsApp lama...");
+        try {
+            // Berikan timeout 10 detik agar tidak menggantung jika browser sudah crash
+            await withTimeout(
+                client.destroy(),
+                10000,
+                "Timeout saat menutup browser WhatsApp",
+            );
+            console.log(
+                "✅ Instance client WhatsApp lama berhasil dihancurkan",
+            );
+        } catch (err) {
+            console.error(
+                "❌ Gagal menghancurkan client WhatsApp lama:",
+                err.message,
+            );
+        }
+        client = null;
+    }
+    isConnected = false;
+}
+
+// ================= INIT FUNCTION =================
+async function initializeWhatsApp() {
+    if (isInitializing) {
+        console.log("ℹ️ Inisialisasi sedang berjalan...");
         return;
     }
 
     isInitializing = true;
-    console.log("🔄 Initializing WhatsApp client...");
+    console.log("🔄 Menginisialisasi client WhatsApp...");
 
     try {
+        // Hancurkan client lama terlebih dahulu untuk mencegah kebocoran memori/proses Chromium
+        await destroyClient();
+
+        isInitializing = true; // Set kembali ke true setelah destroyClient() membersihkannya
+
         client = new Client({
             authStrategy: new LocalAuth({
                 dataPath: "./sessions",
                 clientId: "ppdb-bot",
             }),
             puppeteer: {
-                headless: "new",
-                args: ["--no-sandbox", "--disable-setuid-sandbox"],
+                headless: true,
+                args: [
+                    "--no-sandbox", // WAJIB untuk CentOS/Linux
+                    "--disable-setuid-sandbox", // WAJIB untuk CentOS/Linux
+                    "--disable-dev-shm-usage", // Mencegah crash pada RAM terbatas/Docker
+                    "--disable-accelerated-2d-canvas",
+                    "--no-first-run",
+                    "--no-zygote",
+                    "--disable-gpu", // Tidak diperlukan di server headless
+                    "--disable-web-security",
+                    "--disable-features=VizDisplayCompositor",
+                    "--disable-software-rasterizer",
+                ],
             },
             takeoverOnConflict: true,
             takeoverTimeoutMs: 0,
@@ -70,7 +129,7 @@ function initializeWhatsApp() {
         });
 
         client.on("authenticated", () => {
-            console.log("✅ AUTHENTICATED - Session saved");
+            console.log("✅ AUTHENTICATED - Session disimpan");
             isInitializing = false;
         });
 
@@ -82,36 +141,49 @@ function initializeWhatsApp() {
             isInitializing = false;
         });
 
-        client.on("auth_failure", (msg) => {
+        client.on("auth_failure", async (msg) => {
             console.error("❌ AUTH FAILURE:", msg);
-            isConnected = false;
             isInitializing = false;
+
+            await destroyClient();
             reconnectAttempts++;
 
             if (reconnectAttempts <= config.MAX_RECONNECT_ATTEMPTS) {
                 console.log(
-                    `🔄 Reconnecting (${reconnectAttempts}/${config.MAX_RECONNECT_ATTEMPTS})...`
+                    `🔄 Mencoba koneksi kembali (${reconnectAttempts}/${config.MAX_RECONNECT_ATTEMPTS}) dalam ${config.RECONNECT_INTERVAL / 1000}s...`,
                 );
                 setTimeout(initializeWhatsApp, config.RECONNECT_INTERVAL);
+            } else {
+                console.error(
+                    "❌ Batas percobaan koneksi ulang terlampaui. Menghentikan proses demi PM2 recovery...",
+                );
+                process.exit(1);
             }
         });
 
-        client.on("disconnected", (reason) => {
+        client.on("disconnected", async (reason) => {
             console.log("❌ DISCONNECTED:", reason);
-            isConnected = false;
             isInitializing = false;
+
+            await destroyClient();
             reconnectAttempts++;
 
             if (reconnectAttempts <= config.MAX_RECONNECT_ATTEMPTS) {
                 console.log(
-                    `🔄 Auto reconnect (${reconnectAttempts}/${config.MAX_RECONNECT_ATTEMPTS})`
+                    `🔄 Koneksi ulang otomatis (${reconnectAttempts}/${config.MAX_RECONNECT_ATTEMPTS}) dalam 5s...`,
                 );
                 setTimeout(initializeWhatsApp, 5000);
+            } else {
+                console.error(
+                    "❌ Batas percobaan koneksi ulang terlampaui. Menghentikan proses demi PM2 recovery...",
+                );
+                process.exit(1);
             }
         });
 
         client.on("error", (err) => {
             console.error("❌ CLIENT ERROR:", err);
+            // Jangan langsung crash, biarkan healthcheck atau event disconnected menanganinya
             isInitializing = false;
         });
 
@@ -119,7 +191,16 @@ function initializeWhatsApp() {
     } catch (err) {
         console.error("❌ INIT ERROR:", err);
         isInitializing = false;
-        setTimeout(initializeWhatsApp, config.RECONNECT_INTERVAL);
+
+        reconnectAttempts++;
+        if (reconnectAttempts <= config.MAX_RECONNECT_ATTEMPTS) {
+            setTimeout(initializeWhatsApp, config.RECONNECT_INTERVAL);
+        } else {
+            console.error(
+                "❌ Gagal inisialisasi awal beberapa kali. Menghentikan proses demi PM2...",
+            );
+            process.exit(1);
+        }
     }
 }
 
@@ -149,21 +230,47 @@ app.get("/qr", (req, res) => {
 
 // 🔹 Kirim pesan
 app.post("/send-message", async (req, res) => {
-    if (!isConnected) {
+    if (!client || !isConnected) {
         return res.status(503).json({
             success: false,
-            message: "WhatsApp belum terhubung",
+            message: "WhatsApp belum siap atau terputus",
         });
     }
 
     try {
         const { phone, message } = req.body;
 
-        // 1️⃣ Bersihkan nomor
+        // Cek status client dengan timeout 5 detik
+        try {
+            const state = await withTimeout(
+                client.getState(),
+                5000,
+                "Timeout memeriksa status koneksi",
+            );
+
+            if (state !== "CONNECTED") {
+                return res.status(503).json({
+                    success: false,
+                    message: `WhatsApp state: ${state}`,
+                });
+            }
+        } catch (e) {
+            console.error("❌ Gagal memeriksa state client:", e.message);
+            return res.status(503).json({
+                success: false,
+                message: `Session WhatsApp tidak aktif atau tidak merespon: ${e.message}`,
+            });
+        }
+
+        // Bersihkan nomor
         const formattedPhone = phone.replace(/\D/g, "");
 
-        // 2️⃣ Resolve number ke WhatsApp ID
-        const numberId = await client.getNumberId(formattedPhone);
+        // Cari nomor WA dengan timeout 10 detik
+        const numberId = await withTimeout(
+            client.getNumberId(formattedPhone),
+            10000,
+            "Timeout saat mencari nomor WhatsApp",
+        );
 
         if (!numberId) {
             return res.status(404).json({
@@ -172,8 +279,12 @@ app.post("/send-message", async (req, res) => {
             });
         }
 
-        // 3️⃣ Kirim pesan
-        const sent = await client.sendMessage(numberId._serialized, message);
+        // Kirim pesan dengan timeout 15 detik
+        const sent = await withTimeout(
+            client.sendMessage(numberId._serialized, message),
+            15000,
+            "Timeout saat mengirim pesan WhatsApp",
+        );
 
         res.json({
             success: true,
@@ -181,6 +292,7 @@ app.post("/send-message", async (req, res) => {
         });
     } catch (err) {
         console.error("❌ SEND ERROR:", err);
+
         res.status(500).json({
             success: false,
             error: err.message,
@@ -205,20 +317,51 @@ app.listen(config.PORT, () => {
 });
 
 // ================= PERIODIC CHECK =================
-setInterval(() => {
-    if (
-        !isConnected &&
-        reconnectAttempts < config.MAX_RECONNECT_ATTEMPTS &&
-        !isInitializing
-    ) {
-        console.log("🔄 Health check reconnect...");
+setInterval(async () => {
+    console.log("🔍 Menjalankan pemeriksaan kesehatan berkala...");
+
+    let isHealthy = false;
+    if (client && isConnected) {
+        try {
+            // Periksa status state secara aktif dengan timeout 5 detik
+            const state = await withTimeout(
+                client.getState(),
+                5000,
+                "Timeout status state",
+            );
+            if (state === "CONNECTED") {
+                isHealthy = true;
+            } else {
+                console.warn(
+                    `⚠️ Status state WhatsApp bukan CONNECTED: ${state}`,
+                );
+            }
+        } catch (err) {
+            console.error("❌ Gagal memeriksa status WhatsApp:", err.message);
+        }
+    }
+
+    if (!isHealthy) {
+        console.warn("⚠️ Client tidak sehat atau terputus.");
+
+        if (reconnectAttempts >= config.MAX_RECONNECT_ATTEMPTS) {
+            console.error(
+                "❌ Batas maksimal percobaan koneksi ulang terlampaui. Menghentikan proses agar PM2 melakukan restart...",
+            );
+            process.exit(1);
+        }
+
+        console.log("🔄 Mencoba menginisialisasi ulang client WhatsApp...");
         initializeWhatsApp();
+    } else {
+        console.log("✅ Kondisi client sehat.");
+        reconnectAttempts = 0; // Reset hitungan jika sehat
     }
 }, config.HEALTH_CHECK_INTERVAL);
 
 // ================= GRACEFUL SHUTDOWN =================
 process.on("SIGINT", async () => {
-    console.log("🛑 Shutting down...");
-    if (client) await client.destroy();
+    console.log("🛑 Mematikan server...");
+    await destroyClient();
     process.exit(0);
 });
