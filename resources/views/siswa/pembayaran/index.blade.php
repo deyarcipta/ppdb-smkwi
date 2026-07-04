@@ -30,7 +30,7 @@
                             <tbody>
                                 @foreach($MasterBiaya as $biaya)
                                 <tr>
-                                    <td>{{ strtoupper(str_replace('_', ' ', $biaya->jenis_biaya)) }}</td>
+                                    <td>{{ $biaya->nama_biaya }}</td>
                                     <td class="text-end">Rp {{ number_format($biaya->total_biaya, 0, ',', '.') }}</td>
                                 </tr>
                                 @endforeach

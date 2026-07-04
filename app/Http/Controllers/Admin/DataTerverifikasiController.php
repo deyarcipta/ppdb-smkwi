@@ -39,8 +39,7 @@ class DataTerverifikasiController extends Controller
             ->paginate(10);
 
         // Ambil total biaya dari master biaya
-        $totalBiaya = MasterBiaya::where('jenis_biaya', 'ppdb')
-            ->first()->total_biaya ?? 0;
+        $totalBiaya = MasterBiaya::where('status', 1)->sum('total_biaya');
 
         // Ambil gelombang dan jurusan aktif untuk modal tambah
         $gelombangs = GelombangPendaftaran::where('status', 'aktif')->get();
@@ -122,10 +121,9 @@ class DataTerverifikasiController extends Controller
         try {
             $user = UserSiswa::findOrFail($request->user_id);
             
-            // Reset password ke random 6 digit
-            $newPassword = str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
+            // Reset password ke default
+            $newPassword = 'password123';
             $user->password = Hash::make($newPassword);
-            $user->password_plain = $newPassword;
             $user->save();
 
             return back()->with([

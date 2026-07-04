@@ -27,7 +27,7 @@ class DataDiterimaController extends Controller
             ->paginate(10);
 
         // Ambil total biaya dari tabel master_biaya
-        $totalBiaya = MasterBiaya::sum('total_biaya') ? : 3000000;
+        $totalBiaya = MasterBiaya::where('status', 1)->sum('total_biaya');
 
         return view('admin.data-diterima.index', compact('data', 'totalBiaya'));
     }

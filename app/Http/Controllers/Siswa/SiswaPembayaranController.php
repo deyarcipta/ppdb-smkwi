@@ -29,9 +29,8 @@ class SiswaPembayaranController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            // Ambil data biaya PPDB (kecuali formulir)
+            // Ambil data biaya PPDB (termasuk formulir)
             $MasterBiaya = MasterBiaya::where('status', 1)
-                ->where('jenis_biaya', '!=', 'formulir')
                 ->get();
 
             // Ambil data info pembayaran

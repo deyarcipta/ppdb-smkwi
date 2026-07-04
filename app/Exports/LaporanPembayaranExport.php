@@ -23,6 +23,8 @@ class LaporanPembayaranExport implements FromCollection, WithHeadings, WithMappi
     protected $totalFormulir = 0;
     protected $totalPPDB = 0;
     protected $totalSemua = 0;
+    protected $currentRow = 1;
+    protected $paymentMethods = [];
 
     public function __construct($namaSiswa = null, $jenisPembayaran = null, $tanggalAwal = null, $tanggalAkhir = null)
     {
@@ -83,6 +85,8 @@ class LaporanPembayaranExport implements FromCollection, WithHeadings, WithMappi
 
     public function map($siswa): array
     {
+        $this->currentRow++;
+
         // Reset totals untuk setiap siswa
         $totalFormulirSiswa = 0;
         $totalPPDBSiswa = 0;
@@ -97,6 +101,11 @@ class LaporanPembayaranExport implements FromCollection, WithHeadings, WithMappi
         
         $formulir = $pembayaranFormulir ? 'Rp ' . number_format($pembayaranFormulir->jumlah, 0, ',', '.') : '-';
         $totalFormulirSiswa = $pembayaranFormulir ? $pembayaranFormulir->jumlah : 0;
+
+        // Simpan metode pembayaran formulir jika ada
+        if ($pembayaranFormulir) {
+            $this->paymentMethods[$this->currentRow]['D'] = $pembayaranFormulir->metode_pembayaran;
+        }
         
         // Inisialisasi array untuk cicilan
         $cicilanData = [];
@@ -111,6 +120,11 @@ class LaporanPembayaranExport implements FromCollection, WithHeadings, WithMappi
             if ($index <= 5) {
                 $cicilanData["cicilan{$index}"] = 'Rp ' . number_format($pembayaran->jumlah, 0, ',', '.');
                 $cicilanData["tanggal_cicilan{$index}"] = $pembayaran->created_at->format('d/m/Y');
+                
+                // Simpan metode pembayaran cicilan berdasarkan kolomnya (E, G, I, K, M)
+                $colLetter = ['E', 'G', 'I', 'K', 'M'][$index - 1];
+                $this->paymentMethods[$this->currentRow][$colLetter] = $pembayaran->metode_pembayaran;
+
                 $totalPPDBSiswa += $pembayaran->jumlah;
                 $index++;
             }
@@ -289,9 +303,7 @@ class LaporanPembayaranExport implements FromCollection, WithHeadings, WithMappi
                 $sheet->getStyle('A' . ($lastRow + 3) . ':B' . $detailRow)->applyFromArray($detailStyle);
 
                 // Conditional formatting untuk baris yang totalnya sama dengan total_biaya
-                $totalBiayaFormulir = MasterBiaya::where('jenis_biaya', 'formulir')->value('total_biaya') ?? 0;
-                $totalBiayaPPDB = MasterBiaya::where('jenis_biaya', 'ppdb')->value('total_biaya') ?? 0;
-                $totalBiayaSemua = $totalBiayaFormulir + $totalBiayaPPDB;
+                $totalBiayaSemua = MasterBiaya::where('status', 1)->sum('total_biaya');
 
                 for ($row = 2; $row <= $lastRow; $row++) {
                     // Ambil nilai total dari kolom O
@@ -303,20 +315,87 @@ class LaporanPembayaranExport implements FromCollection, WithHeadings, WithMappi
                         $totalNumeric = (float) $cleanValue;
                     }
                     
-                    // Jika total pembayaran sama dengan total biaya, beri background hijau
-                    if ($totalNumeric > 0 && $totalNumeric == $totalBiayaSemua) {
+                    // Jika total pembayaran sama dengan atau lebih dari total biaya, beri background hijau
+                    if ($totalNumeric > 0 && $totalNumeric >= $totalBiayaSemua) {
                         $range = 'A' . $row . ':P' . $row;
                         
                         $sheet->getStyle($range)->applyFromArray([
                             'fill' => [
                                 'fillType' => Fill::FILL_SOLID,
                                 'startColor' => [
-                                    'argb' => 'FF90EE90', // Warna hijau muda
+                                    'argb' => 'FFD5F5E3', // Warna hijau lembut (soft green)
                                 ],
                             ],
                         ]);
                     }
                 }
+
+                // Warnai cell pembayaran secara spesifik berdasarkan metode pembayaran (Tunai vs Transfer)
+                // Diterapkan setelah warna hijau agar warna metode pembayaran menimpa di atas baris hijau
+                foreach ($this->paymentMethods as $row => $cols) {
+                    foreach ($cols as $col => $method) {
+                        $color = ($method === 'transfer') ? 'D9E1F2' : 'FFFFD2'; // Biru Lembut (Transfer), Kuning Lembut (Tunai)
+                        $textColor = ($method === 'transfer') ? 'FF31708F' : 'FF8A6D3B'; // Teks biru tua (Transfer), Teks emas tua (Tunai)
+                        
+                        $sheet->getStyle($col . $row)->applyFromArray([
+                            'font' => [
+                                'bold' => true,
+                                'color' => ['argb' => $textColor]
+                            ],
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => [
+                                    'argb' => 'FF' . $color,
+                                ],
+                            ],
+                        ]);
+                    }
+                }
+
+                // Tambahkan petunjuk/legend metode pembayaran di sebelah rincian total
+                $legendRow = $lastRow + 3;
+                $sheet->setCellValue('D' . $legendRow, 'Petunjuk Metode Pembayaran:');
+                $sheet->getStyle('D' . $legendRow)->getFont()->setBold(true);
+                
+                $legendRow++;
+                $sheet->setCellValue('D' . $legendRow, 'TUNAI');
+                $sheet->setCellValue('E' . $legendRow, 'Pembayaran Tunai / Cash');
+                $sheet->getStyle('D' . $legendRow)->applyFromArray([
+                    'font' => ['bold' => true, 'color' => ['argb' => 'FF8A6D3B']],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['argb' => 'FFFFFFD2'], // Kuning Lembut
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => ['argb' => 'FFCCCCCC'],
+                        ],
+                    ],
+                ]);
+
+                $legendRow++;
+                $sheet->setCellValue('D' . $legendRow, 'TRANSFER');
+                $sheet->setCellValue('E' . $legendRow, 'Pembayaran Transfer Bank');
+                $sheet->getStyle('D' . $legendRow)->applyFromArray([
+                    'font' => ['bold' => true, 'color' => ['argb' => 'FF31708F']],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['argb' => 'FFD9E1F2'], // Biru Lembut
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => ['argb' => 'FFCCCCCC'],
+                        ],
+                    ],
+                ]);
 
                 // Tambahkan border untuk seluruh data
                 $dataRange = 'A1:P' . $lastRow;

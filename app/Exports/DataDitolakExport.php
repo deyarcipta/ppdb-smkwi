@@ -9,14 +9,37 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithDefaultStyles;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Style;
 
-class DataDitolakExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths, WithDefaultStyles
+class DataDitolakExport extends DefaultValueBinder implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths, WithDefaultStyles, WithCustomValueBinder, WithCustomStartCell, WithEvents
 {
+    protected $dataCount = 0;
+
+    public function bindValue(Cell $cell, $value)
+    {
+        $column = $cell->getColumn();
+        
+        // Format columns containing numbers with long digits (or leading zeros) explicitly as text
+        if (in_array($column, ['F', 'G', 'H', 'M', 'AI', 'AO', 'AS', 'AW'])) {
+            // If the value is null or empty, write empty string
+            $val = is_null($value) ? '' : (string) $value;
+            $cell->setValueExplicit($val, DataType::TYPE_STRING);
+            return true;
+        }
+
+        return parent::bindValue($cell, $value);
+    }
     public function collection()
     {
-        return UserSiswa::with([
+        $collection = UserSiswa::with([
             'dataSiswa', 
             'dataSiswa.gelombang', 
             'dataSiswa.jurusan',
@@ -27,6 +50,9 @@ class DataDitolakExport implements FromCollection, WithHeadings, WithMapping, Wi
         })
         ->orderBy('created_at', 'desc')
         ->get();
+
+        $this->dataCount = $collection->count();
+        return $collection;
     }
 
     public function headings(): array
@@ -231,8 +257,8 @@ class DataDitolakExport implements FromCollection, WithHeadings, WithMapping, Wi
 
     public function styles(Worksheet $sheet)
     {
-        // Set row height untuk header (row 1)
-        $sheet->getRowDimension(1)->setRowHeight(40);
+        // Set row height untuk header (row 4)
+        $sheet->getRowDimension(4)->setRowHeight(40);
 
         // Set wrap text untuk semua cell
         $sheet->getStyle('A:BA')->getAlignment()->setWrapText(true);
@@ -241,8 +267,8 @@ class DataDitolakExport implements FromCollection, WithHeadings, WithMapping, Wi
         $sheet->getStyle('A:BA')->getAlignment()->setVertical('top');
 
         return [
-            // Style untuk header (row 1)
-            1 => [
+            // Style untuk header (row 4)
+            4 => [
                 'font' => [
                     'bold' => true,
                     'size' => 11,
@@ -264,8 +290,8 @@ class DataDitolakExport implements FromCollection, WithHeadings, WithMapping, Wi
                 ],
             ],
             
-            // Style untuk data rows
-            'A2:BA1000' => [
+            // Style untuk data rows (mulai baris 5)
+            'A5:BA' . (4 + $this->dataCount) => [
                 'alignment' => [
                     'vertical' => 'top',
                     'wrapText' => true,
@@ -296,6 +322,68 @@ class DataDitolakExport implements FromCollection, WithHeadings, WithMapping, Wi
                 'name' => 'Arial',
                 'size' => 10,
             ],
+        ];
+    }
+
+    public function startCell(): string
+    {
+        return 'A4';
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $actualLastRow = 4 + $this->dataCount;
+                
+                // 1. Tulis Judul Laporan di Baris 1
+                $sheet->setCellValue('A1', 'LAPORAN DATA CALON SISWA DITOLAK - PPDB');
+                $sheet->mergeCells('A1:BA1');
+                $sheet->getStyle('A1')->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'size' => 16,
+                        'color' => ['argb' => 'FFFF3E1D'] // Sneat Danger Color
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    ]
+                ]);
+                
+                // 2. Tulis Subjudul (Tanggal Ekspor) di Baris 2
+                $sheet->setCellValue('A2', 'Diekspor pada: ' . now()->format('d/m/Y H:i') . ' | Total Data: ' . $this->dataCount . ' Calon Siswa');
+                $sheet->mergeCells('A2:BA2');
+                $sheet->getStyle('A2')->applyFromArray([
+                    'font' => [
+                        'italic' => true,
+                        'size' => 10,
+                        'color' => ['argb' => 'FF8592A3'] // Secondary text color
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    ]
+                ]);
+
+                // Set tinggi baris untuk judul
+                $sheet->getRowDimension(1)->setRowHeight(35);
+                $sheet->getRowDimension(2)->setRowHeight(20);
+                $sheet->getRowDimension(3)->setRowHeight(15); // Pemisah kosong
+
+                // 3. Berikan warna background selang-seling (Zebra striping) pada baris data untuk meningkatkan keterbacaan
+                for ($row = 5; $row <= $actualLastRow; $row++) {
+                    if ($row % 2 === 0) {
+                        $sheet->getStyle('A' . $row . ':BA' . $row)->applyFromArray([
+                            'fill' => [
+                                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                                'startColor' => ['argb' => 'FFF4F6F9'] // soft blue-gray
+                            ]
+                        ]);
+                    }
+                }
+            }
         ];
     }
 }
