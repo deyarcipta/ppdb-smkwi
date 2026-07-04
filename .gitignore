@@ -41,3 +41,5 @@ auth.json
 
 # Custom directories (jika ada folder sessions manual)
 sessions/
+*.zip
+whatsapp-bot/whatsapp-bot.zip

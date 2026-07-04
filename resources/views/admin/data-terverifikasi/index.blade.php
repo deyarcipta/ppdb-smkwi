@@ -116,6 +116,15 @@
                                     <button class="btn btn-warning btn-sm p-1" data-bs-toggle="modal" data-bs-target="#editStatusModal{{ $row->id }}" title="Edit Status">
                                         <i class="bx bx-edit fs-12"></i>
                                     </button>
+                                    
+                                    <!-- Tombol Kirim Ulang Info Pendaftaran -->
+                                    <button
+                                        class="btn btn-success btn-sm p-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#kirimInfoModal{{ $row->id }}"
+                                        title="Kirim Ulang Info Pendaftaran">
+                                        <i class="bx bxl-whatsapp fs-12"></i>
+                                    </button>
 
                                     <!-- Tombol Reset Password (Form langsung) -->
                                     <form action="{{ route('data-terverifikasi.reset-password') }}" method="POST" class="d-inline form-reset-password">
@@ -490,6 +499,49 @@
     </div>
 </div>
 
+@endforeach
+
+<!-- Modal Kirim Ulang Info Pendaftaran -->
+@foreach ($data as $row)
+<div class="modal fade" id="kirimInfoModal{{ $row->id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ route('data-terverifikasi.kirimUlang', $row->id) }}" method="POST">
+            @csrf
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Kirim Ulang Informasi Pendaftaran
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p>
+                        Kirim ulang informasi pendaftaran kepada:
+                    </p>
+
+                    <strong>{{ $row->nama_lengkap }}</strong><br>
+                    {{ $row->no_hp }}
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                        Batal
+                    </button>
+
+                    <button type="submit"
+                        class="btn btn-success">
+                        <i class="bx bxl-whatsapp"></i>
+                        Kirim Sekarang
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 @endforeach
 
 <!-- Modal Edit Status -->

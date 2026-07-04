@@ -9,6 +9,7 @@ use App\Models\MasterBiaya;
 use App\Models\TemplatePesan;
 use App\Models\ActivityLog;
 use App\Services\WhatsAppService;
+use App\Models\InfoPembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
@@ -125,45 +126,70 @@ class DataTerverifikasiController extends Controller
             return back()->with('error', 'Gagal mereset password: ' . $e->getMessage());
         }
     }
+    
+public function kirimUlang($id)
+{
+    try {
 
-    private function sendPenerimaanMessage($phoneNumber, $dataSiswa)
-    {
-        try {
-            // Ambil template pesan dari database
-            $template = TemplatePesan::where('jenis_pesan', 'pendaftar_diterima')
-                ->where('status', true)
-                ->first();
+        $user = UserSiswa::with(['dataSiswa.gelombang.tahunAjaran'])
+            ->findOrFail($id);
 
-            if (!$template) {
-                Log::warning('Template pesan "pendaftar_diterima" tidak ditemukan atau nonaktif');
-                return false;
-            }
-
-            // Siapkan placeholder data
-            $placeholders = $this->getPenerimaanPlaceholders($dataSiswa);
-
-            // Ganti placeholder dengan data aktual
-            $message = strtr($template->isi_pesan, $placeholders);
-
-             // Ganti placeholder dengan data aktual
-            $jenisPesan = strtr($template->judul, $placeholders);
-
-            // Kirim pesan WhatsApp
-            $result = $this->whatsappService->sendMessage($phoneNumber, $message, $jenisPesan);
-
-            if ($result['success']) {
-                Log::info("Pesan penerimaan berhasil dikirim ke: {$phoneNumber}");
-            } else {
-                Log::error("Gagal mengirim pesan penerimaan: " . ($result['error'] ?? 'Unknown error'));
-            }
-
-            return $result;
-
-        } catch (\Exception $e) {
-            Log::error('Error sendPenerimaanMessage: ' . $e->getMessage());
-            return false;
+        if (!$user->dataSiswa) {
+            return back()->with('error', 'Data siswa tidak ditemukan');
         }
+
+        $template = TemplatePesan::where('jenis_pesan', 'pendaftaran_baru')
+            ->where('status', true)
+            ->first();
+
+        if (!$template) {
+            return back()->with('error', 'Template pesan tidak ditemukan');
+        }
+
+        $dataSiswa = $user->dataSiswa;
+        $gelombang = $dataSiswa->gelombang ?? null;
+
+        $info = InfoPembayaran::first();
+
+        $tahunAjaran = optional($gelombang?->tahunAjaran)->nama
+            ?? ($gelombang->nama_gelombang ?? '-');
+
+        $placeholders = [
+            '{nama}'         => $dataSiswa->nama_lengkap ?? '-',
+            '{username}'     => $user->username ?? '-',
+            '{password}'     => 'password123',
+            '{tahun_ajaran}' => $tahunAjaran,
+            '{gelombang}'    => $gelombang->nama_gelombang ?? '-',
+
+            '{rekening}'     => $info->nomor_rekening ?? '-',
+            '{an}'           => $info->atas_nama ?? '-',
+            '{no_admin}'     => '0852-1815-0720',
+            '{url_sistem}'   => 'https://ppdb.smkwisataindonesia.sch.id/siswa',
+        ];
+
+        $message = strtr($template->isi_pesan, $placeholders);
+        $jenisPesan = strtr($template->judul, $placeholders);
+
+        // kirim WA
+        $result = $this->whatsappService->sendMessage(
+            $dataSiswa->no_hp,
+            $message,
+            $jenisPesan
+        );
+
+        // ✅ jangan tampilkan JSON ke user
+        if (isset($result['success']) && $result['success']) {
+            return back()->with('success', 'Pesan WhatsApp berhasil dikirim ulang');
+        }
+
+        return back()->with('error', 'Gagal mengirim pesan WhatsApp');
+
+    } catch (\Exception $e) {
+        Log::error('kirimUlang error: ' . $e->getMessage());
+
+        return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
+}
 
     private function getPenerimaanPlaceholders($dataSiswa)
     {

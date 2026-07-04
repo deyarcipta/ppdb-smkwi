@@ -137,6 +137,10 @@ Route::prefix('w1s4t4')->group(function () {
             Route::post('/data-terverifikasi/reset-password', [DataTerverifikasiAdminController::class, 'resetPassword'])
             ->name('data-terverifikasi.reset-password');
             Route::post('data-terverifikasi/update', [DataTerverifikasiAdminController::class, 'update'])->name('data-terverifikasi.update');
+            Route::post(
+                'data-terverifikasi/{id}/kirim-ulang',
+                [DataTerverifikasiAdminController::class, 'kirimUlang']
+            )->name('data-terverifikasi.kirimUlang');
             Route::delete('data-terverifikasi/{id}', [DataTerverifikasiAdminController::class, 'destroy'])->name('data-terverifikasi.destroy');
 
             // Kuota Master Biaya
