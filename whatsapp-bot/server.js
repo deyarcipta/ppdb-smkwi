@@ -113,6 +113,10 @@ async function initializeWhatsApp() {
 
         // ================= EVENTS =================
 
+        client.on("loading_screen", (percent, message) => {
+            console.log(`⏳ LOADING SCREEN: ${percent}% - ${message}`);
+        });
+
         client.on("qr", async (qr) => {
             console.log("📱 QR RECEIVED");
 
@@ -130,6 +134,7 @@ async function initializeWhatsApp() {
 
         client.on("authenticated", () => {
             console.log("✅ AUTHENTICATED - Session disimpan");
+            lastQr = null; // Hapus QR code karena sesi sudah terautentikasi
             isInitializing = false;
         });
 
