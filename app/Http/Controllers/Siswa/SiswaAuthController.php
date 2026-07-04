@@ -29,7 +29,23 @@ class SiswaAuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = UserSiswa::where('username', $request->username)->first();
+        $usernameInput = $request->username;
+        $pengaturan = \App\Models\PengaturanAplikasi::first();
+        
+        $user = null;
+        if ($pengaturan && $pengaturan->kartu_username_contoh && $pengaturan->kartu_username_contoh !== '[Username Anda]') {
+            $prefix = $pengaturan->kartu_username_contoh;
+            if (str_starts_with($usernameInput, $prefix)) {
+                // Ambil 3 digit terakhir
+                $lastThree = substr($usernameInput, -3);
+                // Cari user yang username-nya berakhiran 3 digit ini
+                $user = UserSiswa::where('username', 'like', '%' . $lastThree)->first();
+            }
+        }
+        
+        if (!$user) {
+            $user = UserSiswa::where('username', $usernameInput)->first();
+        }
 
         if ($user && Hash::check($request->password, $user->password)) {
             if ($user->status_akun != 'aktif') {

@@ -151,6 +151,39 @@
         </div>
       </div>
 
+      <!-- Pengaturan Cetak Kartu -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-4">
+            <div class="card-header bg-warning text-white">
+              <h6 class="mb-0 text-white"><i class="bx bx-printer"></i> Pengaturan Cetak Kartu</h6>
+            </div>
+            <div class="card-body mt-3">
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label class="form-label fw-bold">Fitur Cetak Kartu <span class="text-danger">*</span></label>
+                  <select name="enable_cetak_kartu" class="form-select" required>
+                    <option value="1" {{ $pengaturan->enable_cetak_kartu ? 'selected' : '' }}>Aktif (Siswa dapat mencetak kartu)</option>
+                    <option value="0" {{ !$pengaturan->enable_cetak_kartu ? 'selected' : '' }}>Nonaktif (Fitur cetak disembunyikan)</option>
+                  </select>
+                  <small class="text-muted d-block mt-1">Aktifkan agar siswa yang statusnya diterima dapat mencetak kartu peserta PPDB.</small>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label fw-bold">Instruksi Username Kartu</label>
+                  <input type="text" name="kartu_username_contoh" class="form-control" value="{{ $pengaturan->kartu_username_contoh }}">
+                  <small class="text-muted d-block mt-1">Kode awalan kustom. Gabung otomatis dengan 3 digit terakhir. Biarkan kosong untuk username asli. Contoh: <code>K010401310</code></small>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label fw-bold">Instruksi Password Kartu</label>
+                  <input type="text" name="kartu_password_contoh" class="form-control" value="{{ $pengaturan->kartu_password_contoh }}">
+                  <small class="text-muted d-block mt-1">Password default. Biarkan kosong jika ingin mencetak **Password Acak Otomatis** siswa. Contoh: <code>password123</code></small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Preview & Action -->
       <div class="row">
         <div class="col-12">

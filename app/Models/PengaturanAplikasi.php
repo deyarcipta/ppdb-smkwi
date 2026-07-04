@@ -27,11 +27,15 @@ class PengaturanAplikasi extends Model
         'meta_description',
         'meta_keywords',
         'maintenance_mode',
-        'maintenance_message'
+        'maintenance_message',
+        'enable_cetak_kartu',
+        'kartu_username_contoh',
+        'kartu_password_contoh'
     ];
 
     protected $casts = [
-        'maintenance_mode' => 'boolean'
+        'maintenance_mode' => 'boolean',
+        'enable_cetak_kartu' => 'boolean'
     ];
 
     /**
@@ -50,6 +54,9 @@ class PengaturanAplikasi extends Model
                 'telepon' => '+62 21 1234567',
                 'alamat' => 'Jl. Contoh Alamat No. 123',
                 'maintenance_mode' => false,
+                'enable_cetak_kartu' => true,
+                'kartu_username_contoh' => '[Username Anda]',
+                'kartu_password_contoh' => 'password123',
             ]);
         }
         

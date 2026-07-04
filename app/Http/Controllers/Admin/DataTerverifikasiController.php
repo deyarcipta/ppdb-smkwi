@@ -10,9 +10,14 @@ use App\Models\TemplatePesan;
 use App\Models\ActivityLog;
 use App\Services\WhatsAppService;
 use App\Models\InfoPembayaran;
+use App\Models\DataSiswa;
+use App\Models\GelombangPendaftaran;
+use App\Models\Jurusan;
+use App\Models\DataSmp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class DataTerverifikasiController extends Controller
 {
@@ -37,7 +42,12 @@ class DataTerverifikasiController extends Controller
         $totalBiaya = MasterBiaya::where('jenis_biaya', 'ppdb')
             ->first()->total_biaya ?? 0;
 
-        return view('admin.data-terverifikasi.index', compact('data', 'totalBiaya'));
+        // Ambil gelombang dan jurusan aktif untuk modal tambah
+        $gelombangs = GelombangPendaftaran::where('status', 'aktif')->get();
+        $jurusans = Jurusan::where('status', 1)->get();
+        $dataSmp = DataSmp::all();
+
+        return view('admin.data-terverifikasi.index', compact('data', 'totalBiaya', 'gelombangs', 'jurusans', 'dataSmp'));
     }
 
     public function update(Request $request)
@@ -112,14 +122,16 @@ class DataTerverifikasiController extends Controller
         try {
             $user = UserSiswa::findOrFail($request->user_id);
             
-            // Reset password ke default
-            $newPassword = 'password123';
+            // Reset password ke random 6 digit
+            $newPassword = str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
             $user->password = Hash::make($newPassword);
+            $user->password_plain = $newPassword;
             $user->save();
 
             return back()->with([
                 'success' => 'Password berhasil direset',
-                'password_reset' => true
+                'password_reset' => true,
+                'new_password' => $newPassword
             ]);
 
         } catch (\Exception $e) {
@@ -191,6 +203,31 @@ public function kirimUlang($id)
     }
 }
 
+    private function sendPenerimaanMessage($phoneNumber, $dataSiswa)
+    {
+        try {
+            $template = TemplatePesan::where('jenis_pesan', 'pendaftar_diterima')
+                ->where('status', true)
+                ->first();
+
+            if (!$template) {
+                Log::warning('Template pesan "pendaftar_diterima" tidak ditemukan atau nonaktif.');
+                return;
+            }
+
+            $placeholders = $this->getPenerimaanPlaceholders($dataSiswa);
+
+            $message = strtr($template->isi_pesan, $placeholders);
+            $jenisPesan = strtr($template->judul, $placeholders);
+
+            // Kirim pesan WhatsApp
+            $this->whatsappService->sendMessage($phoneNumber, $message, $jenisPesan);
+
+        } catch (\Exception $e) {
+            Log::error('Error sendPenerimaanMessage: ' . $e->getMessage());
+        }
+    }
+
     private function getPenerimaanPlaceholders($dataSiswa)
     {
         $currentYear = date('Y');
@@ -232,5 +269,188 @@ public function kirimUlang($id)
         $user->delete();
 
         return back()->with('success', 'Data pendaftar terverifikasi berhasil dihapus!');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nisn' => 'required|string|max:20|unique:data_siswa,nisn',
+            'nama_lengkap' => 'required|string|max:255',
+            'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan',
+            'email' => 'required|email|unique:users_siswa,email',
+            'no_hp' => 'required|string|max:15',
+            'asal_sekolah' => 'required|string|max:255',
+            'gelombang_id' => 'required|exists:gelombang_pendaftaran,id',
+            'jurusan_id' => 'required|exists:jurusans,id',
+            'no_hp_ayah' => 'nullable|string|max:15',
+            'no_hp_ibu' => 'nullable|string|max:15',
+            'referensi' => 'required|string|max:255',
+        ], [
+            'nisn.unique' => 'NISN ini sudah terdaftar di sistem.',
+            'email.unique' => 'Email ini sudah terdaftar di sistem.',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $gelombang = GelombangPendaftaran::findOrFail($request->gelombang_id);
+            $tahunAjaranId = $gelombang->tahun_ajaran_id;
+
+            // Generate username otomatis
+            $username = $this->generateUsername();
+            
+            // Generate password default (random 6 digit)
+            $plainPassword = str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
+            $password = Hash::make($plainPassword);
+
+            // 1. Simpan ke tabel users_siswa
+            $user = UserSiswa::create([
+                'username' => $username,
+                'email' => $request->email,
+                'password' => $password,
+                'password_plain' => $plainPassword,
+                'role' => 'siswa',
+                'status_akun' => 'aktif',
+            ]);
+
+            // Generate nomor pendaftaran
+            $noPendaftaran = $this->generateNoPendaftaran($request->jurusan_id, $request->gelombang_id, $username);
+
+            // 2. Simpan ke tabel data_siswa
+            $dataSiswa = DataSiswa::create([
+                'user_id' => $user->id,
+                'gelombang_id' => $request->gelombang_id,
+                'tahun_ajaran_id' => $tahunAjaranId,
+                'jurusan_id' => $request->jurusan_id,
+                'no_pendaftaran' => $noPendaftaran,
+                'nisn' => $request->nisn,
+                'nama_lengkap' => $request->nama_lengkap,
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'no_hp' => $request->no_hp,
+                'asal_sekolah' => $request->asal_sekolah,
+                'no_hp_ayah' => $request->no_hp_ayah,
+                'no_hp_ibu' => $request->no_hp_ibu,
+                'referensi' => $request->referensi,
+                'status_pendaftar' => 'pending',
+                'is_form_completed' => true,
+            ]);
+
+            // Kirim pesan WhatsApp Selamat Datang
+            $this->sendWelcomeMessage($request->no_hp, $username, $request->nama_lengkap, $gelombang, $plainPassword);
+
+            DB::commit();
+
+            ActivityLog::logManual(
+                "Mendaftarkan siswa secara manual #{$dataSiswa->id} - {$dataSiswa->nama_lengkap} (Username: {$username})",
+                'create'
+            );
+
+            return back()->with('success', 'Siswa berhasil didaftarkan secara manual dengan username: ' . $username . ' dan password: password123');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Manual Pendaftaran error: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mendaftarkan siswa: ' . $e->getMessage());
+        }
+    }
+
+    private function generateUsername()
+    {
+        $tahun = date('Y');
+        $prefix = "PPDB{$tahun}";
+        
+        $lastUser = UserSiswa::where('username', 'like', $prefix . '%')
+            ->orderBy('username', 'desc')
+            ->first();
+
+        if ($lastUser) {
+            $lastNumber = intval(str_replace($prefix, '', $lastUser->username));
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        $formattedNumber = str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        
+        return $prefix . $formattedNumber;
+    }
+
+    private function generateNoPendaftaran($jurusanId, $gelombangId, $username)
+    {
+        try {
+            $jurusan = Jurusan::find($jurusanId);
+            $kodeJurusan = $jurusan ? $jurusan->kode_jurusan : 'UMUM';
+
+            $gelombang = GelombangPendaftaran::find($gelombangId);
+            $tahunAjaran = $gelombang->tahunAjaran ? $gelombang->tahunAjaran->nama : date('Y');
+            
+            $namaGelombang = $gelombang ? $gelombang->nama_gelombang : 'Gelombang 1';
+            $angkaGelombang = $this->convertToRoman($namaGelombang);
+
+            $lastThreeDigits = substr($username, -3);
+
+            $noPendaftaran = "PPDB/{$kodeJurusan}/{$tahunAjaran}/{$angkaGelombang}/{$lastThreeDigits}";
+            return $noPendaftaran;
+        } catch (\Exception $e) {
+            Log::error('Error generating no_pendaftaran: ' . $e->getMessage());
+            return "PPDB/UMUM/" . date('Y') . "/I/001";
+        }
+    }
+
+    private function convertToRoman($namaGelombang)
+    {
+        preg_match('/\d+/', $namaGelombang, $matches);
+        $angka = $matches[0] ?? 1;
+
+        $romawi = [
+            1 => 'I',
+            2 => 'II',
+            3 => 'III',
+            4 => 'IV',
+            5 => 'V',
+            6 => 'VI',
+            7 => 'VII',
+            8 => 'VIII',
+            9 => 'IX',
+            10 => 'X'
+        ];
+
+        return $romawi[$angka] ?? 'I';
+    }
+
+    private function sendWelcomeMessage($phoneNumber, $username, $namaLengkap, $gelombang, $plainPassword)
+    {
+        try {
+            $template = TemplatePesan::where('jenis_pesan', 'pendaftaran_baru')
+                ->where('status', true)
+                ->first();
+
+            if (!$template) {
+                Log::warning('Template pesan "pendaftaran_baru" tidak ditemukan atau nonaktif.');
+                return;
+            }
+
+            $tahunAjaran = $gelombang->tahunAjaran->nama ?? $gelombang->nama;
+            $info = InfoPembayaran::first();
+
+            $placeholders = [
+                '{nama}' => $namaLengkap,
+                '{username}' => $username,
+                '{password}' => $plainPassword,
+                '{tahun_ajaran}' => $tahunAjaran,
+                '{gelombang}' => $gelombang->nama_gelombang,
+                '{rekening}' => $info->nomor_rekening ?? '-',
+                '{an}' => $info->atas_nama ?? '-',
+                '{no_admin}' => '0852-1815-0720',
+                '{url_sistem}' => 'https://ppdb.smkwisataindonesia.sch.id/siswa',
+            ];
+
+            $message = strtr($template->isi_pesan, $placeholders);
+            $jenisPesan = strtr($template->judul, $placeholders);
+
+            // Kirim pesan WhatsApp
+            $this->whatsappService->sendMessage($phoneNumber, $message, $jenisPesan);
+
+        } catch (\Exception $e) {
+            Log::error('Error sendWelcomeMessage: ' . $e->getMessage());
+        }
     }
 }

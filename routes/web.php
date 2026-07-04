@@ -134,6 +134,7 @@ Route::prefix('w1s4t4')->group(function () {
 
             // Data Terverifikasi
             Route::get('data-terverifikasi', [DataTerverifikasiAdminController::class, 'index'])->name('data-terverifikasi.index');
+            Route::post('data-terverifikasi/store', [DataTerverifikasiAdminController::class, 'store'])->name('data-terverifikasi.store');
             Route::post('/data-terverifikasi/reset-password', [DataTerverifikasiAdminController::class, 'resetPassword'])
             ->name('data-terverifikasi.reset-password');
             Route::post('data-terverifikasi/update', [DataTerverifikasiAdminController::class, 'update'])->name('data-terverifikasi.update');
@@ -261,6 +262,7 @@ Route::prefix('siswa')->group(function () {
 
     Route::middleware(['auth:siswa'])->group(function () {
         Route::get('/dashboard', [DashboardSiswaController::class, 'index'])->name('siswa.dashboard');
+        Route::get('/cetak-kartu', [DashboardSiswaController::class, 'cetakKartu'])->name('siswa.cetak-kartu');
 
         Route::put('/password/update', [SiswaAuthController::class, 'updatePassword'])
             ->name('siswa.password.update');

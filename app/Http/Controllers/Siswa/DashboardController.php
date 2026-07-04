@@ -519,4 +519,30 @@ class DashboardController extends Controller
                 return ['Menunggu', 'warning'];
         }
     }
+
+    /**
+     * Cetak kartu peserta PPDB
+     */
+    public function cetakKartu()
+    {
+        $user = Auth::user();
+        $dataSiswa = $user->dataSiswa ?? null;
+
+        // Ambil data setting
+        $pengaturan = PengaturanAplikasi::first();
+
+        // Cek apakah fitur cetak kartu diaktifkan oleh admin
+        if (!$pengaturan || !$pengaturan->enable_cetak_kartu) {
+            return redirect()->route('siswa.dashboard')
+                ->with('error', 'Fitur cetak kartu belum diaktifkan oleh administrator.');
+        }
+
+        // Cek status siswa (harus diterima / step 6)
+        if (!$dataSiswa || $dataSiswa->status_pendaftar !== 'diterima') {
+            return redirect()->route('siswa.dashboard')
+                ->with('error', 'Anda belum dapat mencetak kartu peserta. Pastikan status pendaftaran Anda sudah Diterima.');
+        }
+
+        return view('siswa.cetak-kartu', compact('user', 'dataSiswa', 'pengaturan'));
+    }
 }

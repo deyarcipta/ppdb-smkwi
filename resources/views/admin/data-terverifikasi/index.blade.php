@@ -1,19 +1,27 @@
 @extends('admin.layouts.app')
-@section('title', 'Data Terverifikasi')
+@section('title', 'Data Pendaftar')
 
 @section('content')
+<!-- Select2 CSS & Fix Double Render -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<style>
+    select.select2-hidden-accessible {
+        display: none !important;
+    }
+</style>
 <div class="container-fluid p-0">
     <div class="card card-full-width">
         <div class="card-header d-flex justify-content-between align-items-center">
 
             <!-- Judul (KIRI) -->
-            <h5 class="mb-0">Data Terverifikasi</h5>
+            <h5 class="mb-0">Data Pendaftar (Total: {{ $data->total() }} Pendaftar)</h5>
 
-            <!-- Kanan: Search + Total -->
+            <!-- Kanan: Search + Button Tambah -->
             <div class="d-flex align-items-center gap-3">
 
                 <!-- Form Search -->
-                <div class="input-group input-group-sm" style="width: 300px;">
+                <div class="input-group input-group-sm" style="width: 250px;">
                     <span class="input-group-text">
                         <i class="bx bx-search"></i>
                     </span>
@@ -21,10 +29,10 @@
                         placeholder="Cari No Daftar / Nama / Asal Sekolah / No HP...">
                 </div>
 
-                <!-- Total -->
-                <div class="text-muted small">
-                    Total: {{ $data->total() }} Data Terverifikasi
-                </div>
+                <!-- Button Tambah -->
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tambahManualModal">
+                    <i class="bx bx-plus-circle"></i> Tambah Pendaftar
+                </button>
 
             </div>
         </div>
@@ -609,10 +617,137 @@
     </div>
 </div>
 @endforeach
+
+<!-- Modal Tambah Pendaftar Manual -->
+<div class="modal fade" id="tambahManualModal" aria-labelledby="tambahManualModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form class="modal-content" method="POST" action="{{ route('data-terverifikasi.store') }}">
+            @csrf
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="tambahManualModalLabel"><i class="bx bx-user-plus me-2"></i>Tambah Pendaftar Manual</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-info border small mb-4 text-start">
+                    <i class="bx bx-info-circle me-1"></i> Pendaftar yang ditambahkan secara manual oleh admin akan langsung dibuatkan akun aktif dengan password default <strong><code>password123</code></strong>. Pesan sambutan berisi detail akun juga akan dikirimkan otomatis via WhatsApp jika Bot dalam kondisi terhubung.
+                </div>
+
+                <div class="row text-start">
+                    <!-- Kolom Kiri -->
+                    <div class="col-md-6 text-start">
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold text-start d-block">NISN <span class="text-danger">*</span></label>
+                            <input type="text" name="nisn" class="form-control" placeholder="Contoh: 0012345678" required pattern="\d+" title="NISN harus berupa angka">
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold text-start d-block">Nama Lengkap <span class="text-danger">*</span></label>
+                            <input type="text" name="nama_lengkap" class="form-control" placeholder="Nama sesuai ijazah" required>
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold text-start d-block">Jenis Kelamin <span class="text-danger">*</span></label>
+                            <select name="jenis_kelamin" class="form-select" required>
+                                <option value="">-- Pilih Jenis Kelamin --</option>
+                                <option value="Laki-Laki">Laki-Laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold text-start d-block">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" placeholder="Contoh: siswa@gmail.com" required>
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold text-start d-block">No. HP (WhatsApp) <span class="text-danger">*</span></label>
+                            <input type="text" name="no_hp" class="form-control" placeholder="Contoh: 08123456789" required pattern="\d+" title="No HP harus berupa angka">
+                        </div>
+                    </div>
+
+                    <!-- Kolom Kanan -->
+                    <div class="col-md-6 text-start">
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold text-start d-block">Asal Sekolah (SMP/MTs) <span class="text-danger">*</span></label>
+                            <select id="asal_sekolah_select" class="form-select" required>
+                                <option value="">-- Pilih Asal Sekolah --</option>
+                                @foreach($dataSmp as $smp)
+                                    <option value="{{ $smp->nama_smp }}">{{ $smp->nama_smp }}</option>
+                                @endforeach
+                                <option value="SMP Lainnya">SMP Lainnya</option>
+                            </select>
+                            <input type="hidden" name="asal_sekolah" id="asal_sekolah_hidden">
+                        </div>
+
+                        <div class="mb-3 text-start" id="asal_sekolah_lain_container" style="display: none;">
+                            <label class="form-label fw-bold text-start d-block">Nama SMP Lainnya <span class="text-danger">*</span></label>
+                            <input type="text" id="asal_sekolah_lain" class="form-control" placeholder="Masukkan nama SMP manual">
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold text-start d-block">Gelombang Pendaftaran <span class="text-danger">*</span></label>
+                            <select name="gelombang_id" class="form-select" required>
+                                <option value="">-- Pilih Gelombang --</option>
+                                @foreach($gelombangs as $g)
+                                    <option value="{{ $g->id }}">{{ $g->nama_gelombang }} ({{ optional($g->tahunAjaran)->nama }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold text-start d-block">Pilihan Jurusan <span class="text-danger">*</span></label>
+                            <select name="jurusan_id" class="form-select" required>
+                                <option value="">-- Pilih Jurusan --</option>
+                                @foreach($jurusans as $j)
+                                    <option value="{{ $j->id }}">{{ $j->nama_jurusan }} ({{ $j->kode_jurusan }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold text-start d-block">Referensi Info Pendaftaran <span class="text-danger">*</span></label>
+                            <select name="referensi" class="form-select" required>
+                                <option value="">-- Pilih Referensi --</option>
+                                <option value="Sosial Media">Sosial Media</option>
+                                <option value="Teman / Keluarga">Teman / Keluarga</option>
+                                <option value="Brosur">Brosur</option>
+                                <option value="Guru / Sekolah Asal">Guru / Sekolah Asal</option>
+                                <option value="Alumni">Alumni</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+
+                        <div class="row text-start">
+                            <div class="col-6 mb-3 text-start">
+                                <label class="form-label fw-bold text-start d-block">No. HP Ayah</label>
+                                <input type="text" name="no_hp_ayah" class="form-control" placeholder="Contoh: 0812..." pattern="\d+" title="No HP harus berupa angka">
+                            </div>
+                            <div class="col-6 mb-3 text-start">
+                                <label class="form-label fw-bold text-start d-block">No. HP Ibu</label>
+                                <input type="text" name="no_hp_ibu" class="form-control" placeholder="Contoh: 0812..." pattern="\d+" title="No HP harus berupa angka">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary"><i class="bx bx-save"></i> Daftarkan Siswa</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @push('styles')
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 <style>
+select.select2-hidden-accessible {
+    display: none !important;
+}
 .card-full-width {
     margin-left: -1.5rem;
     margin-right: -1.5rem;
@@ -692,6 +827,8 @@
 @endpush
 
 @push('scripts')
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -843,12 +980,69 @@ document.addEventListener('DOMContentLoaded', function() {
         icon: 'success',
         title: 'Password Berhasil Direset!',
         html: '<p>Password telah berhasil direset.</p>' +
-              '<p>Password baru: <code>password123</code></p>' +
+              '<p>Password baru: <code>{{ session('new_password') }}</code></p>' +
               '<p>Harap catat password ini dan berikan ke siswa.</p>',
         confirmButtonText: 'OK',
         confirmButtonColor: '#ffc107'
     });
     @endif
+
+    // Inisialisasi Select2 untuk dropdown asal sekolah di modal manual
+    if ($('#asal_sekolah_select').length) {
+        $('#asal_sekolah_select').select2({
+            theme: 'bootstrap-5',
+            placeholder: '-- Pilih Asal Sekolah --',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#tambahManualModal')
+        });
+
+        // Event handler ketika nilai berubah di Select2
+        $('#asal_sekolah_select').on('change', function() {
+            const val = $(this).val();
+            const container = $('#asal_sekolah_lain_container');
+            const input = $('#asal_sekolah_lain');
+            
+            if (val === 'SMP Lainnya') {
+                container.slideDown();
+                input.prop('required', true);
+            } else {
+                container.slideUp();
+                input.prop('required', false).val('');
+            }
+        });
+    }
+
+    // Set value input hidden sebelum form disubmit
+    const tambahManualModal = document.getElementById('tambahManualModal');
+    if (tambahManualModal) {
+        const form = tambahManualModal.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const selectVal = $('#asal_sekolah_select').val();
+                const hiddenInput = document.getElementById('asal_sekolah_hidden');
+                const lainInput = document.getElementById('asal_sekolah_lain');
+                
+                if (selectVal === 'SMP Lainnya') {
+                    const lainVal = lainInput.value.trim();
+                    if (!lainVal) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Asal Sekolah Wajib Diisi',
+                            text: 'Harap masukkan nama SMP Lainnya.',
+                            confirmButtonColor: '#d33'
+                        });
+                        lainInput.focus();
+                        return false;
+                    }
+                    hiddenInput.value = lainVal;
+                } else {
+                    hiddenInput.value = selectVal;
+                }
+            });
+        }
+    }
 });
 
 document.addEventListener('DOMContentLoaded', function () {

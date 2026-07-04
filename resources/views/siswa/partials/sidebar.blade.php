@@ -50,6 +50,19 @@
         <div>Pengumuman</div>
       </a>
     </li>
+    
+    @php
+        $pengaturan_aplikasi = \App\Models\PengaturanAplikasi::first();
+    @endphp
+
+    @if($pengaturan_aplikasi && $pengaturan_aplikasi->enable_cetak_kartu && Auth::user()->dataSiswa && Auth::user()->dataSiswa->status_pendaftar == 'diterima')
+        <li class="menu-item {{ Request::is('siswa/cetak-kartu') ? 'active' : '' }}">
+            <a href="{{ route('siswa.cetak-kartu') }}" target="_blank" class="menu-link">
+                <i class="menu-icon bx bx-printer"></i>
+                <div>Cetak Kartu</div>
+            </a>
+        </li>
+    @endif
   </ul>
 </aside>
 

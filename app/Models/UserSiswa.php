@@ -16,6 +16,7 @@ class UserSiswa extends Authenticatable
     protected $fillable = [
         'username',
         'password',
+        'password_plain',
         'email',
         'role',
         'status_akun',

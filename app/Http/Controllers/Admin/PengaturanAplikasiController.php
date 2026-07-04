@@ -33,6 +33,9 @@ class PengaturanAplikasiController extends Controller
             'meta_description' => 'nullable|string|max:160',
             'meta_keywords' => 'nullable|string|max:255',
             'maintenance_message' => 'nullable|string|max:500',
+            'enable_cetak_kartu' => 'required|boolean',
+            'kartu_username_contoh' => 'nullable|string|max:255',
+            'kartu_password_contoh' => 'nullable|string|max:255',
         ]);
 
         $pengaturan = PengaturanAplikasi::getSettings();

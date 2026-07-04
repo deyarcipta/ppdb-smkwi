@@ -564,6 +564,12 @@
             <i class='bx bx-file me-2'></i>Lihat Formulir
           </button>
           
+          @if($pengaturan_aplikasi && $pengaturan_aplikasi->enable_cetak_kartu)
+            <a href="{{ route('siswa.cetak-kartu') }}" target="_blank" class="btn btn-outline-warning">
+              <i class='bx bx-printer me-2'></i>Cetak Kartu
+            </a>
+          @endif
+          
           <a href="{{ route('siswa.pengumuman.index') }}" class="btn btn-outline-success">
             <i class='bx bx-news me-2'></i>Pengumuman
           </a>

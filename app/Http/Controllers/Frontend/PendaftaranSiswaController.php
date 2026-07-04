@@ -84,14 +84,16 @@ class PendaftaranSiswaController extends Controller
             // Generate username otomatis
             $username = $this->generateUsername();
             
-            // Generate password default
-            $password = Hash::make('password123');
+            // Generate password default (random 6 digit)
+            $plainPassword = str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
+            $password = Hash::make($plainPassword);
 
             // 4. SIMPAN KE TABEL USERS_SISWA
             $user = UserSiswa::create([
                 'username' => $username,
                 'email' => $validated['email'],
                 'password' => $password,
+                'password_plain' => $plainPassword,
                 'role' => 'siswa',
                 'status_akun' => 'aktif',
             ]);
@@ -130,7 +132,8 @@ class PendaftaranSiswaController extends Controller
                 $validated['no_hp'], 
                 $username, 
                 $validated['nama_lengkap'],
-                $gelombangAktif
+                $gelombangAktif,
+                $plainPassword
             );
 
             DB::commit();
@@ -262,7 +265,7 @@ class PendaftaranSiswaController extends Controller
     /**
      * KIRIM PESAN WELCOME WHATSAPP
      */
-    private function sendWelcomeMessage($phoneNumber, $username, $namaLengkap, $gelombangAktif)
+    private function sendWelcomeMessage($phoneNumber, $username, $namaLengkap, $gelombangAktif, $plainPassword)
     {
         try {
             $template = \App\Models\TemplatePesan::where('jenis_pesan', 'pendaftaran_baru')
@@ -279,7 +282,7 @@ class PendaftaranSiswaController extends Controller
             $placeholders = [
                 '{nama}' => $namaLengkap,
                 '{username}' => $username,
-                '{password}' => 'password123',
+                '{password}' => $plainPassword,
                 '{tahun_ajaran}' => $tahunAjaran,
                 '{gelombang}' => $gelombangAktif->nama_gelombang,
                 '{rekening}' => '1234567890',
