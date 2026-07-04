@@ -43,3 +43,6 @@ auth.json
 sessions/
 *.zip
 whatsapp-bot/whatsapp-bot.zip
+
+whatsapp-bot/sessions/
+whatsapp-bot/.wwebjs_cache/
