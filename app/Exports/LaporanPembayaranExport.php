@@ -95,9 +95,9 @@ class LaporanPembayaranExport implements FromCollection, WithHeadings, WithMappi
         // Ambil semua pembayaran yang diverifikasi, diurutkan berdasarkan created_at
         $allPayments = $siswa->pembayaran->where('status', 'diverifikasi')->sortBy('created_at');
         
-        // Pisahkan pembayaran formulir dan cicilan PPDB
+        // Pisahkan pembayaran formulir dan cicilan PPDB/biaya lainnya
         $pembayaranFormulir = $allPayments->where('jenis_pembayaran', 'formulir')->first();
-        $pembayaranCicilan = $allPayments->where('jenis_pembayaran', 'ppdb');
+        $pembayaranCicilan = $allPayments->where('jenis_pembayaran', '!=', 'formulir');
         
         $formulir = $pembayaranFormulir ? 'Rp ' . number_format($pembayaranFormulir->jumlah, 0, ',', '.') : '-';
         $totalFormulirSiswa = $pembayaranFormulir ? $pembayaranFormulir->jumlah : 0;

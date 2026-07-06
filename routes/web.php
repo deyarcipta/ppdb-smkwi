@@ -168,7 +168,7 @@ Route::prefix('w1s4t4')->group(function () {
             Route::get('verifikasi-pembayaran/{id}/download-bukti', [VerifikasiPembayaranAdminController::class, 'downloadBukti'])
                 ->name('verifikasi-pembayaran.download-bukti');
 
-            // Verifikasi Pembayaran
+            // Laporan Pembayaran
             Route::get('/laporan-pembayaran', [LaporanPembayaranAdminController::class, 'index'])->name('laporan-pembayaran.index');
             Route::get('/laporan-pembayaran/filter', [LaporanPembayaranAdminController::class, 'filter'])->name('laporan-pembayaran.filter');
             Route::get('/laporan-pembayaran/detail/{id}', [LaporanPembayaranAdminController::class, 'detail'])->name('laporan-pembayaran.detail');
@@ -198,6 +198,9 @@ Route::prefix('w1s4t4')->group(function () {
 
             Route::get('/admin/whatsapp/status', [WhatsappAdminController::class, 'status'])
                 ->name('whatsapp.status');
+
+            Route::post('/admin/whatsapp/start-server', [WhatsappAdminController::class, 'startServer'])
+                ->name('whatsapp.start-server');
 
 
             //Info Persyaratan Pendaftaran

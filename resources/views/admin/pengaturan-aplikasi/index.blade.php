@@ -87,6 +87,12 @@
               </div>
 
               <div class="mb-3">
+                <label>No Handphone Admin (Notifikasi WhatsApp Bot)</label>
+                <input type="text" name="no_hp_admin" class="form-control" value="{{ $pengaturan->no_hp_admin }}">
+                <small class="text-muted">Digunakan untuk menerima notifikasi pembayaran baru dari bot WhatsApp (Tidak ditampilkan di website).</small>
+              </div>
+
+              <div class="mb-3">
                 <label>Alamat</label>
                 <textarea name="alamat" class="form-control" rows="3">{{ $pengaturan->alamat }}</textarea>
               </div>

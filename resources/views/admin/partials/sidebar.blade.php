@@ -84,7 +84,7 @@
       </li>
 
       <!-- Pembayaran -->
-      <li class="menu-item {{ Request::is('w1s4t4/master-biaya*') || Request::is('w1s4t4/pembayaran*') || Request::is('w1s4t4/verifikasi-pembayaran*') ? 'open active' : '' }}">
+      <li class="menu-item {{ Request::is('w1s4t4/master-biaya*') || Request::is('w1s4t4/pembayaran*') || Request::is('w1s4t4/verifikasi-pembayaran*') || Request::is('w1s4t4/laporan-pembayaran*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon bx bx-money"></i>
           <div>Pembayaran</div>
@@ -101,7 +101,7 @@
           <li class="menu-item {{ Request::is('w1s4t4/pembayaran*') ? 'active' : '' }}">
             <a href="{{ route('pembayaran.index') }}" class="menu-link">Data Pembayaran</a>
           </li>
-          <li class="menu-item">
+          <li class="menu-item {{ Request::is('w1s4t4/laporan-pembayaran*') ? 'active' : '' }}">
             <a href="{{ route('laporan-pembayaran.index') }}" class="menu-link">Laporan Pembayaran</a>
           </li>
         </ul>

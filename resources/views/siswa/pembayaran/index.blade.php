@@ -93,9 +93,23 @@
 
                     <!-- Tombol Aksi -->
                     <div class="d-grid gap-2 mt-4">
-                        <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#tambahPembayaranModal">
-                            <i class="fas fa-plus me-2"></i>Tambah Pembayaran
-                        </button>
+                        @if($status == 'LUNAS')
+                            <button type="button" class="btn btn-success btn-lg" disabled>
+                                <i class="fas fa-check-circle me-2"></i>Pembayaran Lunas
+                            </button>
+                        @elseif($hasPendingPayment)
+                            <button type="button" class="btn btn-primary btn-lg bg-secondary border-secondary text-white" disabled style="cursor: not-allowed; opacity: 0.65;">
+                                <i class="fas fa-hourglass-half me-2"></i>Menunggu Verifikasi
+                            </button>
+                            <div class="alert alert-warning text-center py-2 px-3 mb-0 mt-2" style="font-size: 0.85rem;">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Anda memiliki transaksi yang sedang menunggu verifikasi. Harap tunggu hingga diverifikasi oleh admin sebelum mengupload bukti pembayaran baru.
+                            </div>
+                        @else
+                            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#tambahPembayaranModal">
+                                <i class="fas fa-plus me-2"></i>Tambah Pembayaran
+                            </button>
+                        @endif
                         <button class="btn btn-outline-secondary btn-lg">
                             <i class="fas fa-download me-2"></i>Download Invoice
                         </button>
@@ -332,11 +346,34 @@
                                                                     <select class="form-select" id="edit_jenis_pembayaran{{ $item->id }}" name="jenis_pembayaran" required>
                                                                         <option value="">Pilih Jenis Pembayaran</option>
                                                                         @foreach($MasterBiaya as $biaya)
-                                                                            <option value="{{ $biaya->jenis_biaya }}" 
-                                                                                {{ $item->jenis_pembayaran == $biaya->jenis_biaya ? 'selected' : '' }}>
-                                                                                {{ strtoupper(str_replace('_', ' ', $biaya->jenis_biaya)) }} - Rp {{ number_format($biaya->total_biaya, 0, ',', '.') }}
-                                                                            </option>
+                                                                            @if($biaya->jenis_biaya !== 'formulir' && $biaya->jenis_biaya !== 'full')
+                                                                                @php
+                                                                                    $optionSisa = $biaya->sisa_biaya;
+                                                                                    if ($item->master_biaya_id == $biaya->id) {
+                                                                                        $optionSisa += $item->jumlah;
+                                                                                    }
+                                                                                    $selected = ($item->master_biaya_id == $biaya->id) ? 'selected' : '';
+                                                                                @endphp
+                                                                                @if($optionSisa > 0 || $selected)
+                                                                                    <option value="{{ $biaya->id }}" data-tarif="{{ (int)$optionSisa }}" {{ $selected }}>
+                                                                                        {{ strtoupper(str_replace('_', ' ', $biaya->nama_biaya)) }} - Rp {{ number_format($optionSisa, 0, ',', '.') }}
+                                                                                    </option>
+                                                                                @endif
+                                                                            @endif
                                                                         @endforeach
+                                                                        
+                                                                        @php
+                                                                            $editTotalAll = $MasterBiaya->where('jenis_biaya', '!=', 'formulir')->sum('sisa_biaya');
+                                                                            if ($item->jenis_pembayaran === 'ppdb' && is_null($item->master_biaya_id)) {
+                                                                                $editTotalAll += $item->jumlah;
+                                                                            }
+                                                                            $semuaSelected = ($item->jenis_pembayaran === 'ppdb' && is_null($item->master_biaya_id)) ? 'selected' : '';
+                                                                        @endphp
+                                                                        @if($editTotalAll > 0 || $semuaSelected)
+                                                                            <option value="semua" data-tarif="{{ (int)$editTotalAll }}" {{ $semuaSelected }}>
+                                                                                BAYAR SEMUA SEKALIGUS - Rp {{ number_format($editTotalAll, 0, ',', '.') }}
+                                                                            </option>
+                                                                        @endif
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -484,22 +521,21 @@
                                     
                                     <!-- Opsi untuk pembayaran tertentu -->
                                     @foreach($MasterBiaya as $biaya)
-                                        @if($biaya->jenis_biaya !== 'formulir' && $biaya->jenis_biaya !== 'full')
-                                            <option value="{{ $biaya->jenis_biaya }}" 
-                                                {{ old('jenis_pembayaran') == $biaya->jenis_biaya ? 'selected' : '' }}>
-                                                {{ strtoupper(str_replace('_', ' ', $biaya->jenis_biaya)) }} - 
-                                                Rp {{ number_format($biaya->total_biaya, 0, ',', '.') }}
+                                        @if($biaya->jenis_biaya !== 'formulir' && $biaya->jenis_biaya !== 'full' && $biaya->sisa_biaya > 0)
+                                            <option value="{{ $biaya->id }}" data-tarif="{{ (int)$biaya->sisa_biaya }}"
+                                                {{ old('jenis_pembayaran') == $biaya->id ? 'selected' : '' }}>
+                                                {{ strtoupper(str_replace('_', ' ', $biaya->nama_biaya)) }} - 
+                                                Rp {{ number_format($biaya->sisa_biaya, 0, ',', '.') }}
                                             </option>
                                         @endif
                                     @endforeach
                                     
                                     <!-- Opsi untuk bayar semua sekaligus -->
-                                    @php
-                                        $totalAll = $MasterBiaya->where('jenis_biaya', '!=', 'formulir')->sum('total_biaya');
-                                    @endphp
-                                    <option value="semua" {{ old('jenis_pembayaran') == 'semua' ? 'selected' : '' }}>
+                                    @if($totalAll > 0)
+                                    <option value="semua" data-tarif="{{ (int)$totalAll }}" {{ old('jenis_pembayaran') == 'semua' ? 'selected' : '' }}>
                                         BAYAR SEMUA SEKALIGUS - Rp {{ number_format($totalAll, 0, ',', '.') }}
                                     </option>
+                                    @endif
                                 </select>
                                 @error('jenis_pembayaran')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -761,6 +797,33 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set max date for edit modals
     document.querySelectorAll('[id^="edit_tanggal_bayar"]').forEach(function(input) {
         input.max = today;
+    });
+
+    // Auto fill amount on change
+    const jenisPembayaran = document.getElementById('jenis_pembayaran');
+    const jumlahInput = document.getElementById('jumlah');
+    if (jenisPembayaran && jumlahInput) {
+        jenisPembayaran.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const tarif = selectedOption.getAttribute('data-tarif');
+            if (tarif) {
+                jumlahInput.value = tarif;
+            } else {
+                jumlahInput.value = '';
+            }
+        });
+    }
+
+    document.querySelectorAll('[id^="edit_jenis_pembayaran"]').forEach(select => {
+        select.addEventListener('change', function() {
+            const paymentId = this.id.replace('edit_jenis_pembayaran', '');
+            const editJumlahInput = document.getElementById('edit_jumlah' + paymentId);
+            const selectedOption = this.options[this.selectedIndex];
+            const tarif = selectedOption.getAttribute('data-tarif');
+            if (editJumlahInput && tarif) {
+                editJumlahInput.value = tarif;
+            }
+        });
     });
 
     // Reset form when modal is closed

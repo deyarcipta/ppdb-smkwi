@@ -44,6 +44,11 @@ function withTimeout(promise, ms, errorMessage = "Timeout") {
 }
 
 /**
+ * Jeda waktu (delay)
+ */
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
  * Menghancurkan client WhatsApp yang aktif dan membersihkan memori/Puppeteer
  */
 async function destroyClient() {
@@ -282,6 +287,31 @@ app.post("/send-message", async (req, res) => {
                 success: false,
                 message: "Nomor WhatsApp tidak terdaftar",
             });
+        }
+
+        // Get Chat object & simulate typing (anti-ban)
+        try {
+            const chat = await client.getChatById(numberId._serialized);
+            if (chat) {
+                // 1. Initial Delay (Simulasi membaca/bereaksi): 500ms - 1500ms
+                const initialDelay = Math.floor(Math.random() * 1000) + 500;
+                await delay(initialDelay);
+
+                // 2. Start Typing
+                await chat.sendStateTyping();
+
+                // 3. Dynamic Typing Delay berdasarkan panjang pesan (40ms per karakter), min 1.5 detik, max 5s
+                const typingDelay = Math.min(
+                    5000,
+                    Math.max(1500, message.length * 40),
+                );
+                await delay(typingDelay);
+            }
+        } catch (typingErr) {
+            console.warn(
+                "⚠️ Gagal mensimulasikan typing state:",
+                typingErr.message,
+            );
         }
 
         // Kirim pesan dengan timeout 15 detik

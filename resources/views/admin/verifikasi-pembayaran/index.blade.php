@@ -169,14 +169,7 @@
                     </div>
 
                     <!-- Pagination -->
-                    <div class="d-flex justify-content-between align-items-center mt-4">
-                        <div class="text-muted small">
-                            Menampilkan {{ $data->firstItem() }} - {{ $data->lastItem() }} dari {{ $data->total() }} data
-                        </div>
-                        <nav>
-                            {{ $data->links() }}
-                        </nav>
-                    </div>
+                    <x-pagination :paginator="$data" />
                 </div>
             </div>
         </div>

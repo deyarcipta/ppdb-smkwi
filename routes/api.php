@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\WhatsappServiceController;
+// use App\Http\Controllers\Admin\WhatsappServiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,5 +19,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/whatsapp/send', [WhatsappServiceController::class, 'send'])
-    ->name('api.whatsapp.send');
+// Route::post('/whatsapp/send', [WhatsappServiceController::class, 'send'])
+//     ->name('api.whatsapp.send');

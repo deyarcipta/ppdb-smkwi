@@ -13,6 +13,7 @@ class Pembayaran extends Model
 
     protected $fillable = [
         'user_id',
+        'master_biaya_id',
         'no_pendaftaran',
         'nama_siswa',
         'jenis_pembayaran',
@@ -31,6 +32,12 @@ class Pembayaran extends Model
         'verified_at' => 'datetime',
         'jumlah' => 'decimal:2'
     ];
+
+    // Relasi ke master biaya
+    public function masterBiaya()
+    {
+        return $this->belongsTo(MasterBiaya::class, 'master_biaya_id');
+    }
 
     // Relasi ke user (siswa)
     public function user()

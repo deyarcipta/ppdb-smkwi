@@ -34,7 +34,13 @@ class DashboardController extends Controller
 
         // Ambil data dari master pembayaran dengan jenis pembayaran ppdb
         $masterPPDB = MasterBiaya::where('jenis_biaya', 'ppdb')
+            ->where('status', 1)
             ->first();
+        if ($masterPPDB) {
+            $masterPPDB->total_biaya = MasterBiaya::where('jenis_biaya', 'ppdb')
+                ->where('status', 1)
+                ->sum('total_biaya');
+        }
         
         // Ambil data pembayaran formulir terbaru
         $pembayaran = Pembayaran::where('user_id', $user->id)

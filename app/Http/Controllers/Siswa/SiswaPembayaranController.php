@@ -41,8 +41,49 @@ class SiswaPembayaranController extends Controller
             $totalDibayar = $pembayaran->where('status', 'diverifikasi')->sum('jumlah');
             $sisaBayar = $totalBiaya - $totalDibayar;
 
-            // Hitung total semua biaya (untuk opsi "semua")
-            $totalAll = $MasterBiaya->sum('total_biaya');
+            // Hitung sisa_biaya untuk masing-masing master biaya
+            // 1. Dapatkan semua pembayaran PPDB terverifikasi
+            $pembayaranPPDB = $pembayaran->where('jenis_pembayaran', 'ppdb')->where('status', 'diverifikasi');
+            
+            // 2. Pembayaran PPDB yang spesifik ke ID
+            $pembayaranSpesifik = $pembayaranPPDB->whereNotNull('master_biaya_id');
+            
+            // 3. Pembayaran PPDB yang global (master_biaya_id = null)
+            $totalDibayarPPDBGlobal = $pembayaranPPDB->whereNull('master_biaya_id')->sum('jumlah');
+
+            // 4. Proses masing-masing master biaya
+            $masterBiayasPPDB = [];
+            foreach ($MasterBiaya as $biaya) {
+                if ($biaya->jenis_biaya === 'formulir') {
+                    // Formulir: hitung sisa langsung
+                    $paidFormulir = $pembayaran->where('jenis_pembayaran', 'formulir')
+                        ->where('status', 'diverifikasi')
+                        ->sum('jumlah');
+                    $biaya->sisa_biaya = max(0, $biaya->total_biaya - $paidFormulir);
+                } else {
+                    // PPDB: kurangi pembayaran yang spesifik ke ID ini dahulu
+                    $paidSpecific = $pembayaranSpesifik->where('master_biaya_id', $biaya->id)->sum('jumlah');
+                    $biaya->sisa_biaya = max(0, $biaya->total_biaya - $paidSpecific);
+                    $masterBiayasPPDB[] = $biaya;
+                }
+            }
+
+            // 5. Alokasikan pembayaran PPDB global secara berurutan untuk memotong sisa biaya PPDB yang tersisa
+            $tempPaidGlobal = $totalDibayarPPDBGlobal;
+            foreach ($masterBiayasPPDB as $biaya) {
+                if ($tempPaidGlobal > 0 && $biaya->sisa_biaya > 0) {
+                    if ($tempPaidGlobal >= $biaya->sisa_biaya) {
+                        $tempPaidGlobal -= $biaya->sisa_biaya;
+                        $biaya->sisa_biaya = 0;
+                    } else {
+                        $biaya->sisa_biaya -= $tempPaidGlobal;
+                        $tempPaidGlobal = 0;
+                    }
+                }
+            }
+
+            // Hitung total semua biaya yang tersisa (untuk opsi "semua")
+            $totalAll = $MasterBiaya->where('jenis_biaya', '!=', 'formulir')->sum('sisa_biaya');
 
             // Tentukan status pembayaran
             if ($sisaBayar <= 0) {
@@ -53,6 +94,8 @@ class SiswaPembayaranController extends Controller
                 $status = 'BELUM BAYAR';
             }
 
+            $hasPendingPayment = $pembayaran->where('status', 'pending')->isNotEmpty();
+
             return view('siswa.pembayaran.index', compact(
                 'pembayaran',
                 'infoPembayaran',
@@ -62,7 +105,8 @@ class SiswaPembayaranController extends Controller
                 'totalDibayar',
                 'sisaBayar',
                 'status',
-                'totalAll'
+                'totalAll',
+                'hasPendingPayment'
             ));
 
         } catch (\Exception $e) {
@@ -90,28 +134,123 @@ class SiswaPembayaranController extends Controller
                     ->with('warning', 'Silakan lengkapi formulir pendaftaran terlebih dahulu sebelum melakukan pembayaran.');
             }
 
+            // Cek apakah ada pembayaran pending
+            $hasPending = Pembayaran::where('user_id', Auth::id())
+                ->where('status', 'pending')
+                ->exists();
+
+            if ($hasPending) {
+                throw new \Exception('Anda tidak dapat melakukan pembayaran baru karena masih memiliki pembayaran yang menunggu verifikasi.');
+            }
+
             $validated = $this->validatePembayaran($request);
             Log::info('Validated Pembayaran Data:', $validated);
+
+            $jenisPembayaranInput = $validated['jenis_pembayaran'];
+            
+            // Hitung sisa_biaya untuk setiap master biaya
+            $masterBiayas = MasterBiaya::where('status', 1)->get();
+            $pembayaranSiswa = Pembayaran::where('user_id', Auth::id())
+                ->where('status', 'diverifikasi')
+                ->get();
                 
+            $totalDibayarPPDBGlobal = $pembayaranSiswa->where('jenis_pembayaran', 'ppdb')->whereNull('master_biaya_id')->sum('jumlah');
+            $pembayaranSpesifik = $pembayaranSiswa->where('jenis_pembayaran', 'ppdb')->whereNotNull('master_biaya_id');
+
+            $masterBiayasPPDB = [];
+            foreach ($masterBiayas as $biaya) {
+                if ($biaya->jenis_biaya === 'formulir') {
+                    $paidFormulir = $pembayaranSiswa->where('jenis_pembayaran', 'formulir')->sum('jumlah');
+                    $biaya->sisa_biaya = max(0, $biaya->total_biaya - $paidFormulir);
+                } else {
+                    $paidSpecific = $pembayaranSpesifik->where('master_biaya_id', $biaya->id)->sum('jumlah');
+                    $biaya->sisa_biaya = max(0, $biaya->total_biaya - $paidSpecific);
+                    $masterBiayasPPDB[] = $biaya;
+                }
+            }
+
+            // Alokasikan pembayaran global PPDB secara berurutan
+            $tempPaidGlobal = $totalDibayarPPDBGlobal;
+            foreach ($masterBiayasPPDB as $biaya) {
+                if ($tempPaidGlobal > 0 && $biaya->sisa_biaya > 0) {
+                    if ($tempPaidGlobal >= $biaya->sisa_biaya) {
+                        $tempPaidGlobal -= $biaya->sisa_biaya;
+                        $biaya->sisa_biaya = 0;
+                    } else {
+                        $biaya->sisa_biaya -= $tempPaidGlobal;
+                        $tempPaidGlobal = 0;
+                    }
+                }
+            }
+
+            $jenisDb = 'ppdb';
+            $masterBiayaId = null;
+
+            if ($jenisPembayaranInput === 'semua') {
+                $limitBayar = $masterBiayas->where('jenis_biaya', '!=', 'formulir')->sum('sisa_biaya');
+            } else {
+                $targetBiaya = $masterBiayas->where('id', $jenisPembayaranInput)->first();
+                if (!$targetBiaya) {
+                    throw new \Exception('Jenis biaya tidak ditemukan.');
+                }
+                $limitBayar = $targetBiaya->sisa_biaya;
+                $jenisDb = $targetBiaya->jenis_biaya;
+                $masterBiayaId = $targetBiaya->id;
+            }
+
+            // Validasi jumlah yang dibayar tidak boleh melebihi sisa tagihan
+            if ($validated['jumlah'] > $limitBayar) {
+                throw new \Exception('Jumlah pembayaran melebihi sisa tagihan Anda untuk opsi ini (Sisa tagihan: Rp ' . number_format($limitBayar, 0, ',', '.') . ')');
+            }
+
+            // Simpan data pembayaran
+            $paymentData = [
+                'user_id' => Auth::id(),
+                'master_biaya_id' => $masterBiayaId,
+                'no_pendaftaran' => $siswa->no_pendaftaran,
+                'nama_siswa' => $siswa->nama_lengkap,
+                'jenis_pembayaran' => $jenisDb,
+                'jumlah' => $validated['jumlah'],
+                'metode_pembayaran' => $validated['metode_pembayaran'],
+                'bukti_pembayaran' => null,
+                'tanggal_bayar' => $validated['tanggal_bayar'],
+                'catatan' => $validated['catatan'] ?? ($jenisPembayaranInput === 'semua' ? 'Pembayaran semua biaya sekaligus' : null),
+                'status' => 'pending',
+            ];
+
             // Upload bukti pembayaran
             if ($request->hasFile('bukti_pembayaran')) {
                 $buktiPembayaran = $request->file('bukti_pembayaran');
                 $fileName = 'bukti_' . time() . '_' . $siswa->no_pendaftaran . '.' . $buktiPembayaran->getClientOriginalExtension();
                 $path = $buktiPembayaran->storeAs('bukti_pembayaran', $fileName, 'public');
-                $validated['bukti_pembayaran'] = $path;
+                $paymentData['bukti_pembayaran'] = $path;
             }
 
-            // Cek apakah memilih "semua" atau jenis pembayaran tertentu
-            if ($validated['jenis_pembayaran'] === 'semua') {
-                // Simpan semua jenis pembayaran sekaligus
-                $this->storeAllPayments($validated, $siswa);
-            } else {
-                // Simpan pembayaran tunggal
-                $this->storeSinglePayment($validated, $siswa);
+            Pembayaran::create($paymentData);
+
+            // Kirim notifikasi WhatsApp ke Admin jika nomor HP admin diset
+            try {
+                $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+                if ($pengaturan && !empty($pengaturan->no_hp_admin)) {
+                    $namaBiaya = 'Semua Biaya Sekaligus';
+                    if ($jenisPembayaranInput !== 'semua') {
+                        $targetBiaya = \App\Models\MasterBiaya::find($jenisPembayaranInput);
+                        if ($targetBiaya) {
+                            $namaBiaya = $targetBiaya->nama_biaya;
+                        }
+                    }
+                    
+                    $message = "Ada siswa atas nama " . $siswa->nama_lengkap . " melakukan pembayaran " . $namaBiaya . " dengan nominal Rp " . number_format($validated['jumlah'], 0, ',', '.') . ". Harap segera diverifikasi.";
+                               
+                    $whatsappService = new \App\Services\WhatsappService();
+                    $whatsappService->sendMessage($pengaturan->no_hp_admin, $message);
+                }
+            } catch (\Exception $waEx) {
+                Log::error('Gagal mengirim notifikasi WA ke admin: ' . $waEx->getMessage());
             }
 
             DB::commit();
-            Log::info('Pembayaran created successfully for user: ' . Auth::id());
+            Log::info('Pembayaran created successfully for user: ' . Auth::id() . ', amount: ' . $validated['jumlah']);
 
             return redirect()->route('siswa.pembayaran.index')
                 ->with('success', 'Bukti pembayaran berhasil diupload. Menunggu verifikasi admin.');
@@ -123,88 +262,6 @@ class SiswaPembayaranController extends Controller
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
                 ->withInput();
         }
-    }
-
-    /**
-     * Simpan semua jenis pembayaran sekaligus
-     */
-    private function storeAllPayments(array $data, DataSiswa $siswa)
-    {
-        // Ambil semua biaya (kecuali formulir)
-        $masterBiayas = MasterBiaya::where('status', 1)
-            ->where('jenis_biaya', '!=', 'formulir')
-            ->get();
-
-        // Hitung total semua biaya
-        $totalAll = $masterBiayas->sum('total_biaya');
-        
-        // Validasi jumlah yang dibayar harus sama dengan total semua biaya
-        if ($data['jumlah'] != $totalAll) {
-            throw new \Exception('Jumlah pembayaran untuk "BAYAR SEMUA" harus sebesar Rp ' . number_format($totalAll, 0, ',', '.'));
-        }
-
-        // Simpan setiap jenis pembayaran
-        foreach ($masterBiayas as $masterBiaya) {
-            $paymentData = [
-                'user_id' => Auth::id(),
-                'master_biaya_id' => $masterBiaya->id,
-                'no_pendaftaran' => $siswa->no_pendaftaran,
-                'nama_siswa' => $siswa->nama_lengkap,
-                'jenis_biaya' => $masterBiaya->jenis_biaya,
-                'jenis_pembayaran' => $masterBiaya->jenis_biaya,
-                'jumlah' => $masterBiaya->total_biaya,
-                'metode_pembayaran' => $data['metode_pembayaran'],
-                'bukti_pembayaran' => $data['bukti_pembayaran'],
-                'tanggal_bayar' => $data['tanggal_bayar'],
-                'catatan' => $data['catatan'] ?? 'Pembayaran semua biaya sekaligus',
-                'status' => 'pending',
-                'is_part_of_all' => true, // Field tambahan untuk menandai
-            ];
-
-            Pembayaran::create($paymentData);
-        }
-        
-        Log::info('All payments created for user: ' . Auth::id() . ', total items: ' . count($masterBiayas));
-    }
-
-    /**
-     * Simpan pembayaran tunggal
-     */
-    private function storeSinglePayment(array $data, DataSiswa $siswa)
-    {
-        // Cari master biaya berdasarkan jenis_biaya
-        $masterBiaya = MasterBiaya::where('jenis_biaya', $data['jenis_pembayaran'])
-            ->where('status', 1)
-            ->first();
-
-        if (!$masterBiaya) {
-            throw new \Exception('Jenis biaya tidak ditemukan.');
-        }
-
-        // Validasi jumlah yang dibayar harus sama dengan biaya yang dipilih
-        if ($data['jumlah'] != $masterBiaya->total_biaya) {
-            throw new \Exception('Jumlah pembayaran harus sebesar Rp ' . number_format($masterBiaya->total_biaya, 0, ',', '.'));
-        }
-
-        // Simpan data pembayaran
-        $paymentData = [
-            'user_id' => Auth::id(),
-            'master_biaya_id' => $masterBiaya->id,
-            'no_pendaftaran' => $siswa->no_pendaftaran,
-            'nama_siswa' => $siswa->nama_lengkap,
-            'jenis_biaya' => $masterBiaya->jenis_biaya,
-            'jenis_pembayaran' => $masterBiaya->jenis_biaya,
-            'jumlah' => $masterBiaya->total_biaya,
-            'metode_pembayaran' => $data['metode_pembayaran'],
-            'bukti_pembayaran' => $data['bukti_pembayaran'],
-            'tanggal_bayar' => $data['tanggal_bayar'],
-            'catatan' => $data['catatan'] ?? null,
-            'status' => 'pending',
-            'is_part_of_all' => false,
-        ];
-
-        Pembayaran::create($paymentData);
-        Log::info('Single payment created for user: ' . Auth::id() . ', type: ' . $masterBiaya->jenis_biaya);
     }
 
     /**
@@ -223,11 +280,6 @@ class SiswaPembayaranController extends Controller
             $validated = $this->validatePembayaranUpdate($request);
             Log::info('Validated Update Pembayaran Data:', $validated);
 
-            // Jika pembayaran adalah bagian dari "semua", tidak boleh diupdate sendiri
-            if ($pembayaran->is_part_of_all) {
-                throw new \Exception('Pembayaran ini merupakan bagian dari "BAYAR SEMUA". Untuk mengubah, hapus semua pembayaran terkait.');
-            }
-
             // Upload bukti pembayaran baru jika ada
             if ($request->hasFile('bukti_pembayaran')) {
                 // Hapus file lama
@@ -245,20 +297,65 @@ class SiswaPembayaranController extends Controller
                 unset($validated['bukti_pembayaran']);
             }
 
-            // Update master biaya jika jenis pembayaran berubah
-            if ($validated['jenis_pembayaran'] !== $pembayaran->jenis_pembayaran) {
-                $masterBiaya = MasterBiaya::where('jenis_biaya', $validated['jenis_pembayaran'])
-                    ->where('status', 1)
-                    ->firstOrFail();
-                    
-                $validated['master_biaya_id'] = $masterBiaya->id;
-                $validated['jenis_biaya'] = $masterBiaya->jenis_biaya;
+            // Hitung sisa_biaya untuk setiap master biaya (kecuali transaksi ini)
+            $masterBiayas = MasterBiaya::where('status', 1)->get();
+            $pembayaranSiswa = Pembayaran::where('user_id', Auth::id())
+                ->where('id', '!=', $id) // Kecualikan transaksi yang sedang diedit
+                ->where('status', 'diverifikasi')
+                ->get();
                 
-                // Validasi jumlah harus sama dengan biaya baru
-                if ($validated['jumlah'] != $masterBiaya->total_biaya) {
-                    throw new \Exception('Jumlah pembayaran harus sebesar Rp ' . number_format($masterBiaya->total_biaya, 0, ',', '.'));
+            $totalDibayarPPDBGlobal = $pembayaranSiswa->where('jenis_pembayaran', 'ppdb')->whereNull('master_biaya_id')->sum('jumlah');
+            $pembayaranSpesifik = $pembayaranSiswa->where('jenis_pembayaran', 'ppdb')->whereNotNull('master_biaya_id');
+
+            $masterBiayasPPDB = [];
+            foreach ($masterBiayas as $biaya) {
+                if ($biaya->jenis_biaya === 'formulir') {
+                    $paidFormulir = $pembayaranSiswa->where('jenis_pembayaran', 'formulir')->sum('jumlah');
+                    $biaya->sisa_biaya = max(0, $biaya->total_biaya - $paidFormulir);
+                } else {
+                    $paidSpecific = $pembayaranSpesifik->where('master_biaya_id', $biaya->id)->sum('jumlah');
+                    $biaya->sisa_biaya = max(0, $biaya->total_biaya - $paidSpecific);
+                    $masterBiayasPPDB[] = $biaya;
                 }
             }
+
+            // Alokasikan pembayaran global PPDB secara berurutan
+            $tempPaidGlobal = $totalDibayarPPDBGlobal;
+            foreach ($masterBiayasPPDB as $biaya) {
+                if ($tempPaidGlobal > 0 && $biaya->sisa_biaya > 0) {
+                    if ($tempPaidGlobal >= $biaya->sisa_biaya) {
+                        $tempPaidGlobal -= $biaya->sisa_biaya;
+                        $biaya->sisa_biaya = 0;
+                    } else {
+                        $biaya->sisa_biaya -= $tempPaidGlobal;
+                        $tempPaidGlobal = 0;
+                    }
+                }
+            }
+
+            $jenisPembayaranInput = $validated['jenis_pembayaran'];
+            $jenisDb = 'ppdb';
+            $masterBiayaId = null;
+
+            if ($jenisPembayaranInput === 'semua') {
+                $limitBayar = $masterBiayas->where('jenis_biaya', '!=', 'formulir')->sum('sisa_biaya');
+            } else {
+                $targetBiaya = $masterBiayas->where('id', $jenisPembayaranInput)->first();
+                if (!$targetBiaya) {
+                    throw new \Exception('Jenis biaya tidak ditemukan.');
+                }
+                $limitBayar = $targetBiaya->sisa_biaya;
+                $jenisDb = $targetBiaya->jenis_biaya;
+                $masterBiayaId = $targetBiaya->id;
+            }
+
+            // Validasi jumlah yang dibayar tidak boleh melebihi sisa tagihan
+            if ($validated['jumlah'] > $limitBayar) {
+                throw new \Exception('Jumlah pembayaran melebihi sisa tagihan Anda untuk opsi ini (Sisa tagihan: Rp ' . number_format($limitBayar, 0, ',', '.') . ')');
+            }
+
+            $validated['jenis_pembayaran'] = $jenisDb;
+            $validated['master_biaya_id'] = $masterBiayaId;
 
             $pembayaran->update($validated);
             Log::info('Pembayaran updated successfully: ' . $id);
@@ -289,31 +386,13 @@ class SiswaPembayaranController extends Controller
                 ->where('status', 'pending')
                 ->firstOrFail();
 
-            // Jika pembayaran adalah bagian dari "semua", hapus semua yang terkait
-            if ($pembayaran->is_part_of_all) {
-                $allPayments = Pembayaran::where('user_id', Auth::id())
-                    ->where('jenis_pembayaran', 'semua')
-                    ->where('status', 'pending')
-                    ->get();
-                    
-                foreach ($allPayments as $payment) {
-                    // Hapus file bukti pembayaran (sama untuk semua)
-                    if ($payment->id === $pembayaran->id && $payment->bukti_pembayaran && Storage::disk('public')->exists($payment->bukti_pembayaran)) {
-                        Storage::disk('public')->delete($payment->bukti_pembayaran);
-                    }
-                    $payment->delete();
-                }
-                
-                $message = 'Semua pembayaran terkait "BAYAR SEMUA" berhasil dihapus.';
-            } else {
-                // Hapus file bukti pembayaran
-                if ($pembayaran->bukti_pembayaran && Storage::disk('public')->exists($pembayaran->bukti_pembayaran)) {
-                    Storage::disk('public')->delete($pembayaran->bukti_pembayaran);
-                }
-
-                $pembayaran->delete();
-                $message = 'Pembayaran berhasil dihapus.';
+            // Hapus file bukti pembayaran
+            if ($pembayaran->bukti_pembayaran && Storage::disk('public')->exists($pembayaran->bukti_pembayaran)) {
+                Storage::disk('public')->delete($pembayaran->bukti_pembayaran);
             }
+
+            $pembayaran->delete();
+            $message = 'Pembayaran berhasil dihapus.';
 
             Log::info('Pembayaran deleted successfully: ' . $id);
             
@@ -438,17 +517,17 @@ class SiswaPembayaranController extends Controller
                     ]
                 ]);
             } else {
-                // Ambil detail biaya tertentu
-                $masterBiaya = MasterBiaya::where('jenis_biaya', $jenisPembayaran)
+                // Ambil detail biaya tertentu berdasarkan ID
+                $masterBiaya = MasterBiaya::where('id', $jenisPembayaran)
                     ->where('status', 1)
                     ->firstOrFail();
                     
                 return response()->json([
                     'success' => true,
                     'data' => [
-                        'jenis_biaya' => $masterBiaya->jenis_biaya,
+                        'jenis_biaya' => $masterBiaya->id,
                         'total_biaya' => $masterBiaya->total_biaya,
-                        'nama_biaya' => strtoupper(str_replace('_', ' ', $masterBiaya->jenis_biaya))
+                        'nama_biaya' => strtoupper(str_replace('_', ' ', $masterBiaya->nama_biaya))
                     ]
                 ]);
             }

@@ -75,9 +75,9 @@ class LaporanPembayaranController extends Controller
             ->orderBy('tanggal_bayar', 'desc')
             ->get();
 
-        // Hanya hitung formulir dan ppdb
+        // Hanya hitung formulir dan ppdb/biaya lainnya
         $totalFormulir = $pembayaran->where('jenis_pembayaran', 'formulir')->sum('jumlah');
-        $totalPPDB = $pembayaran->where('jenis_pembayaran', 'ppdb')->sum('jumlah');
+        $totalPPDB = $pembayaran->where('jenis_pembayaran', '!=', 'formulir')->sum('jumlah');
         $totalSemua = $pembayaran->sum('jumlah');
 
         return view('admin.laporan-pembayaran.detail', compact(

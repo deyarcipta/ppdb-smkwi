@@ -19,6 +19,7 @@ class PengaturanAplikasi extends Model
         'email',
         'telepon',
         'no_hp',
+        'no_hp_admin',
         'alamat',
         'facebook',
         'instagram',

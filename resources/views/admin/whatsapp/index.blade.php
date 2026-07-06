@@ -15,6 +15,19 @@
             Menghubungi server WhatsApp...
         </h5>
 
+        {{-- RUN SERVER BUTTON --}}
+        <div id="wa-offline" style="display:none;" class="mt-3">
+            <div class="alert alert-danger d-inline-block px-4">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                <strong>Server WhatsApp Mati / Offline</strong>
+            </div>
+            <div>
+                <button class="btn btn-primary btn-md mt-2" id="btn-start-server" onclick="startWhatsAppServer()">
+                    <i class="fas fa-play me-1"></i> Jalankan Server WhatsApp
+                </button>
+            </div>
+        </div>
+
         {{-- CONNECTED INFO --}}
         <div id="wa-connected" style="display:none;" class="mt-3">
             <div class="alert alert-success">
@@ -135,10 +148,11 @@ const statusEl = document.getElementById('wa-status');
 const connectedEl = document.getElementById('wa-connected');
 const qrContainer = document.getElementById('qr-container');
 const waitingEl = document.getElementById('wa-waiting');
+const offlineEl = document.getElementById('wa-offline');
 
 /* =====================
    CHECK STATUS WA (FIXED)
-===================== */
+ ===================== */
 async function checkStatus() {
     try {
         // 1. Check health endpoint terlebih dahulu
@@ -146,6 +160,9 @@ async function checkStatus() {
         const healthData = await healthRes.json();
         
         console.log('Health Data:', healthData);
+        
+        // Sembunyikan offline element jika server merespon
+        if (offlineEl) offlineEl.style.display = 'none';
         
         // 2. Check apakah connected berdasarkan health endpoint
         if (healthData.connected === true) {
@@ -193,6 +210,48 @@ async function checkStatus() {
         connectedEl.style.display = 'none';
         qrContainer.style.display = 'none';
         waitingEl.style.display = 'none';
+        if (offlineEl) offlineEl.style.display = 'block';
+    }
+}
+
+/* =====================
+   JALANKAN SERVER WA via AJAX
+ ===================== */
+async function startWhatsAppServer() {
+    const btn = document.getElementById('btn-start-server');
+    if (!btn) return;
+    const originalText = btn.innerHTML;
+    
+    try {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menjalankan server...';
+        btn.disabled = true;
+        
+        const response = await fetch("{{ route('whatsapp.start-server') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showToast('success', data.message || 'Server sedang dijalankan!');
+            // Pengecekan status berkala lebih cepat setelah klik
+            setTimeout(checkStatus, 3000);
+            setTimeout(checkStatus, 6000);
+            setTimeout(checkStatus, 9000);
+        } else {
+            showToast('error', data.message || 'Gagal menjalankan server');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error starting server:', error);
+        showToast('error', 'Gagal terhubung ke Laravel untuk menjalankan server');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
     }
 }
 
