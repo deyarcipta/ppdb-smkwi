@@ -80,7 +80,7 @@
                                 <span class="app-brand-logo demo">
                                     <img src="{{ asset($logo) }}" alt="Logo" width="30">
                                 </span>
-                                <span class="app-brand-text demo text-body fw-bold">{{ $namaAplikasi }} {{ $namaSekolah }}</span>
+                                <span class="app-brand-text demo text-body fw-bold">{{ $namaAplikasi }}</span>
                             </a>
                         </div>
                         <!-- /Logo -->
