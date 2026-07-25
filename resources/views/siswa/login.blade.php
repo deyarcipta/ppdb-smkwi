@@ -12,9 +12,13 @@
     @php
       $pengaturan = \App\Models\PengaturanAplikasi::first();
       $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
-      $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB SMK WI';
+      $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB';
+      $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+      $warnaUtama = $pengaturan->warna_utama ?? '#667eea';
+      $warnaHeader = $pengaturan->warna_header ?? '#764ba2';
+      $warnaSekunder = $pengaturan->warna_sekunder ?? '#667eea';
     @endphp
-    <title>Login Siswa - PPDB SMK Wisata Indonesia</title>
+    <title>Login Siswa - {{ $namaAplikasi }} {{ $namaSekolah }}</title>
 
     <link rel="icon" type="image/x-icon" href="{{ asset($logo) }}" />
 
@@ -42,7 +46,7 @@
 
     <style>
         .login-siswa {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, {{ $warnaUtama }} 0%, {{ $warnaHeader }} 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -54,7 +58,7 @@
             overflow: hidden;
         }
         .login-header-siswa {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, {{ $warnaUtama }} 0%, {{ $warnaHeader }} 100%);
             color: white;
             padding: 2rem;
             text-align: center;
@@ -79,7 +83,7 @@
             border-radius: 50%;
         }
         .btn-login-siswa {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: {{ $warnaSekunder }} !important;
             border: none;
             padding: 0.75rem 2rem;
             font-weight: 600;
@@ -89,13 +93,14 @@
             width: 100%;
         }
         .btn-login-siswa:hover {
+            opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px {{ $warnaSekunder }}66 !important;
             color: white;
         }
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: {{ $warnaUtama }} !important;
+            box-shadow: 0 0 0 0.2rem {{ $warnaUtama }}33 !important;
         }
         .input-group-text {
             cursor: pointer;
@@ -118,7 +123,7 @@
                         <div class="school-logo">
                             <img src="{{ asset($logo) }}" alt="Logo PPDB">
                         </div>
-                        <h4 class="mb-2">PPDB SMK Wisata Indonesia</h4>
+                        <h4 class="mb-2">{{ $namaAplikasi }}</h4>
                         <p class="mb-0">Area Login Siswa</p>
                     </div>
 
@@ -175,7 +180,7 @@
                                     </span>
                                 </div>
                                 <div class="form-text">
-                                    Password default: <code>password123</code> (jika belum diubah)
+                                    Gunakan password 6 digit yang diberikan saat pendaftaran (atau password baru jika telah diubah).
                                 </div>
                             </div>
 
@@ -208,7 +213,7 @@
 
                     <div class="card-footer text-center py-3">
                         <small class="text-muted">
-                            &copy; {{ date('Y') }} SMK Wisata Indonesia. All rights reserved.
+                            &copy; {{ date('Y') }} {{ $namaSekolah }}. All rights reserved.
                         </small>
                     </div>
                 </div>

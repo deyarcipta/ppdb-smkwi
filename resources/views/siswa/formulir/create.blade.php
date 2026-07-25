@@ -551,13 +551,17 @@
                                         <label for="referensi" class="form-label fw-semibold">
                                             <i class="fas fa-user-friends me-2 text-primary"></i>Referensi
                                         </label>
+                                        @php
+                                            $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::first();
+                                            $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+                                        @endphp
                                         <select class="form-select form-select-lg @error('referensi') is-invalid @enderror" id="referensi" name="referensi">
                                             <option value="" selected disabled>--Pilih Referensi--</option>
-                                            <option value="guru-staff" {{ ($existingData->referensi ?? old('referensi')) == 'guru-staff' ? 'selected' : '' }}>Guru/Staff/Laboran/Pegawai Wisata Indonesia</option>
-                                            <option value="siswa" {{ ($existingData->referensi ?? old('referensi')) == 'siswa' ? 'selected' : '' }}>Siswa SMK Wisata Indonesia</option>
-                                            <option value="alumni" {{ ($existingData->referensi ?? old('referensi')) == 'alumni' ? 'selected' : '' }}>Alumni SMK Wisata Indonesia</option>
+                                            <option value="guru-staff" {{ ($existingData->referensi ?? old('referensi')) == 'guru-staff' ? 'selected' : '' }}>Guru/Staff/Laboran/Pegawai {{ $namaSekolah }}</option>
+                                            <option value="siswa" {{ ($existingData->referensi ?? old('referensi')) == 'siswa' ? 'selected' : '' }}>Siswa {{ $namaSekolah }}</option>
+                                            <option value="alumni" {{ ($existingData->referensi ?? old('referensi')) == 'alumni' ? 'selected' : '' }}>Alumni {{ $namaSekolah }}</option>
                                             <option value="guru-smp" {{ ($existingData->referensi ?? old('referensi')) == 'guru-smp' ? 'selected' : '' }}>Guru SMP</option>
-                                            <option value="calon-siswa" {{ ($existingData->referensi ?? old('referensi')) == 'calon-siswa' ? 'selected' : '' }}>Calon Siswa SMK Wisata Indonesia</option>
+                                            <option value="calon-siswa" {{ ($existingData->referensi ?? old('referensi')) == 'calon-siswa' ? 'selected' : '' }}>Calon Siswa {{ $namaSekolah }}</option>
                                             <option value="sosial-media" {{ ($existingData->referensi ?? old('referensi')) == 'sosial-media' ? 'selected' : '' }}>Sosial Media</option>
                                             <option value="referensi-langsung" {{ ($existingData->referensi ?? old('referensi')) == 'referensi-langsung' ? 'selected' : '' }}>Referensi Langsung</option>
                                         </select>

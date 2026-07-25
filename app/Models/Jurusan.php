@@ -15,6 +15,7 @@ class Jurusan extends Model
         'kode_jurusan',
         'nama_jurusan',
         'deskripsi',
+        'icon',
         'status'
     ];
 

@@ -35,45 +35,67 @@ class PengaturanAplikasiController extends Controller
             'meta_keywords' => 'nullable|string|max:255',
             'maintenance_message' => 'nullable|string|max:500',
             'enable_cetak_kartu' => 'required|boolean',
+            'enable_whatsapp' => 'nullable|boolean',
             'kartu_username_contoh' => 'nullable|string|max:255',
             'kartu_password_contoh' => 'nullable|string|max:255',
+            'ttd_stempel' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'hero_bg' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:4096',
+            'warna_utama' => 'nullable|string|max:10',
+            'warna_sekunder' => 'nullable|string|max:10',
+            'warna_header' => 'nullable|string|max:10',
         ]);
 
         $pengaturan = PengaturanAplikasi::getSettings();
-        $data = $request->except(['logo', 'favicon']);
+        $data = $request->except(['logo', 'favicon', 'ttd_stempel', 'hero_bg']);
+        $data['enable_whatsapp'] = $request->has('enable_whatsapp') ? (bool)$request->enable_whatsapp : false;
+        $data['no_hp_admin'] = '-';
 
         // Upload logo jika ada
         if ($request->hasFile('logo')) {
-            // Hapus logo lama jika ada
             if ($pengaturan->logo && Storage::exists($pengaturan->logo)) {
                 Storage::delete($pengaturan->logo);
             }
 
             $logo = $request->file('logo');
             $logoName = 'logo_' . time() . '.' . $logo->getClientOriginalExtension();
-            
-            // Simpan dengan path lengkap
-            $logoPath = $logo->storeAs('public/pengaturan', $logoName);
-            
-            // Simpan path lengkap untuk akses public
+            $logo->storeAs('public/pengaturan', $logoName);
             $data['logo'] = 'storage/pengaturan/' . $logoName;
         }
 
         // Upload favicon jika ada
         if ($request->hasFile('favicon')) {
-            // Hapus favicon lama jika ada
             if ($pengaturan->favicon && Storage::exists($pengaturan->favicon)) {
                 Storage::delete($pengaturan->favicon);
             }
 
             $favicon = $request->file('favicon');
             $faviconName = 'favicon_' . time() . '.' . $favicon->getClientOriginalExtension();
-            
-            // Simpan dengan path lengkap
-            $faviconPath = $favicon->storeAs('public/pengaturan', $faviconName);
-            
-            // Simpan path lengkap untuk akses public
+            $favicon->storeAs('public/pengaturan', $faviconName);
             $data['favicon'] = 'storage/pengaturan/' . $faviconName;
+        }
+
+        // Upload TTD & Stempel jika ada
+        if ($request->hasFile('ttd_stempel')) {
+            if ($pengaturan->ttd_stempel && Storage::exists($pengaturan->ttd_stempel)) {
+                Storage::delete($pengaturan->ttd_stempel);
+            }
+
+            $ttdFile = $request->file('ttd_stempel');
+            $ttdName = 'ttd_stempel_' . time() . '.' . $ttdFile->getClientOriginalExtension();
+            $ttdFile->storeAs('public/pengaturan', $ttdName);
+            $data['ttd_stempel'] = 'storage/pengaturan/' . $ttdName;
+        }
+
+        // Upload Hero Background jika ada
+        if ($request->hasFile('hero_bg')) {
+            if ($pengaturan->hero_bg && Storage::exists($pengaturan->hero_bg)) {
+                Storage::delete($pengaturan->hero_bg);
+            }
+
+            $heroFile = $request->file('hero_bg');
+            $heroName = 'hero_bg_' . time() . '.' . $heroFile->getClientOriginalExtension();
+            $heroFile->storeAs('public/pengaturan', $heroName);
+            $data['hero_bg'] = 'storage/pengaturan/' . $heroName;
         }
 
         $pengaturan->update($data);

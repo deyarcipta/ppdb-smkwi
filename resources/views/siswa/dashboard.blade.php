@@ -4,6 +4,9 @@
 @section('content')
 @php
     $siswaId = auth()->user()->id;
+    $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::first();
+    $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+    $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB';
 @endphp
 <!-- Header Welcome -->
 <div class="row">
@@ -14,7 +17,7 @@
           <div class="card-body">
             <h5 class="card-title text-white">Selamat Datang, {{ $dataSiswa->nama_lengkap ?? 'Calon Siswa' }}! 🎓</h5>
             <p class="mb-0">
-              Selamat datang di sistem PPDB SMK Wisata Indonesia. Ikuti langkah-langkah pendaftaran berikut untuk menyelesaikan proses pendaftaran Anda.
+              Selamat datang di sistem {{ $namaAplikasi }}. Ikuti langkah-langkah pendaftaran berikut untuk menyelesaikan proses pendaftaran Anda.
             </p>
           </div>
         </div>
@@ -541,37 +544,37 @@
         </div>
         <h4 class="text-success">Pendaftaran Berhasil!</h4>
         <p class="text-muted mb-4">
-          Selamat! Anda telah menyelesaikan seluruh proses pendaftaran PPDB SMK Wisata Indonesia.
+          Selamat! Anda telah menyelesaikan seluruh proses pendaftaran {{ $namaAplikasi }} {{ $namaSekolah }}.
         </p>
         
         <div class="alert alert-success mx-auto" style="max-width: 500px;">
-          <h6>Detail Pendaftaran:</h6>
-          <div class="row text-start">
-            <div class="col-md-6">
-              <p class="mb-1"><strong>Nama:</strong> {{ $dataSiswa->nama_lengkap }}</p>
+          <h6 class="fw-bold mb-3">Detail Pendaftaran:</h6>
+          <div class="row text-start g-2">
+            <div class="col-12 col-sm-6">
+              <p class="mb-1 text-truncate"><strong>Nama:</strong> {{ $dataSiswa->nama_lengkap }}</p>
               <p class="mb-1"><strong>Jurusan:</strong> {{ $dataSiswa->jurusan->nama_jurusan ?? '-' }}</p>
             </div>
-            <div class="col-md-6">
-              <p class="mb-1"><strong>No. Pendaftaran:</strong> {{ $dataSiswa->no_pendaftaran }}</p>
+            <div class="col-12 col-sm-6">
+              <p class="mb-1 text-break"><strong>No. Pendaftaran:</strong> {{ $dataSiswa->no_pendaftaran }}</p>
               <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">Terverifikasi</span></p>
             </div>
           </div>
         </div>
         
-        <div class="d-flex justify-content-center gap-3 mt-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-2 mt-4">
           <!-- Tombol Lihat Formulir dengan Modal -->
-          <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailModal{{ $siswaId }}">
-            <i class='bx bx-file me-2'></i>Lihat Formulir
+          <button type="button" class="btn btn-outline-primary w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#detailModal{{ $siswaId }}">
+            <i class='bx bx-file me-1'></i>Lihat Formulir
           </button>
           
           @if($pengaturan_aplikasi && $pengaturan_aplikasi->enable_cetak_kartu)
-            <a href="{{ route('siswa.cetak-kartu') }}" target="_blank" class="btn btn-outline-warning">
-              <i class='bx bx-printer me-2'></i>Cetak Kartu
+            <a href="{{ route('siswa.cetak-kartu') }}" target="_blank" class="btn btn-outline-warning w-100 w-sm-auto">
+              <i class='bx bx-printer me-1'></i>Cetak Kartu
             </a>
           @endif
           
-          <a href="{{ route('siswa.pengumuman.index') }}" class="btn btn-outline-success">
-            <i class='bx bx-news me-2'></i>Pengumuman
+          <a href="{{ route('siswa.pengumuman.index') }}" class="btn btn-outline-success w-100 w-sm-auto">
+            <i class='bx bx-news me-1'></i>Pengumuman
           </a>
         </div>
       </div>
@@ -1350,69 +1353,31 @@
     font-size: 0.7rem;
   }
   
-  .step-title {
-    font-size: 0.7rem;
-  }
-  
-  .progress-connector {
-    top: 27px;
-  }
-}
-
-/* Tablet Portrait (576px - 768px) */
+/* Tablet Portrait & Mobile (kurang dari 768px) */
 @media (max-width: 768px) {
   .progress-modern {
-    padding: 0 5px;
+    display: flex;
+    overflow-x: auto;
+    white-space: normal;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-bottom: 12px;
+    margin: 1.2rem 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
   }
   
   .progress-step {
-    min-width: 80px;
+    flex: 0 0 75px;
+    width: 75px;
+    min-width: 75px;
+    padding: 0 2px;
   }
   
   .step-circle {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .step-number {
-    font-size: 0.9rem;
-  }
-  
-  .step-icon {
-    font-size: 1.2rem;
-  }
-  
-  .step-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.3px;
-  }
-  
-  .step-title {
-    font-size: 0.65rem;
-  }
-  
-  .progress-connector {
-    margin: 0 0.3rem;
-    top: 25px;
-  }
-}
-
-/* Mobile Landscape (480px - 576px) */
-@media (max-width: 576px) {
-  .progress-modern {
-    padding: 0 3px;
-    margin: 1.5rem 0;
-  }
-  
-  .progress-step {
-    min-width: 70px;
-  }
-  
-  .step-circle {
-    width: 45px;
-    height: 45px;
-    border-width: 2px;
-    margin-bottom: 0.4rem;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 0.3rem;
   }
   
   .step-number {
@@ -1426,81 +1391,33 @@
   .step-label {
     font-size: 0.6rem;
     letter-spacing: 0.2px;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.15rem;
   }
   
   .step-title {
     font-size: 0.6rem;
-    line-height: 1.2;
+    line-height: 1.15;
   }
   
   .progress-connector {
-    height: 2px;
-    margin: 0 0.2rem;
-    top: 22px;
-  }
-  
-  .progress-step.active .step-circle {
-    transform: scale(1.05);
-  }
-}
-
-/* Mobile Portrait (kurang dari 480px) */
-@media (max-width: 480px) {
-  .progress-modern {
-    overflow-x: auto;
-    justify-content: flex-start;
-    padding-bottom: 10px;
-    margin: 1.2rem 0;
-  }
-  
-  .progress-step {
-    flex: 0 0 auto;
-    width: 70px;
-    padding: 0 2px;
-  }
-  
-  .step-circle {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .step-number {
-    font-size: 0.8rem;
-  }
-  
-  .step-icon {
-    font-size: 1rem;
-  }
-  
-  .step-label {
-    font-size: 0.55rem;
-  }
-  
-  .step-title {
-    font-size: 0.55rem;
-  }
-  
-  .progress-connector {
-    min-width: 10px;
+    flex: 0 0 16px;
+    width: 16px;
+    min-width: 16px;
+    margin: 0 2px;
     top: 20px;
   }
   
-  /* Pastikan semua step tetap terlihat dengan scrolling horizontal */
   .progress-modern::-webkit-scrollbar {
     height: 4px;
   }
-  
   .progress-modern::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 2px;
   }
-  
   .progress-modern::-webkit-scrollbar-thumb {
     background: #c1c1c1;
     border-radius: 2px;
   }
-  
   .progress-modern::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
   }

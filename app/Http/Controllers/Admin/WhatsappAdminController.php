@@ -13,7 +13,8 @@ class WhatsappAdminController extends Controller
     public function index()
     {
         $logs = WhatsappLog::latest()->limit(20)->get();
-        return view('admin.whatsapp.index', compact('logs'));
+        $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+        return view('admin.whatsapp.index', compact('logs', 'pengaturan'));
     }
 
     public function status()

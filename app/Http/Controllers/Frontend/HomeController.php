@@ -10,6 +10,7 @@ use App\Models\KontakPendaftaran;
 use App\Models\TestimoniAlumni;
 use App\Models\Faq;
 use App\Models\Visitor;
+use App\Models\Jurusan;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -21,13 +22,16 @@ class HomeController extends Controller
         // Pengaturan Aplikasi
         $pengaturan = PengaturanAplikasi::first();
 
+        // Ambil data jurusan aktif
+        $jurusans = Jurusan::aktif()->orderBy('nama_jurusan')->get();
+
         // Ambil data gelombang aktif
         $gelombangAktif = GelombangPendaftaran::with('tahunAjaran')
             ->aktif()
             ->orderBy('tanggal_mulai', 'asc')
             ->get();
 
-        // Ambil data persyaratan dan jadwal dari database
+        // Ambil data persyaratan, jadwal, dan alur dari database
         $jadwalPendaftaran = PersyaratanPendaftaran::tipe('jadwal')
             ->aktif()
             ->orderBy('urutan')
@@ -39,6 +43,11 @@ class HomeController extends Controller
             ->get();
 
         $dokumenPersyaratan = PersyaratanPendaftaran::tipe('dokumen')
+            ->aktif()
+            ->orderBy('urutan')
+            ->get();
+
+        $alurPendaftaran = PersyaratanPendaftaran::tipe('alur')
             ->aktif()
             ->orderBy('urutan')
             ->get();
@@ -60,6 +69,8 @@ class HomeController extends Controller
 
         return view('frontend.home', compact(
             'pengaturan',
+            'jurusans',
+            'alurPendaftaran',
             'gelombangAktif', 
             'statistikVisitor',
             'jadwalPendaftaran',

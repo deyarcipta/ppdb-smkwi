@@ -14,6 +14,7 @@ class PersyaratanPendaftaran extends Model
     protected $fillable = [
         'judul',
         'konten',
+        'sub_konten',
         'tipe',
         'urutan',
         'status'

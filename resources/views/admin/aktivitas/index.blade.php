@@ -3,7 +3,7 @@
 @section('title', 'Log Aktivitas - Admin Panel')
 
 @section('content')
-<div class="container-xxl flex-grow-1 container-p-y">
+<div class="container-fluid p-0">
 
     <!-- Header -->
     <div class="row">
@@ -180,17 +180,8 @@
                         </table>
                     </div>
 
-                    <!-- Pagination -->
-                    @if($aktivitas->hasPages())
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <div>
-                            <p class="mb-0 text-muted">
-                                Menampilkan {{ $aktivitas->firstItem() }} - {{ $aktivitas->lastItem() }} dari {{ $aktivitas->total() }} aktivitas
-                            </p>
-                        </div>
-                        {{ $aktivitas->links() }}
-                    </div>
-                    @endif
+                    <!-- Pagination Component -->
+                    <x-pagination :paginator="$aktivitas" />
                 </div>
             </div>
         </div>

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 
 class PendaftaranSiswaController extends Controller
@@ -28,7 +29,8 @@ class PendaftaranSiswaController extends Controller
     public function showForm()
     {
         $dataSmp = DataSmp::all();
-        return view('frontend.pendaftaran', compact('dataSmp'));
+        $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+        return view('frontend.pendaftaran', compact('dataSmp', 'pengaturan'));
     }
 
     public function store(Request $request)
@@ -84,8 +86,8 @@ class PendaftaranSiswaController extends Controller
             // Generate username otomatis
             $username = $this->generateUsername();
             
-            // Generate password default
-            $plainPassword = 'password123';
+            // Generate password acak 6 digit
+            $plainPassword = (string) random_int(100000, 999999);
             $password = Hash::make($plainPassword);
 
             // 4. SIMPAN KE TABEL USERS_SISWA
@@ -138,14 +140,21 @@ class PendaftaranSiswaController extends Controller
 
             DB::commit();
 
+            $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+            $waEnabled = (bool)($pengaturan->enable_whatsapp ?? false);
+            $noAdmin = !empty($pengaturan->no_hp) ? $pengaturan->no_hp : (!empty($pengaturan->telepon) ? $pengaturan->telepon : '0852-1815-0720');
+
             // Response sukses
             return response()->json([
                 'success' => true,
                 'message' => 'Pendaftaran berhasil!',
                 'data' => [
                     'username' => $username,
+                    'password' => $plainPassword,
                     'user_id' => $user->id,
                     'no_hp' => $validated['no_hp'],
+                    'wa_enabled' => $waEnabled,
+                    'no_admin' => $noAdmin,
                 ]
             ], 201);
 
@@ -158,6 +167,31 @@ class PendaftaranSiswaController extends Controller
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat pendaftaran: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * DOWNLOAD BUKTI PENDAFTARAN PDF
+     */
+    public function downloadPdf($id)
+    {
+        try {
+            $user = UserSiswa::with(['dataSiswa', 'dataSiswa.gelombangPendaftaran', 'dataSiswa.tahunAjaran'])->findOrFail($id);
+            $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+
+            $pdf = Pdf::loadView('frontend.bukti-pendaftaran-pdf', [
+                'user' => $user,
+                'dataSiswa' => $user->dataSiswa,
+                'pengaturan' => $pengaturan,
+                'tanggal' => now()->translatedFormat('d F Y'),
+            ])->setPaper('a4', 'portrait');
+
+            $filename = 'Bukti_Pendaftaran_' . preg_replace('/[^a-zA-Z0-9_]/', '_', ($user->dataSiswa->nama_lengkap ?? $user->username)) . '.pdf';
+            return $pdf->download($filename);
+
+        } catch (\Exception $e) {
+            Log::error('Error downloadPdf: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengunduh Bukti Pendaftaran: ' . $e->getMessage());
         }
     }
 
@@ -279,6 +313,9 @@ class PendaftaranSiswaController extends Controller
 
             $tahunAjaran = $gelombangAktif->tahunAjaran->nama ?? $gelombangAktif->nama;
 
+            $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+            $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+
             $placeholders = [
                 '{nama}' => $namaLengkap,
                 '{username}' => $username,
@@ -286,9 +323,9 @@ class PendaftaranSiswaController extends Controller
                 '{tahun_ajaran}' => $tahunAjaran,
                 '{gelombang}' => $gelombangAktif->nama_gelombang,
                 '{rekening}' => '1234567890',
-                '{an}' => 'SMK Wisata Indonesia',
-                '{no_admin}' => '0852-1815-0720',
-                '{url_sistem}' => 'https://ppdb.smkwisataindonesia.sch.id/siswa',
+                '{an}' => $namaSekolah,
+                '{no_admin}' => $pengaturan->no_hp ?? '0852-1815-0720',
+                '{url_sistem}' => url('/siswa'),
             ];
 
             $message = strtr($template->isi_pesan, $placeholders);
@@ -378,6 +415,15 @@ class WhatsAppService
     public function sendMessage($phone, $message)
     {
         try {
+            $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+            if (!$pengaturan->enable_whatsapp) {
+                Log::info("Pengiriman WhatsApp dilewati karena fitur Notifikasi WhatsApp dinonaktifkan di Pengaturan Aplikasi.");
+                return [
+                    'success' => true,
+                    'message' => 'Notifikasi WhatsApp dinonaktifkan di Pengaturan Aplikasi.'
+                ];
+            }
+
             $formattedPhone = $this->formatPhoneNumber($phone);
             
             Log::info("Mengirim WhatsApp ke: {$formattedPhone}");

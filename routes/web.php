@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\PengumumanController as PengumumanAdminController
 use App\Http\Controllers\Admin\WhatsappAdminController as WhatsappAdminController;
 use App\Http\Controllers\Admin\UserManagementController as UserManagementAdminController;
 use App\Http\Controllers\Admin\PengaturanAplikasiController as PengaturanAplikasiAdminController;
+use App\Http\Controllers\Admin\DataCetakKartuController as DataCetakKartuAdminController;
 
 use App\Http\Controllers\Siswa\SiswaAuthController as SiswaAuthController;
 use App\Http\Controllers\Siswa\DashboardController as DashboardSiswaController;
@@ -43,6 +44,7 @@ Route::get('/pendaftaran', [PendaftaranSiswaController::class, 'showForm'])->nam
 Route::post('/pendaftaran', [PendaftaranSiswaController::class, 'store'])->name('pendaftaran.store');
 Route::get('/check-nisn/{nisn}', [PendaftaranSiswaController::class, 'checkNisn'])->name('pendaftaran.check-nisn');
 Route::get('/check-email/{email}', [PendaftaranSiswaController::class, 'checkEmail'])->name('pendaftaran.check-email');
+Route::get('/pendaftaran/download-pdf/{id}', [PendaftaranSiswaController::class, 'downloadPdf'])->name('pendaftaran.download-pdf');
 
 // ===== ADMIN DASHBOARD =====
 // Route untuk halaman login admin
@@ -143,6 +145,10 @@ Route::prefix('w1s4t4')->group(function () {
                 [DataTerverifikasiAdminController::class, 'kirimUlang']
             )->name('data-terverifikasi.kirimUlang');
             Route::delete('data-terverifikasi/{id}', [DataTerverifikasiAdminController::class, 'destroy'])->name('data-terverifikasi.destroy');
+
+            // Data Cetak Kartu
+            Route::get('data-cetak-kartu', [DataCetakKartuAdminController::class, 'index'])->name('data-cetak-kartu.index');
+            Route::get('data-cetak-kartu/{id}/cetak', [DataCetakKartuAdminController::class, 'cetakKartu'])->name('data-cetak-kartu.cetak');
 
             // Kuota Master Biaya
             Route::resource('master-biaya', MasterBiayaAdminController::class)
@@ -250,6 +256,13 @@ Route::prefix('w1s4t4')->group(function () {
                     ->name('pengaturan-aplikasi.update');
                 Route::post('pengaturan-aplikasi/toggle-maintenance', [PengaturanAplikasiAdminController::class, 'toggleMaintenance'])
                     ->name('pengaturan-aplikasi.toggle-maintenance');
+
+                // Backup & Restore System
+                Route::get('backup-restore', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'index'])->name('backup-restore.index');
+                Route::post('backup-restore/create', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'create'])->name('backup-restore.create');
+                Route::get('backup-restore/download/{filename}', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'download'])->name('backup-restore.download');
+                Route::post('backup-restore/restore', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'restore'])->name('backup-restore.restore');
+                Route::delete('backup-restore/{filename}', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'destroy'])->name('backup-restore.destroy');
             });
 
 

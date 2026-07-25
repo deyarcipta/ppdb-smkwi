@@ -87,12 +87,6 @@
               </div>
 
               <div class="mb-3">
-                <label>No Handphone Admin (Notifikasi WhatsApp Bot)</label>
-                <input type="text" name="no_hp_admin" class="form-control" value="{{ $pengaturan->no_hp_admin }}">
-                <small class="text-muted">Digunakan untuk menerima notifikasi pembayaran baru dari bot WhatsApp (Tidak ditampilkan di website).</small>
-              </div>
-
-              <div class="mb-3">
                 <label>Alamat</label>
                 <textarea name="alamat" class="form-control" rows="3">{{ $pengaturan->alamat }}</textarea>
               </div>
@@ -157,6 +151,38 @@
         </div>
       </div>
 
+      <!-- Pengaturan Notifikasi WhatsApp -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-4 border border-warning">
+            <div class="card-header bg-secondary text-white d-flex align-items-center justify-content-between">
+              <h6 class="mb-0 text-white"><i class="bx bxl-whatsapp me-1"></i> Pengaturan Notifikasi WhatsApp</h6>
+              <span class="badge bg-warning text-dark fs-12"><i class="bx bx-time-five me-1"></i> Masih Dalam Pengembangan</span>
+            </div>
+            <div class="card-body mt-3">
+              <div class="alert alert-warning py-2 mb-3" role="alert">
+                <i class="bx bx-info-circle me-1"></i> Fitur notifikasi otomatis via WhatsApp Bot saat ini <strong>Masih Dalam Pengembangan</strong> dan status otomatis di-set <strong>Nonaktif</strong>.
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Status Notifikasi WhatsApp <span class="text-danger">*</span></label>
+                  <select class="form-select bg-light" disabled>
+                    <option value="0" selected>Nonaktif (Matikan semua pengiriman pesan otomatis via WA)</option>
+                  </select>
+                  <input type="hidden" name="enable_whatsapp" value="0">
+                  <small class="text-muted d-block mt-1">Fitur notifikasi WhatsApp dinonaktifkan sementara selama tahap pengembangan.</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Nomor HP Admin (Penerima Notifikasi Pembayaran)</label>
+                  <input type="text" class="form-control bg-light" value="-" disabled>
+                  <small class="text-muted d-block mt-1">Nomor HP Admin diset <code>-</code> karena integrasi bot WhatsApp belum diaktifkan.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Pengaturan Cetak Kartu -->
       <div class="row">
         <div class="col-12">
@@ -182,7 +208,91 @@
                 <div class="col-md-4 mb-3">
                   <label class="form-label fw-bold">Instruksi Password Kartu</label>
                   <input type="text" name="kartu_password_contoh" class="form-control" value="{{ $pengaturan->kartu_password_contoh }}">
-                  <small class="text-muted d-block mt-1">Password default. Biarkan kosong jika ingin mencetak **Password Acak Otomatis** siswa. Contoh: <code>password123</code></small>
+                  <small class="text-muted d-block mt-1">Password default. Biarkan kosong jika ingin mencetak **Password Acak Otomatis** siswa.</small>
+                </div>
+                
+                <div class="col-md-12 mt-2">
+                  <hr>
+                  <label class="form-label fw-bold">Upload Ttd & Stempel Panitia</label>
+                  <div class="row align-items-center">
+                    <div class="col-md-8 mb-2 mb-md-0">
+                      <input type="file" name="ttd_stempel" class="form-control" accept="image/*">
+                      <small class="text-muted d-block mt-1">Upload 1 file gambar gabungan Tanda Tangan & Stempel Panitia (Format: PNG, JPG, WEBP. Transparan disarankan, Maks 2MB). Gambar ini akan otomatis muncul pada area TTD & Stempel Kartu Peserta.</small>
+                    </div>
+                    <div class="col-md-4 text-center">
+                      @if(!empty($pengaturan->ttd_stempel) && file_exists(public_path($pengaturan->ttd_stempel)))
+                        <div class="p-2 border rounded bg-light d-inline-block">
+                          <img src="{{ asset($pengaturan->ttd_stempel) }}" alt="Ttd & Stempel" style="max-height: 70px; max-width: 150px; object-fit: contain;">
+                          <div class="small text-muted mt-1">Ttd & Stempel Terpasang</div>
+                        </div>
+                      @else
+                        <div class="p-2 border rounded bg-light text-muted small">
+                          Belum ada gambar Ttd & Stempel
+                        </div>
+                      @endif
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pengaturan Tampilan & Warna Website -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header bg-info text-white">
+              <h6 class="mb-0 text-white"><i class="bx bx-palette me-1"></i> Tampilan & Warna Tema Website</h6>
+            </div>
+            <div class="card-body mt-3">
+              <div class="row">
+                <!-- Upload Hero Background -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Background Hero Website</label>
+                  <input type="file" name="hero_bg" class="form-control" accept="image/*">
+                  <small class="text-muted d-block mt-1">Upload gambar latar belakang (background) seksi Hero halaman utama website. (Format: JPG, PNG, WEBP. Maks: 4MB).</small>
+                  
+                  @if(!empty($pengaturan->hero_bg) && file_exists(public_path($pengaturan->hero_bg)))
+                    <div class="mt-2 p-2 border rounded bg-light">
+                      <img src="{{ asset($pengaturan->hero_bg) }}" alt="Hero Background" style="max-height: 100px; width: 100%; object-fit: cover;" class="rounded mb-1">
+                      <div class="small text-muted"><i class="bx bx-check-circle text-success me-1"></i>Background Hero Kustom Terpasang</div>
+                    </div>
+                  @else
+                    <div class="mt-2 p-2 border rounded bg-light text-muted small">
+                      <i class="bx bx-image me-1"></i>Menggunakan Background Hero Default
+                    </div>
+                  @endif
+                </div>
+
+                <!-- Color Pickers -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold mb-2">Skema Warna Website</label>
+                  
+                  <div class="mb-3 d-flex align-items-center gap-3">
+                    <input type="color" name="warna_utama" class="form-control form-control-color" value="{{ $pengaturan->warna_utama ?? '#6b21a8' }}" title="Pilih Warna Utama">
+                    <div>
+                      <strong class="d-block">Warna Utama (Primary Color)</strong>
+                      <small class="text-muted">Digunakan untuk judul seksi, marquee info, teks aksen, dan elemen dominan.</small>
+                    </div>
+                  </div>
+
+                  <div class="mb-3 d-flex align-items-center gap-3">
+                    <input type="color" name="warna_header" class="form-control form-control-color" value="{{ $pengaturan->warna_header ?? '#a948ea' }}" title="Pilih Warna Header Navbar">
+                    <div>
+                      <strong class="d-block">Warna Header / Navbar</strong>
+                      <small class="text-muted">Digunakan untuk latar belakang menu navigasi navbar bagian atas.</small>
+                    </div>
+                  </div>
+
+                  <div class="mb-3 d-flex align-items-center gap-3">
+                    <input type="color" name="warna_sekunder" class="form-control form-control-color" value="{{ $pengaturan->warna_sekunder ?? '#16a34a' }}" title="Pilih Warna Sekunder / Tombol">
+                    <div>
+                      <strong class="d-block">Warna Sekunder / Tombol (Accent Color)</strong>
+                      <small class="text-muted">Digunakan untuk tombol utama Pendaftaran PPDB dan elemen sorotan aksi.</small>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

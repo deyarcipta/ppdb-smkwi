@@ -248,6 +248,8 @@ class VerifikasiPembayaranController extends Controller
     {
         $currentYear = date('Y');
         $nextYear = $currentYear + 1;
+        $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+        $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
         
         $placeholders = [
             '{nama}' => $namaLengkap,
@@ -255,9 +257,9 @@ class VerifikasiPembayaranController extends Controller
             '{jumlah}' => number_format($jumlah, 0, ',', '.'),
             '{tahun_ajaran}' => "{$currentYear}/{$nextYear}",
             '{rekening}' => '1234567890',
-            '{an}' => 'SMK Wisata Indonesia',
-            '{no_admin}' => '0852-1815-0720',
-            '{url_sistem}' => 'https://ppdb.smkwisataindonesia.sch.id/siswa',
+            '{an}' => $namaSekolah,
+            '{no_admin}' => $pengaturan->no_hp ?? '0852-1815-0720',
+            '{url_sistem}' => url('/siswa'),
         ];
 
         // Tambahkan placeholder khusus untuk PPDB
@@ -298,12 +300,15 @@ class VerifikasiPembayaranController extends Controller
 
             $sisaPembayaran = $totalBiayaPPDB - $totalDibayar;
 
+            $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+            $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+
             // Default untuk PPDB
             $ppdbPlaceholders = [
                 '{status_judul}' => 'TELAH DIVERIFIKASI',
                 '{status_badge}' => '✅',
                 '{status_detail}' => 'TERVERIFIKASI',
-                '{pesan_verifikasi}' => 'Selamat! Pembayaran PPDB SMK Wisata Indonesia telah *BERHASIL DIVERIFIKASI*.',
+                '{pesan_verifikasi}' => 'Selamat! Pembayaran PPDB ' . $namaSekolah . ' telah *BERHASIL DIVERIFIKASI*.',
                 '{tahap_selanjutnya}' => "1. *TUNGGU VERIFIKASI FINAL*\n   Data Anda akan diverifikasi oleh admin\n\n2. *PANTAU PENGUMUMAN*\n   Lihat hasil seleksi via sistem\n\n3. *DAFTAR ULANG*\n   Lakukan daftar ulang jika diterima",
                 '{pesan_penutup}' => '*Proses pendaftaran Anda sedang berjalan!* 📝',
                 '{total_biaya}' => number_format($totalBiayaPPDB, 0, ',', '.'),
@@ -317,7 +322,7 @@ class VerifikasiPembayaranController extends Controller
                     '{status_judul}' => 'TELAH LUNAS',
                     '{status_badge}' => '✅',
                     '{status_detail}' => 'LUNAS & TERVERIFIKASI',
-                    '{pesan_verifikasi}' => 'Selamat! Pembayaran PPDB SMK Wisata Indonesia telah *DILUNASI SEPENUHNYA*.',
+                    '{pesan_verifikasi}' => 'Selamat! Pembayaran PPDB ' . $namaSekolah . ' telah *DILUNASI SEPENUHNYA*.',
                     '{tahap_selanjutnya}' => "1. *TUNGGU VERIFIKASI FINAL*\n   Data Anda akan diverifikasi oleh admin\n\n2. *PANTAU PENGUMUMAN*\n   Lihat hasil seleksi via sistem\n\n3. *DAFTAR ULANG*\n   Lakukan daftar ulang jika diterima",
                     '{pesan_penutup}' => '*Proses pendaftaran Anda hampir selesai!* 🎓',
                     '{total_biaya}' => number_format($totalBiayaPPDB, 0, ',', '.'),
@@ -329,7 +334,7 @@ class VerifikasiPembayaranController extends Controller
                     '{status_judul}' => 'TELAH DIVERIFIKASI',
                     '{status_badge}' => '✅',
                     '{status_detail}' => 'TERVERIFIKASI (Belum Lunas)',
-                    '{pesan_verifikasi}' => 'Selamat! Pembayaran PPDB SMK Wisata Indonesia telah *BERHASIL DIVERIFIKASI*.',
+                    '{pesan_verifikasi}' => 'Selamat! Pembayaran PPDB ' . $namaSekolah . ' telah *BERHASIL DIVERIFIKASI*.',
                     '{tahap_selanjutnya}' => "1. *LANJUTKAN PEMBAYARAN*\n   Lunasi sisa pembayaran: Rp " . number_format($sisaPembayaran, 0, ',', '.') . "\n\n2. *TUNGGU VERIFIKASI FINAL*\n   Data Anda akan diverifikasi oleh admin\n\n3. *PANTAU PENGUMUMAN*\n   Lihat hasil seleksi via sistem",
                     '{pesan_penutup}' => '*Segera lunasi pembayaran untuk menyelesaikan proses!* 💰',
                     '{total_biaya}' => number_format($totalBiayaPPDB, 0, ',', '.'),
@@ -348,11 +353,14 @@ class VerifikasiPembayaranController extends Controller
 
     private function getFormulirPlaceholders()
     {
+        $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+        $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+
         return [
             '{status_judul}' => 'TELAH DIVERIFIKASI',
             '{status_badge}' => '✅',
             '{status_detail}' => 'LUNAS & TERVERIFIKASI',
-            '{pesan_verifikasi}' => 'Selamat! Pembayaran formulir PPDB SMK Wisata Indonesia telah *BERHASIL DIVERIFIKASI*.',
+            '{pesan_verifikasi}' => 'Selamat! Pembayaran formulir PPDB ' . $namaSekolah . ' telah *BERHASIL DIVERIFIKASI*.',
             '{tahap_selanjutnya}' => "1. *LENGKAPI FORMULIR*\n   Isi data formulir pendaftaran dengan lengkap\n\n2. *PEMBAYARAN PPDB*\n   Lakukan pembayaran biaya PPDB\n\n3. *TUNGGU PENGUMUMAN*\n   Pantau hasil seleksi via sistem",
             '{pesan_penutup}' => '*Lanjutkan pengisian formulir untuk menyelesaikan pendaftaran!* 📝'
         ];

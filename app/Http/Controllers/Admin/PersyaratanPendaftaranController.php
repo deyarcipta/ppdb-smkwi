@@ -10,7 +10,7 @@ class PersyaratanPendaftaranController extends Controller
 {
     public function index()
     {
-        $data = PersyaratanPendaftaran::orderBy('tipe')->orderBy('urutan')->paginate(10);
+        $data = PersyaratanPendaftaran::orderBy('tipe')->orderBy('urutan')->paginate(15);
         return view('admin.persyaratan-pendaftaran.index', compact('data'));
     }
 
@@ -24,14 +24,15 @@ class PersyaratanPendaftaranController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
-            'tipe' => 'required|in:umum,dokumen,jadwal',
+            'sub_konten' => 'nullable|string',
+            'tipe' => 'required|in:umum,dokumen,jadwal,alur',
             'urutan' => 'required|integer|min:1',
         ]);
 
         PersyaratanPendaftaran::create($request->all());
 
         return redirect()->route('persyaratan-pendaftaran.index')
-            ->with('success', 'Persyaratan berhasil ditambahkan.');
+            ->with('success', 'Persyaratan / Alur berhasil ditambahkan.');
     }
 
     public function edit($id)
@@ -45,7 +46,8 @@ class PersyaratanPendaftaranController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
-            'tipe' => 'required|in:umum,dokumen,jadwal',
+            'sub_konten' => 'nullable|string',
+            'tipe' => 'required|in:umum,dokumen,jadwal,alur',
             'urutan' => 'required|integer|min:1',
         ]);
 
@@ -53,7 +55,7 @@ class PersyaratanPendaftaranController extends Controller
         $persyaratan->update($request->all());
 
         return redirect()->route('persyaratan-pendaftaran.index')
-            ->with('success', 'Persyaratan berhasil diperbarui.');
+            ->with('success', 'Persyaratan / Alur berhasil diperbarui.');
     }
 
     public function destroy($id)
@@ -62,7 +64,7 @@ class PersyaratanPendaftaranController extends Controller
         $persyaratan->delete();
 
         return redirect()->route('persyaratan-pendaftaran.index')
-            ->with('success', 'Persyaratan berhasil dihapus.');
+            ->with('success', 'Persyaratan / Alur berhasil dihapus.');
     }
 
     public function aktifkan($id)
@@ -71,7 +73,7 @@ class PersyaratanPendaftaranController extends Controller
         $persyaratan->update(['status' => true]);
 
         return redirect()->route('persyaratan-pendaftaran.index')
-            ->with('success', 'Persyaratan berhasil diaktifkan.');
+            ->with('success', 'Persyaratan / Alur berhasil diaktifkan.');
     }
 
     public function nonaktifkan($id)
@@ -80,6 +82,6 @@ class PersyaratanPendaftaranController extends Controller
         $persyaratan->update(['status' => false]);
 
         return redirect()->route('persyaratan-pendaftaran.index')
-            ->with('success', 'Persyaratan berhasil dinonaktifkan.');
+            ->with('success', 'Persyaratan / Alur berhasil dinonaktifkan.');
     }
 }

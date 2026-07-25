@@ -1,9 +1,22 @@
+@php
+    $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::getSettings();
+    $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+    $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB';
+    $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
+    if (!file_exists(public_path($logo))) {
+        $logo = 'sneat/img/logowi.png';
+    }
+    $warnaUtama = $pengaturan->warna_utama ?? '#667eea';
+    $warnaHeader = $pengaturan->warna_header ?? '#764ba2';
+    $warnaSekunder = $pengaturan->warna_sekunder ?? '#16a34a';
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir Pendaftaran PPDB SMK Wisata Indonesia</title>
+    <link rel="icon" href="{{ asset($logo) }}" type="image/png">
+    <title>Formulir Pendaftaran {{ $namaAplikasi }} {{ $namaSekolah }}</title>
     <link rel="stylesheet" href="{{ asset('sneat/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,7 +25,7 @@
 
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, {{ $warnaUtama }} 0%, {{ $warnaHeader }} 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 20px;
             min-height: 100vh;
@@ -90,7 +103,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #16a34a, #15803d, #166534);
+            background: {{ $warnaSekunder }} !important;
         }
         
         .form-header {
@@ -107,11 +120,11 @@
             left: 25%;
             right: 25%;
             height: 2px;
-            background: linear-gradient(90deg, transparent, #6b21a8, transparent);
+            background: linear-gradient(90deg, transparent, {{ $warnaUtama }}, transparent) !important;
         }
         
         .form-header h1 {
-            color: #2E004F;
+            color: {{ $warnaUtama }} !important;
             font-weight: 700;
             font-size: 20px;
             margin-bottom: 5px;
@@ -141,8 +154,8 @@
         }
         
         .form-control:focus, .form-select:focus {
-            border-color: #6b21a8;
-            box-shadow: 0 0 0 3px rgba(107, 33, 168, 0.1);
+            border-color: {{ $warnaUtama }} !important;
+            box-shadow: 0 0 0 3px {{ $warnaUtama }}22 !important;
             background-color: white;
         }
         
@@ -152,7 +165,7 @@
         }
         
         .btn-submit {
-            background: linear-gradient(135deg, #16a34a, #15803d);
+            background: {{ $warnaSekunder }} !important;
             color: white;
             border: none;
             border-radius: 6px;
@@ -167,9 +180,9 @@
         }
         
         .btn-submit:hover {
-            background: linear-gradient(135deg, #15803d, #166534);
+            opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(22, 163, 74, 0.4);
+            box-shadow: 0 5px 15px {{ $warnaSekunder }}66 !important;
         }
         
         .btn-back {
@@ -396,7 +409,7 @@
     <div class="form-container">
         <div class="form-header">
             <h1>Formulir Pendaftaran SPMB</h1>
-            <p>SMK Wisata Indonesia TP. 2026-2027</p>
+            <p>{{ $namaSekolah }} TP. {{ date('Y') }}-{{ date('Y')+1 }}</p>
         </div>
 
         <!-- Alert Area -->
@@ -498,11 +511,11 @@
                     <label for="referensi" class="form-label required">Referensi</label>
                     <select class="form-select" id="referensi" name="referensi" required>
                         <option value="" selected disabled>--Pilih Referensi--</option>
-                        <option value="guru-staff">Guru/Staff/Laboran/Pegawai Wisata Indonesia</option>
-                        <option value="siswa">Siswa SMK Wisata Indonesia</option>
-                        <option value="alumni">Alumni SMK Wisata Indonesia</option>
+                        <option value="guru-staff">Guru/Staff/Laboran/Pegawai {{ $namaSekolah }}</option>
+                        <option value="siswa">Siswa {{ $namaSekolah }}</option>
+                        <option value="alumni">Alumni {{ $namaSekolah }}</option>
                         <option value="guru-smp">Guru SMP</option>
-                        <option value="calon-siswa">Calon Siswa SMK Wisata Indonesia</option>
+                        <option value="calon-siswa">Calon Siswa {{ $namaSekolah }}</option>
                         <option value="sosial-media">Sosial Media</option>
                         <option value="referensi-langsung">Referensi Langsung</option>
                     </select>
@@ -539,23 +552,27 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <h4 class="text-success mb-3">Selamat! Pendaftaran Berhasil</h4>
-                    <p class="mb-3">Data Anda telah berhasil disimpan dalam sistem PPDB SMK Wisata Indonesia.</p>
+                    <p class="mb-3">Data Anda telah berhasil disimpan dalam sistem {{ $namaAplikasi }} {{ $namaSekolah }}.</p>
                     
                     <div id="modalUsername" class="alert alert-info" style="display: none;">
-                        <strong>Username Login:</strong> <span id="usernameValue"></span>
+                        <div class="mb-1"><strong>Username Login:</strong> <span id="usernameValue" class="fw-bold text-primary"></span></div>
+                        <div><strong>Password Login:</strong> <span id="passwordValue" class="fw-bold text-danger"></span></div>
                     </div>
                     
                     <div class="alert alert-warning">
                         <small>
                             <i class="fas fa-exclamation-triangle me-1"></i>
-                            <strong>Catat username Anda!</strong> Gunakan untuk login ke sistem.
+                            <strong>Catat Username & Password Anda!</strong> Gunakan untuk login ke portal siswa.
                         </small>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer flex-column flex-sm-row gap-2">
+                    <a id="btnDownloadPdf" href="#" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-file-pdf me-1"></i>Download Bukti Pendaftaran (PDF)
+                    </a>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <a href="{{ url('/') }}" class="btn btn-success">
-                        <i class="fas fa-home me-1"></i>Kembali ke Beranda
+                    <a href="{{ route('siswa.login') }}" class="btn btn-success">
+                        <i class="fas fa-user-circle me-1"></i>Portal Siswa
                     </a>
                 </div>
             </div>
@@ -694,7 +711,14 @@
                 // Success case - Tampilkan modal sukses
                 if (data.data && data.data.username) {
                     document.getElementById('usernameValue').textContent = data.data.username;
+                    document.getElementById('passwordValue').textContent = data.data.password || 'password123';
                     document.getElementById('modalUsername').style.display = 'block';
+
+                    // Update link tombol download PDF
+                    const downloadBtn = document.getElementById('btnDownloadPdf');
+                    if (downloadBtn && data.data.user_id) {
+                        downloadBtn.href = "{{ url('/pendaftaran/download-pdf') }}/" + data.data.user_id;
+                    }
                     
                     // Tambahkan informasi tambahan di modal
                     const modalBody = document.querySelector('.modal-success .modal-body');
@@ -705,14 +729,37 @@
                     
                     const additionalInfo = document.createElement('div');
                     additionalInfo.className = 'additional-info mt-3';
-                    additionalInfo.innerHTML = `
-                        <div class="alert alert-info">
-                            <h6 class="alert-heading">Informasi Pendaftaran:</h6>
-                            <small>
-                                <strong>Informasi Pendaftaran Telah Dikirim Ke Whatsapp : </strong>${data.data.no_hp}
-                            </small>
-                        </div>
-                    `;
+
+                    if (data.data.wa_enabled) {
+                        additionalInfo.innerHTML = `
+                            <div class="alert alert-info text-start">
+                                <h6 class="alert-heading fw-bold mb-1"><i class="fab fa-whatsapp me-1"></i> Informasi Pendaftaran:</h6>
+                                <small>
+                                    <strong>Informasi Pendaftaran Telah Dikirim Ke Whatsapp : </strong>${data.data.no_hp}
+                                </small>
+                            </div>
+                        `;
+                    } else {
+                        const rawPhone = data.data.no_admin || '081382053328';
+                        let cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+                        if (cleanPhone.startsWith('0')) {
+                            cleanPhone = '62' + cleanPhone.substring(1);
+                        }
+                        const waUrl = 'https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent('Halo Panitia PPDB, saya baru saja mendaftar dengan Username: ' + data.data.username);
+
+                        additionalInfo.innerHTML = `
+                            <div class="alert alert-info text-start mb-0">
+                                <h6 class="alert-heading fw-bold mb-2"><i class="fas fa-info-circle me-1"></i> Informasi Pendaftaran:</h6>
+                                <div style="font-size: 13px;">
+                                    Kontak WhatsApp Admin / Sekolah: 
+                                    <a href="${waUrl}" target="_blank" class="fw-bold text-success text-decoration-underline ms-1">
+                                        ${rawPhone} <i class="fab fa-whatsapp ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    }
+
                     modalBody.insertBefore(additionalInfo, modalBody.querySelector('.alert-warning'));
                 } else {
                     document.getElementById('modalUsername').style.display = 'none';

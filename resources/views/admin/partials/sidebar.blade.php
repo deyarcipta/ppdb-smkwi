@@ -49,9 +49,11 @@
           <li class="menu-item {{ Request::is('w1s4t4/kuota-jurusan*') ? 'active' : '' }}">
             <a href="{{ route('kuota-jurusan.index') }}" class="menu-link">Kuota Per Jurusan</a>
           </li>
+          @if(!empty($pengaturan->enable_whatsapp))
           <li class="menu-item {{ Request::is('w1s4t4/template-pesan*') ? 'active' : '' }}">
             <a href="{{ route('template-pesan.index') }}" class="menu-link">Template Pesan</a>
           </li>
+          @endif
           <li class="menu-item {{ Request::is('w1s4t4/data-smp*') ? 'active' : '' }}">
             <a href="{{ route('data-smp.index') }}" class="menu-link">Data SMP</a>
           </li>
@@ -62,7 +64,7 @@
     {{-- Menu untuk admin & superadmin --}}
     @if(in_array($userRole, ['superadmin','admin']))
       <!-- Data Pendaftar -->
-      <li class="menu-item {{ Request::is('w1s4t4/verifikasi-pendaftar*') || Request::is('w1s4t4/data-terverifikasi*') || Request::is('w1s4t4/data-diterima*') || Request::is('w1s4t4/data-ditolak*') ? 'open active' : '' }}">
+      <li class="menu-item {{ Request::is('w1s4t4/verifikasi-pendaftar*') || Request::is('w1s4t4/data-terverifikasi*') || Request::is('w1s4t4/data-diterima*') || Request::is('w1s4t4/data-ditolak*') || Request::is('w1s4t4/data-cetak-kartu*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon bx bx-user"></i>
           <div>Data Pendaftar</div>
@@ -80,6 +82,11 @@
           <li class="menu-item {{ Request::is('w1s4t4/data-ditolak*') ? 'active' : '' }}">
             <a href="{{ route('data-ditolak.index') }}" class="menu-link">Data Ditolak</a>
           </li>
+          @if(!empty($pengaturan->enable_cetak_kartu))
+          <li class="menu-item {{ Request::is('w1s4t4/data-cetak-kartu*') ? 'active' : '' }}">
+            <a href="{{ route('data-cetak-kartu.index') }}" class="menu-link">Data Cetak Kartu</a>
+          </li>
+          @endif
         </ul>
       </li>
 
@@ -130,7 +137,7 @@
           <a href="{{ route('info-pembayaran.index') }}" class="menu-link">Info Pembayaran</a>
         </li>
         <li class="menu-item {{ Request::is('w1s4t4/persyaratan-pendaftaran*') ? 'active' : '' }}">
-          <a href="{{ route('persyaratan-pendaftaran.index') }}" class="menu-link">Info Persyaratan</a>
+          <a href="{{ route('persyaratan-pendaftaran.index') }}" class="menu-link">Persyaratan & Alur</a>
         </li>
         <li class="menu-item {{ Request::is('w1s4t4/testimoni-alumni*') ? 'active' : '' }}">
           <a href="{{ route('testimoni-alumni.index') }}" class="menu-link">Testimoni Alumni</a>
@@ -151,12 +158,14 @@
     </li>
 
     {{-- WhatsApp Bot --}}
+    @if(!empty($pengaturan->enable_whatsapp))
     <li class="menu-item {{ Request::is('w1s4t4/whatsapp*') ? 'active' : '' }}">
       <a href="{{ route('whatsapp.index') }}" class="menu-link">
         <i class="menu-icon bx bx-message-square-dots"></i>
         <div>WhatsApp Bot</div>
       </a>
     </li>
+    @endif
 
     {{-- Pengaturan hanya untuk superadmin --}}
     @if($userRole == 'superadmin')
@@ -173,6 +182,13 @@
         <a href="{{ route('pengaturan-aplikasi.index') }}" class="menu-link">
           <i class="menu-icon bx bx-cog"></i>
           <div>Pengaturan Aplikasi</div>
+        </a>
+      </li>
+
+      <li class="menu-item {{ Request::is('w1s4t4/backup-restore*') ? 'active' : '' }}">
+        <a href="{{ route('backup-restore.index') }}" class="menu-link">
+          <i class="menu-icon bx bx-hdd"></i>
+          <div>Backup & Restore</div>
         </a>
       </li>
     @endif

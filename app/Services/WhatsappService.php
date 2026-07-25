@@ -21,6 +21,16 @@ class WhatsappService
     public function sendMessage($phone, $message)
     {
         try {
+            // Cek apakah fitur WhatsApp diaktifkan di Pengaturan Aplikasi
+            $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+            if (!$pengaturan->enable_whatsapp) {
+                Log::info("Pengiriman WhatsApp dilewati karena fitur Notifikasi WhatsApp dinonaktifkan di Pengaturan Aplikasi.");
+                return [
+                    'success' => true,
+                    'message' => 'Notifikasi WhatsApp dinonaktifkan di Pengaturan Aplikasi.'
+                ];
+            }
+
             // Format nomor telepon
             $formattedPhone = $this->formatPhoneNumber($phone);
             

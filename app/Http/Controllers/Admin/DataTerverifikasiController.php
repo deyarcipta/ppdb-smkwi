@@ -45,8 +45,9 @@ class DataTerverifikasiController extends Controller
         $gelombangs = GelombangPendaftaran::where('status', 'aktif')->get();
         $jurusans = Jurusan::where('status', 1)->get();
         $dataSmp = DataSmp::all();
+        $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
 
-        return view('admin.data-terverifikasi.index', compact('data', 'totalBiaya', 'gelombangs', 'jurusans', 'dataSmp'));
+        return view('admin.data-terverifikasi.index', compact('data', 'totalBiaya', 'gelombangs', 'jurusans', 'dataSmp', 'pengaturan'));
     }
 
     public function update(Request $request)
@@ -121,9 +122,10 @@ class DataTerverifikasiController extends Controller
         try {
             $user = UserSiswa::findOrFail($request->user_id);
             
-            // Reset password ke default
-            $newPassword = 'password123';
+            // Reset password ke 6 digit acak
+            $newPassword = (string) random_int(100000, 999999);
             $user->password = Hash::make($newPassword);
+            $user->password_plain = $newPassword;
             $user->save();
 
             return back()->with([
@@ -167,7 +169,7 @@ public function kirimUlang($id)
         $placeholders = [
             '{nama}'         => $dataSiswa->nama_lengkap ?? '-',
             '{username}'     => $user->username ?? '-',
-            '{password}'     => 'password123',
+            '{password}'     => $user->password_plain ?? '123456',
             '{tahun_ajaran}' => $tahunAjaran,
             '{gelombang}'    => $gelombang->nama_gelombang ?? '-',
 
@@ -230,6 +232,8 @@ public function kirimUlang($id)
     {
         $currentYear = date('Y');
         $nextYear = $currentYear + 1;
+        $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+        $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
 
         return [
             '{nama}' => $dataSiswa->nama_panggilan ?? explode(' ', $dataSiswa->nama_lengkap)[0] ?? $dataSiswa->nama_lengkap,
@@ -242,15 +246,15 @@ public function kirimUlang($id)
             '{periode_daftar_ulang}' => "15 - 31 Juli {$currentYear}",
             '{tanggal_mpls}' => "1 Agustus {$currentYear}",
             '{tanggal_awal_semester}' => "5 Agustus {$currentYear}",
-            '{alamat_sekolah}' => "Jl. Pendidikan No. 123, Jakarta",
-            '{no_admin}' => '0852-1815-0720',
-            '{email_sekolah}' => "ppdb@smkwisataindonesia.sch.id",
-            '{url_sistem}' => "https://ppdb.smkwisataindonesia.sch.id/siswa",
+            '{alamat_sekolah}' => $pengaturan->alamat ?? "Jl. Pendidikan No. 123, Jakarta",
+            '{no_admin}' => $pengaturan->no_hp ?? '0852-1815-0720',
+            '{email_sekolah}' => $pengaturan->email ?? "ppdb@smkwisataindonesia.sch.id",
+            '{url_sistem}' => url('/siswa'),
             
             // Tambahan placeholder untuk fleksibilitas
-            '{sekolah}' => 'SMK Wisata Indonesia',
-            '{telepon_sekolah}' => '(021) 1234567',
-            '{website}' => 'https://smkwisataindonesia.sch.id',
+            '{sekolah}' => $namaSekolah,
+            '{telepon_sekolah}' => $pengaturan->telepon ?? '-',
+            '{website}' => url('/'),
         ];
     }
 

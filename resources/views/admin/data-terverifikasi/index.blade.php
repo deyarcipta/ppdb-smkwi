@@ -125,6 +125,7 @@
                                         <i class="bx bx-edit fs-12"></i>
                                     </button>
                                     
+                                    @if(!empty($pengaturan->enable_whatsapp))
                                     <!-- Tombol Kirim Ulang Info Pendaftaran -->
                                     <button
                                         class="btn btn-success btn-sm p-1"
@@ -133,6 +134,7 @@
                                         title="Kirim Ulang Info Pendaftaran">
                                         <i class="bx bxl-whatsapp fs-12"></i>
                                     </button>
+                                    @endif
 
                                     <!-- Tombol Reset Password (Form langsung) -->
                                     <form action="{{ route('data-terverifikasi.reset-password') }}" method="POST" class="d-inline form-reset-password">
@@ -225,7 +227,7 @@
                     <div class="col-md-6">
                         <h6 class="mb-3 text-primary">Informasi Akun & Pendaftaran</h6>
                         <div><strong>Username:</strong> {{ $row->username }}</div>
-                        <div><strong>Password:</strong> {{ $row->password_plain ?? 'password123' }}</div>
+                        <div><strong>Password:</strong> {{ !empty($row->password_plain) && $row->password_plain !== 'password123' ? $row->password_plain : str_pad(abs(crc32($row->id . $row->username)) % 900000 + 100000, 6, '0', STR_PAD_LEFT) }}</div>
                         <div><strong>Status Akun:</strong> <span class="badge bg-success text-white">Aktif</span></div>
                         <div><strong>No. Pendaftaran:</strong> {{ $row->dataSiswa->no_pendaftaran ?? '-' }}</div>
                         <div><strong>Gelombang:</strong> {{ $row->dataSiswa->gelombang->nama_gelombang ?? '-' }}</div>
@@ -749,21 +751,18 @@ select.select2-hidden-accessible {
     display: none !important;
 }
 .card-full-width {
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 0.75rem;
     margin-bottom: 0 !important;
-    box-shadow: none;
     border-top: 1px solid #e4e6e8;
     border-bottom: 1px solid #e4e6e8;
 }
 
 @media (min-width: 1200px) {
     .card-full-width {
-        margin-left: -2rem;
-        margin-right: -2rem;
+        margin-left: 0;
+        margin-right: 0;
     }
 }
 

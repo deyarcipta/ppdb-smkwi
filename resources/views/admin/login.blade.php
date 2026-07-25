@@ -13,9 +13,10 @@
     @php
       $pengaturan = \App\Models\PengaturanAplikasi::first();
       $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
-      $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB SMK WI';
+      $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB';
+      $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
     @endphp
-    <title>Login Admin - PPDB SMK Wisata Indonesia</title>
+    <title>Login Admin - {{ $namaAplikasi }} {{ $namaSekolah }}</title>
 
     <link rel="icon" type="image/x-icon" href="{{ asset($logo) }}" />
 
@@ -79,7 +80,7 @@
                                 <span class="app-brand-logo demo">
                                     <img src="{{ asset($logo) }}" alt="Logo" width="30">
                                 </span>
-                                <span class="app-brand-text demo text-body fw-bold">PPDB Wisata Indonesia</span>
+                                <span class="app-brand-text demo text-body fw-bold">{{ $namaAplikasi }} {{ $namaSekolah }}</span>
                             </a>
                         </div>
                         <!-- /Logo -->

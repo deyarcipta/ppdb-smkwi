@@ -6,7 +6,7 @@
   <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0">Daftar Jurusan</h5>
     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addJurusanModal">
-      <i class="bx bx-plus"></i> Tambah
+      <i class="bx bx-plus"></i> Tambah Jurusan
     </button>
   </div>
 
@@ -16,18 +16,26 @@
         <thead class="table-light">
           <tr class="text-center">
             <th width="5%">No</th>
+            <th width="10%">Icon/Logo</th>
             <th width="10%">Kode</th>
             <th>Nama Jurusan</th>
             <th>Deskripsi</th>
             <th width="10%">Status</th>
-            <th width="25%">Aksi</th>
+            <th width="20%">Aksi</th>
           </tr>
         </thead>
         <tbody>
           @forelse ($jurusans as $jurusan)
             <tr>
               <td class="text-center">{{ $loop->iteration }}</td>
-              <td>{{ $jurusan->kode_jurusan }}</td>
+              <td class="text-center">
+                @if($jurusan->icon && file_exists(public_path('uploads/jurusan/' . $jurusan->icon)))
+                  <img src="{{ asset('uploads/jurusan/' . $jurusan->icon) }}" alt="{{ $jurusan->nama_jurusan }}" style="max-height: 45px; max-width: 45px;" class="img-thumbnail rounded">
+                @else
+                  <span class="badge bg-light text-secondary">No Icon</span>
+                @endif
+              </td>
+              <td class="text-center fw-bold">{{ $jurusan->kode_jurusan }}</td>
               <td>{{ $jurusan->nama_jurusan }}</td>
               <td>{{ $jurusan->deskripsi ?? '-' }}</td>
               <td class="text-center">
@@ -68,21 +76,21 @@
             </tr>
           @empty
             <tr>
-              <td colspan="6" class="text-center text-muted">Belum ada data jurusan</td>
+              <td colspan="7" class="text-center text-muted">Belum ada data jurusan</td>
             </tr>
           @endforelse
         </tbody>
       </table>
     </div>
     <!-- Pagination Component -->
-      <x-pagination :paginator="$jurusans" />
+    <x-pagination :paginator="$jurusans" />
   </div>
 </div>
 
 <!-- Modal Tambah Jurusan -->
 <div class="modal fade" id="addJurusanModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <form class="modal-content" method="POST" action="{{ route('jurusan.store') }}">
+    <form class="modal-content" method="POST" action="{{ route('jurusan.store') }}" enctype="multipart/form-data">
       @csrf
       <div class="modal-header">
         <h5 class="modal-title">Tambah Jurusan</h5>
@@ -91,15 +99,20 @@
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label">Kode Jurusan</label>
-          <input type="text" name="kode_jurusan" class="form-control" required>
+          <input type="text" name="kode_jurusan" class="form-control" placeholder="Contoh: TJKT, AKL, PH" required>
         </div>
         <div class="mb-3">
           <label class="form-label">Nama Jurusan</label>
-          <input type="text" name="nama_jurusan" class="form-control" required>
+          <input type="text" name="nama_jurusan" class="form-control" placeholder="Contoh: Teknik Komputer dan Jaringan" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Icon / Logo Jurusan</label>
+          <input type="file" name="icon" class="form-control" accept="image/*">
+          <small class="text-muted">Format: PNG, JPG, JPEG, WEBP, SVG (Maks. 2MB)</small>
         </div>
         <div class="mb-3">
           <label class="form-label">Deskripsi</label>
-          <textarea name="deskripsi" class="form-control"></textarea>
+          <textarea name="deskripsi" class="form-control" rows="3" placeholder="Deskripsi singkat mengenai jurusan..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -114,7 +127,7 @@
 @foreach ($jurusans as $jurusan)
   <div class="modal fade" id="editJurusanModal{{ $jurusan->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-      <form class="modal-content" method="POST" action="{{ route('jurusan.update', $jurusan->id) }}">
+      <form class="modal-content" method="POST" action="{{ route('jurusan.update', $jurusan->id) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="modal-header">
@@ -131,13 +144,23 @@
             <input type="text" name="nama_jurusan" class="form-control" value="{{ $jurusan->nama_jurusan }}" required>
           </div>
           <div class="mb-3">
+            <label class="form-label">Icon / Logo Jurusan</label>
+            @if($jurusan->icon && file_exists(public_path('uploads/jurusan/' . $jurusan->icon)))
+              <div class="mb-2">
+                <img src="{{ asset('uploads/jurusan/' . $jurusan->icon) }}" alt="{{ $jurusan->nama_jurusan }}" style="max-height: 60px;" class="img-thumbnail">
+              </div>
+            @endif
+            <input type="file" name="icon" class="form-control" accept="image/*">
+            <small class="text-muted">Biarkan kosong jika tidak ingin mengubah icon</small>
+          </div>
+          <div class="mb-3">
             <label class="form-label">Deskripsi</label>
-            <textarea name="deskripsi" class="form-control">{{ $jurusan->deskripsi }}</textarea>
+            <textarea name="deskripsi" class="form-control" rows="3">{{ $jurusan->deskripsi }}</textarea>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-          <button type="submit" class="btn btn-success">Simpan</button>
+          <button type="submit" class="btn btn-success">Simpan Perubahan</button>
         </div>
       </form>
     </div>

@@ -127,6 +127,16 @@ class DataSiswa extends Model
         return $this->belongsTo(GelombangPendaftaran::class, 'gelombang_id');
     }
 
+    public function gelombangPendaftaran()
+    {
+        return $this->belongsTo(GelombangPendaftaran::class, 'gelombang_id');
+    }
+
+    public function tahunAjaran()
+    {
+        return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran_id');
+    }
+
     /**
      * Accessor untuk mendapatkan nama jurusan
      */

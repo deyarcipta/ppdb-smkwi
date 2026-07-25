@@ -375,7 +375,7 @@
                         </div>
                         <div class="credential-item">
                             <strong>Password:</strong> 
-                            <code>{{ $user->password_plain ?? (!empty($pengaturan->kartu_password_contoh) ? $pengaturan->kartu_password_contoh : str_pad(rand(100000, 999999), 6, '0', STR_PAD_LEFT)) }}</code>
+                            <code>{{ !empty($pengaturan->kartu_password_contoh) ? $pengaturan->kartu_password_contoh : (!empty($user->password_plain) && $user->password_plain !== 'password123' ? $user->password_plain : str_pad(abs(crc32($user->id . $user->username)) % 900000 + 100000, 6, '0', STR_PAD_LEFT)) }}</code>
                         </div>
                     </div>
                 </div>
@@ -389,8 +389,13 @@
             </div>
             <div class="signature-box">
                 Panitia PPDB,<br>
-                Ttd & Stempel
-                <div class="signature-line"></div>
+                @if(!empty($pengaturan->ttd_stempel) && file_exists(public_path($pengaturan->ttd_stempel)))
+                    <div style="margin: 2px 0;">
+                        <img src="{{ asset($pengaturan->ttd_stempel) }}" alt="Ttd & Stempel Panitia" style="max-height: 55px; max-width: 140px; object-fit: contain;">
+                    </div>
+                @else
+                    <div class="signature-line"></div>
+                @endif
                 <strong>{{ $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia' }}</strong>
             </div>
         </div>

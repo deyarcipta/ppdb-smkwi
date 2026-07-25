@@ -3,6 +3,18 @@
 @section('title', 'WhatsApp Bot')
 
 @section('content')
+@if(isset($pengaturan) && !$pengaturan->enable_whatsapp)
+<div class="alert alert-warning d-flex align-items-center justify-content-between mb-4" role="alert">
+    <div>
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <strong>Fitur Notifikasi WhatsApp saat ini NONAKTIF.</strong> Pesan otomatis ke calon siswa/admin disembunyikan/dilewati.
+    </div>
+    <a href="{{ route('pengaturan-aplikasi.index') }}" class="btn btn-sm btn-warning">
+        <i class="fas fa-cog me-1"></i> Buka Pengaturan Aplikasi
+    </a>
+</div>
+@endif
+
 <div class="card">
     <div class="card-header">
         <h5>Status WhatsApp Bot</h5>

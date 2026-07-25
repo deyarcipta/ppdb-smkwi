@@ -126,10 +126,13 @@
 </head>
 <body>
 <div class="container">
+    @php
+        $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::first();
+    @endphp
     <div class="header">
       <div class="header-text">
-          <h1>SMK WISATA INDONESIA</h1>
-          <h2>Jl. Raya Lenteng Agung I, Jakarta Selatan – Telp. (021) xxxx xxxx</h2>
+          <h1>{{ strtoupper($pengaturan->nama_sekolah ?? 'SMK WISATA INDONESIA') }}</h1>
+          <h2>{{ $pengaturan->alamat ?? 'Jl. Raya Lenteng Agung I, Jakarta Selatan' }} – Telp. {{ $pengaturan->telepon ?? '-' }}</h2>
       </div>
   </div>
 

@@ -204,21 +204,18 @@
 @push('styles')
 <style>
 .card-full-width {
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 0.75rem;
     margin-bottom: 0 !important;
-    box-shadow: none;
     border-top: 1px solid #e4e6e8;
     border-bottom: 1px solid #e4e6e8;
 }
 
 @media (min-width: 1200px) {
     .card-full-width {
-        margin-left: -2rem;
-        margin-right: -2rem;
+        margin-left: 0;
+        margin-right: 0;
     }
 }
 

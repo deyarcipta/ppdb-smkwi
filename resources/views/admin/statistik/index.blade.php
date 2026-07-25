@@ -2,7 +2,7 @@
 @section('title', 'Data Statistik Pendaftar')
 
 @section('content')
-<div class="container-xxl flex-grow-1 container-p-y" style="padding-top: 0.75rem !important; padding-bottom: 0.25rem !important;">
+<div class="container-fluid p-0">
     <!-- Statistik Visitor -->
     <div class="row" style="margin-bottom: 0.75rem !important;">
         <div class="col-12">
@@ -230,7 +230,7 @@
     margin-top: 0 !important;
 }
 
-.container-xxl.flex-grow-1.container-p-y {
+.container-fluid.p-0 {
     padding-top: 0.75rem !important;
     padding-bottom: 0.25rem !important;
 }

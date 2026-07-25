@@ -30,13 +30,20 @@ class PengaturanAplikasi extends Model
         'maintenance_mode',
         'maintenance_message',
         'enable_cetak_kartu',
+        'enable_whatsapp',
         'kartu_username_contoh',
-        'kartu_password_contoh'
+        'kartu_password_contoh',
+        'ttd_stempel',
+        'hero_bg',
+        'warna_utama',
+        'warna_sekunder',
+        'warna_header'
     ];
 
     protected $casts = [
         'maintenance_mode' => 'boolean',
-        'enable_cetak_kartu' => 'boolean'
+        'enable_cetak_kartu' => 'boolean',
+        'enable_whatsapp' => 'boolean'
     ];
 
     /**
@@ -56,6 +63,7 @@ class PengaturanAplikasi extends Model
                 'alamat' => 'Jl. Contoh Alamat No. 123',
                 'maintenance_mode' => false,
                 'enable_cetak_kartu' => true,
+                'enable_whatsapp' => false,
                 'kartu_username_contoh' => '[Username Anda]',
                 'kartu_password_contoh' => 'password123',
             ]);

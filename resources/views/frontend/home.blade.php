@@ -1,10 +1,22 @@
+@php
+    $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::first();
+    $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+    $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB';
+
+    $heroBg = !empty($pengaturan->hero_bg) && file_exists(public_path($pengaturan->hero_bg)) 
+        ? asset($pengaturan->hero_bg) 
+        : asset('sneat/img/background-hero.png');
+    $warnaUtama = $pengaturan->warna_utama ?? '#6b21a8';
+    $warnaSekunder = $pengaturan->warna_sekunder ?? '#16a34a';
+    $warnaHeader = $pengaturan->warna_header ?? '#a948ea';
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="{{ asset($pengaturan->favicon ?? 'sneat/img/logowi.png') }}" type="image/png">
-  <title>@yield('title', 'Website PPDB SMK Wisata Indonesia')</title>
+  <title>@yield('title', 'Website ' . $namaAplikasi . ' ' . $namaSekolah)</title>
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
@@ -23,6 +35,102 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ asset('sneat/css/frontend-style.css') }}">
+
+  <!-- Dynamic Admin Theme Styles -->
+  <style>
+    :root {
+      --warna-utama: {{ $warnaUtama }};
+      --warna-sekunder: {{ $warnaSekunder }};
+      --warna-header: {{ $warnaHeader }};
+    }
+    .info-bar {
+      background-color: {{ $warnaUtama }} !important;
+    }
+    .navbar-purple {
+      background-color: {{ $warnaHeader }} !important;
+    }
+    .hero-ppdb {
+      background-image: url('{{ $heroBg }}') !important;
+      background-size: cover;
+      background-position: center;
+    }
+    .hero-text h1 .school-name,
+    .hero-text .motto {
+      color: {{ $warnaUtama }} !important;
+    }
+    .btn-ppdb,
+    .navbar-nav .btn-ppdb {
+      background: {{ $warnaSekunder }} !important;
+      border-color: {{ $warnaSekunder }} !important;
+      box-shadow: 0 4px 15px {{ $warnaSekunder }}66 !important;
+    }
+    .btn-ppdb:hover,
+    .navbar-nav .btn-ppdb:hover {
+      background: {{ $warnaSekunder }} !important;
+      opacity: 0.9;
+    }
+    .section-title h1,
+    .section-title h2,
+    #programs-card .section-title h2 {
+      color: {{ $warnaUtama }} !important;
+    }
+    .section-title hr,
+    #programs-card hr {
+      background-color: {{ $warnaUtama }} !important;
+      border-color: {{ $warnaUtama }} !important;
+    }
+    .bg-primary {
+      background-color: {{ $warnaUtama }} !important;
+    }
+    .text-primary,
+    .text-purple {
+      color: {{ $warnaUtama }} !important;
+    }
+    .timeline::before {
+      background: {{ $warnaUtama }} !important;
+    }
+    .timeline-item::before {
+      background: {{ $warnaUtama }} !important;
+      box-shadow: 0 0 0 2px {{ $warnaUtama }} !important;
+    }
+    .timeline-date {
+      color: {{ $warnaUtama }} !important;
+    }
+    .requirement-icon {
+      color: {{ $warnaUtama }} !important;
+    }
+    .step-number,
+    .registration-steps .step-number {
+      background: {{ $warnaUtama }} !important;
+      color: #fff !important;
+      box-shadow: 0 4px 15px {{ $warnaUtama }}55 !important;
+    }
+    .step-content {
+      border-left: 4px solid {{ $warnaUtama }} !important;
+    }
+    .step-content h4 {
+      color: {{ $warnaUtama }} !important;
+    }
+    .cta-full-width {
+      background: linear-gradient(135deg, {{ $warnaUtama }} 0%, {{ $warnaHeader }} 100%) !important;
+    }
+    .accordion-button:not(.collapsed) {
+      color: {{ $warnaUtama }} !important;
+      background-color: {{ $warnaUtama }}15 !important;
+    }
+    .contact-icon {
+      background: transparent !important;
+      color: #333333 !important;
+      width: auto !important;
+      height: auto !important;
+      display: inline-block !important;
+      box-shadow: none !important;
+    }
+    .contact-icon i {
+      color: #333333 !important;
+      font-size: 2.2rem !important;
+    }
+  </style>
   @stack('styles')
 </head>
 
@@ -55,7 +163,7 @@
     <!-- Logo -->
     <a class="navbar-brand d-flex align-items-center" href="/">
       <img src="{{ asset($pengaturan->logo ?? 'sneat/img/logowi.png') }}" alt="Logo" height="40" width="40">
-      <span class="ms-2 fw-bold text-white">{{$pengaturan->nama_aplikasi ?? 'PPDB SMK WI'}}</span>
+      <span class="ms-2 fw-bold text-white">{{$pengaturan->nama_aplikasi ?? 'PPDB WISTEK'}}</span>
     </a>
 
     <!-- Toggler -->
@@ -87,7 +195,7 @@
 <section class="hero-ppdb">
   <div class="container hero-content">
     <div class="hero-text">
-      <h1>PPDB TA 2026-2027<br><span class="school-name">SMK WISATA INDONESIA</span></h1>
+      <h1>PPDB TA {{ date('Y') }}-{{ date('Y')+1 }}<br><span class="school-name">{{ strtoupper($namaSekolah) }}</span></h1>
       <p>Ayo! segera daftarkan dirimu ke SMK Wistin dengan cara klik <strong>PENDAFTARAN PPDB</strong> dibawah ini!<br>
       <span class="motto">Kreatif, Unggul dan Berakhlak Mulia.</span></p>
       <a href="{{ route('frontend.pendaftaran') }}" class="btn-ppdb">PENDAFTARAN PPDB</a>
@@ -140,39 +248,50 @@
 
 <section id="programs-card">
   <div class="container">
-    <div class="section-title text-center">
+    <div class="section-title text-center mb-4">
       <h2>Program Keahlian</h2>
-      <h1>Konsesntrasi Keahlian</h1>
+      <h1>Konsentrasi Keahlian</h1>
       <hr class="mx-auto">
     </div>
-    <div class="row">
-      <div class="col-md-4 mb-4">
-        <div class="card h-100 custom-card text-center">
-          <img src="{{ asset('sneat/img/kuliner.png') }}" class="card-img-top mx-auto d-block" alt="Kuliner">
-          <div class="card-body">
-            <h5 class="card-title">Kuliner</h5>
-            <p>Jurusan Kuliner mempelajari teknik memasak, penyajian makanan, manajemen dapur, dan keamanan pangan untuk mencetak chef profesional di industri boga dan restoran.</p>
+    <div class="row justify-content-center">
+      @forelse($jurusans as $j)
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 custom-card text-center shadow-sm border-0">
+            <div class="pt-4 px-3 text-center">
+              @if($j->icon && file_exists(public_path('uploads/jurusan/' . $j->icon)))
+                <img src="{{ asset('uploads/jurusan/' . $j->icon) }}" class="card-img-top mx-auto d-block" style="max-height: 100px; max-width: 100px; object-fit: contain;" alt="{{ $j->nama_jurusan }}">
+              @else
+                @php
+                  $slug = strtolower($j->kode_jurusan ?: $j->nama_jurusan);
+                  $fallbackImg = null;
+                  if (str_contains($slug, 'kuliner') || str_contains($slug, 'boga')) {
+                      $fallbackImg = 'sneat/img/kuliner.png';
+                  } elseif (str_contains($slug, 'hotel') || str_contains($slug, 'ph')) {
+                      $fallbackImg = 'sneat/img/perhotelan.png';
+                  } elseif (str_contains($slug, 'tkj') || str_contains($slug, 'tjkt') || str_contains($slug, 'komputer')) {
+                      $fallbackImg = 'sneat/img/tkj.png';
+                  }
+                @endphp
+                @if($fallbackImg && file_exists(public_path($fallbackImg)))
+                  <img src="{{ asset($fallbackImg) }}" class="card-img-top mx-auto d-block" style="max-height: 100px; max-width: 100px; object-fit: contain;" alt="{{ $j->nama_jurusan }}">
+                @else
+                  <div class="p-3 d-inline-block rounded-circle bg-primary bg-opacity-10 text-primary mb-2" style="width: 80px; height: 80px; line-height: 50px;">
+                    <i class="bi bi-mortarboard fs-1"></i>
+                  </div>
+                @endif
+              @endif
+            </div>
+            <div class="card-body">
+              <h5 class="card-title fw-bold">{{ $j->nama_jurusan }}</h5>
+              <p class="card-text text-secondary" style="font-size: 0.95rem;">{{ $j->deskripsi ?? 'Jurusan ' . $j->nama_jurusan }}</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="col-md-4 mb-4">
-        <div class="card h-100 custom-card text-center">
-          <img src="{{ asset('sneat/img/perhotelan.png') }}" class="card-img-top mx-auto d-block" alt="Perhotelan">
-          <div class="card-body">
-            <h5 class="card-title">Perhotelan</h5>
-            <p>Jurusan Perhotelan mempelajari pelayanan tamu, manajemen hotel, tata boga, tata graha, dan komunikasi, menyiapkan siswa bekerja profesional di industri pariwisata dan perhotelan.</p>
-          </div>
+      @empty
+        <div class="col-12 text-center text-muted">
+          <p>Belum ada data jurusan.</p>
         </div>
-      </div>
-      <div class="col-md-4 mb-4">
-        <div class="card h-100 custom-card text-center">
-          <img src="{{ asset('sneat/img/tkj.png') }}" class="card-img-top mx-auto d-block" alt="Teknik Komputer dan Jaringan">
-          <div class="card-body">
-            <h5 class="card-title">Teknik Komputer dan Jaringan</h5>
-            <p>Jurusan TJKT (Teknik Jaringan Komputer dan Telekomunikasi) mempelajari instalasi, konfigurasi, pemeliharaan jaringan komputer serta sistem komunikasi untuk mendukung konektivitas digital modern.</p>
-          </div>
-        </div>
-      </div>
+      @endforelse
     </div>
   </div>
 </section>
@@ -190,8 +309,8 @@
       <!-- Jadwal Pendaftaran -->
       <div class="col-lg-6 mb-4">
         <div class="card custom-card h-100">
-          <div class="card-header bg-primary text-white text-center py-3">
-            <h4 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Jadwal Pendaftaran</h4>
+          <div class="card-header bg-transparent border-0 text-center py-3">
+            <h4 class="mb-0 fw-bold" style="color: {{ $warnaUtama }};"><i class="bi bi-calendar-check me-2"></i>Jadwal Pendaftaran</h4>
           </div>
           <div class="card-body">
             @if($jadwalPendaftaran->count() > 0)
@@ -222,8 +341,8 @@
       <!-- Persyaratan -->
       <div class="col-lg-6 mb-4">
         <div class="card custom-card h-100">
-          <div class="card-header bg-success text-white text-center py-3">
-            <h4 class="mb-0"><i class="bi bi-file-text me-2"></i>Persyaratan</h4>
+          <div class="card-header bg-transparent border-0 text-center py-3">
+            <h4 class="mb-0 fw-bold" style="color: {{ $warnaUtama }};"><i class="bi bi-file-text me-2"></i>Persyaratan</h4>
           </div>
           <div class="card-body">
             @if($persyaratanUmum->count() > 0 || $dokumenPersyaratan->count() > 0)
@@ -281,111 +400,38 @@
     </div>
 
     <div class="registration-steps">
-      <div class="step-item">
-        <div class="step-number">1</div>
-        <div class="step-content">
-          <h4>Registrasi Awal</h4>
-          <p>Siswa melakukan registrasi awal di website PPDB</p>
-          <div class="step-details">
-            <ul>
-              <li>Klik tombol "Pendaftaran PPDB"</li>
-              <li>Isi data dasar (nama, email, no. telepon)</li>
-              <li>Submit formulir registrasi</li>
-            </ul>
+      @forelse($alurPendaftaran as $index => $step)
+        <div class="step-item">
+          <div class="step-number">{{ $step->urutan ?? ($index + 1) }}</div>
+          <div class="step-content">
+            <h4>{{ $step->judul }}</h4>
+            <p>{{ $step->konten }}</p>
+            @if(!empty($step->sub_konten))
+              @php
+                $bullets = array_filter(explode("\n", str_replace("\r", "", $step->sub_konten)));
+              @endphp
+              @if(count($bullets) > 0)
+                <div class="step-details">
+                  <ul>
+                    @foreach($bullets as $bullet)
+                      @php
+                        $cleanBullet = ltrim($bullet, "-*• \t");
+                      @endphp
+                      @if(!empty($cleanBullet))
+                        <li>{{ $cleanBullet }}</li>
+                      @endif
+                    @endforeach
+                  </ul>
+                </div>
+              @endif
+            @endif
           </div>
         </div>
-      </div>
-
-      <div class="step-item">
-        <div class="step-number">2</div>
-        <div class="step-content">
-          <h4>Menerima Akses Login</h4>
-          <p>Siswa akan mendapatkan username dan password melalui WhatsApp</p>
-          <div class="step-details">
-            <ul>
-              <li>Username dan password dikirim via WhatsApp</li>
-              <li>Informasi lengkap cara login</li>
-              <li>Simpan baik-baik informasi login</li>
-            </ul>
-          </div>
+      @empty
+        <div class="text-center text-muted py-4">
+          <p>Belum ada data alur pendaftaran.</p>
         </div>
-      </div>
-
-      <div class="step-item">
-        <div class="step-number">3</div>
-        <div class="step-content">
-          <h4>Login & Pembayaran Formulir</h4>
-          <p>Siswa login dan melakukan pembayaran formulir pendaftaran</p>
-          <div class="step-details">
-            <ul>
-              <li>Login dengan username/password yang diterima</li>
-              <li>Lakukan pembayaran biaya formulir</li>
-              <li>Upload bukti pembayaran formulir</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="step-item">
-        <div class="step-number">4</div>
-        <div class="step-content">
-          <h4>Pengisian Formulir Lengkap</h4>
-          <p>Siswa mengisi formulir pendaftaran secara lengkap</p>
-          <div class="step-details">
-            <ul>
-              <li>Data pribadi lengkap</li>
-              <li>Data orang tua/wali</li>
-              <li>Data pendidikan sebelumnya</li>
-              <li>Pilihan program keahlian</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="step-item">
-        <div class="step-number">5</div>
-        <div class="step-content">
-          <h4>Pembayaran PPDB</h4>
-          <p>Siswa melakukan pembayaran biaya PPDB</p>
-          <div class="step-details">
-            <ul>
-              <li>Pembayaran dapat dilakukan melalui transfer ataupun cash</li>
-              <li>Upload bukti pembayaran PPDB</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="step-item">
-        <div class="step-number">6</div>
-        <div class="step-content">
-          <h4>Verifikasi & Pengumuman</h4>
-          <p>Menunggu proses verifikasi oleh panitia PPDB</p>
-          <div class="step-details">
-            <ul>
-              <li>Proses verifikasi 1-3 hari kerja</li>
-              <li>Notifikasi hasil via WhatsApp/Email</li>
-              <li>Dinyatakan diterima sebagai siswa</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="step-item">
-        <div class="step-number">7</div>
-        <div class="step-content">
-          <h4>Daftar Ulang</h4>
-          <p>Siswa melakukan daftar ulang dengan membawa dokumen</p>
-          <div class="step-details">
-            <ul>
-              <li>Bawa dokumen asli untuk verifikasi</li>
-              <li>Konfirmasi kehadiran di sekolah</li>
-              {{-- <li>Pengambilan seragam dan kelengkapan</li>
-              <li>Foto untuk kartu siswa</li> --}}
-            </ul>
-          </div>
-        </div>
-      </div>
+      @endforelse
     </div>
   </div>
 </section>
@@ -395,7 +441,7 @@
   <div class="container">
     <div class="cta-content">
       <h3>Siap Bergabung Dengan Kami?</h3>
-      <p>Jangan lewatkan kesempatan untuk menjadi bagian dari SMK Wisata Indonesia</p>
+      <p>Jangan lewatkan kesempatan untuk menjadi bagian dari {{ $namaSekolah }}</p>
       <a href="{{ route('frontend.pendaftaran') }}" class="btn cta-btn">
         <i class="bi bi-pencil-square me-2"></i>Daftar Sekarang
       </a>
@@ -493,47 +539,46 @@
             <div class="row text-center">
               <div class="col-md-6 mb-4">
                 <div class="contact-item">
-                  <div class="contact-icon bg-primary text-white rounded-circle mx-auto mb-3">
+                  <div class="contact-icon mx-auto mb-2">
                     <i class="bi bi-geo-alt"></i>
                   </div>
-                  <h5>Alamat Sekolah</h5>
+                  <h5 class="fw-bold">Alamat Sekolah</h5>
                   <p>{{$pengaturan->alamat}}</p>
                 </div>
               </div>
 
-                  <div class="col-md-6 mb-4">
-                    <div class="contact-item">
-                      <div class="contact-icon bg-success text-white rounded-circle mx-auto mb-3">
-                        <i class="bi bi-telephone"></i>
-                      </div>
-                      <h5>Telepon</h5>
-                      @if($kontakPendaftaran->count() > 0)
-                        @foreach($kontakPendaftaran as $kontak)
-                        <p>{{ $kontak->no_kontak }} - {{ $kontak->nama_kontak }}</p>
-                        @endforeach
-                        @else
-                        <h5>Telepon</h5>
-                        <p>(021) 123123123<br>081203412312</p>
-                        @endif
-                    </div>
+              <div class="col-md-6 mb-4">
+                <div class="contact-item">
+                  <div class="contact-icon mx-auto mb-2">
+                    <i class="bi bi-telephone"></i>
                   </div>
+                  <h5 class="fw-bold">Telepon</h5>
+                  @if($kontakPendaftaran->count() > 0)
+                    @foreach($kontakPendaftaran as $kontak)
+                      <p>{{ $kontak->no_kontak }} - {{ $kontak->nama_kontak }}</p>
+                    @endforeach
+                  @else
+                    <p>(021) 123123123<br>081203412312</p>
+                  @endif
+                </div>
+              </div>
 
               <div class="col-md-6 mb-4">
                 <div class="contact-item">
-                  <div class="contact-icon bg-info text-white rounded-circle mx-auto mb-3">
+                  <div class="contact-icon mx-auto mb-2">
                     <i class="bi bi-envelope"></i>
                   </div>
-                  <h5>Email</h5>
+                  <h5 class="fw-bold">Email</h5>
                   <p>{{$pengaturan->email}}</p>
                 </div>
               </div>
 
               <div class="col-md-6 mb-4">
                 <div class="contact-item">
-                  <div class="contact-icon bg-warning text-white rounded-circle mx-auto mb-3">
+                  <div class="contact-icon mx-auto mb-2">
                     <i class="bi bi-clock"></i>
                   </div>
-                  <h5>Jam Operasional</h5>
+                  <h5 class="fw-bold">Jam Operasional</h5>
                   <p>Senin - Jumat: 08.00 - 16.00 WIB<br>
                   Sabtu: 08.00 - 14.00 WIB</p>
                 </div>
@@ -548,8 +593,8 @@
     <div class="row mt-5">
       <div class="col-12">
         <div class="card custom-card">
-          <div class="card-header bg-info text-white text-center py-3">
-            <h4 class="mb-0"><i class="bi bi-question-circle me-2"></i>Pertanyaan Umum (FAQ)</h4>
+          <div class="card-header bg-transparent border-0 text-center py-3">
+            <h4 class="mb-0 fw-bold" style="color: {{ $warnaUtama }};"><i class="bi bi-question-circle me-2"></i>Pertanyaan Umum (FAQ)</h4>
           </div>
           <div class="card-body">
 
@@ -630,7 +675,7 @@
         </ul>
         <h4 class="fw-bold mt-3">Aplikasi Siswa</h4>
         <ul class="list-unstyled">
-          <li><a href="#" class="text-dark text-decoration-none">Siawi</a></li>
+          <!-- <li><a href="#" class="text-dark text-decoration-none">Siawi</a></li> -->
           <li><a href="#" class="text-dark text-decoration-none">Sistem Alumni</a></li>
         </ul>
       </div>
@@ -659,8 +704,8 @@
 <footer class="footer-section text-center py-3">
   <div class="container">
     <span>
-      &copy; {{ date('Y') }} <strong>SMK Wisata Indonesia</strong> |
-      Website ini dibuat oleh <strong class="text-purple">Jurusan TJKT</strong> 
+      &copy; {{ date('Y') }} <strong>{{ $namaSekolah }}</strong> |
+      Website ini dibuat oleh <strong class="text-purple">WISTEK</strong> 
       untuk mendukung <em>Digitalisasi Sekolah</em>.
     </span>
   </div>
