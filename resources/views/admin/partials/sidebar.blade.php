@@ -31,7 +31,7 @@
     {{-- Menu hanya untuk superadmin --}}
     @if($userRole == 'superadmin')
       <!-- Data Master -->
-      <li class="menu-item {{ Request::is('w1s4t4/tahun-ajaran*') || Request::is('w1s4t4/jurusan*') || Request::is('w1s4t4/gelombang*') || Request::is('w1s4t4/kuota-jurusan*') || Request::is('w1s4t4/template-pesan*') || Request::is('w1s4t4/data-smp*') ? 'open active' : '' }}">
+      <li class="menu-item {{ Request::is('w1s4t4/tahun-ajaran*') || Request::is('w1s4t4/jurusan*') || Request::is('w1s4t4/gelombang*') || Request::is('w1s4t4/kuota-jurusan*') || Request::is('w1s4t4/master-biaya*') || Request::is('w1s4t4/template-pesan*') || Request::is('w1s4t4/data-smp*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon bx bx-data"></i>
           <div>Data Master</div>
@@ -48,6 +48,9 @@
           </li>
           <li class="menu-item {{ Request::is('w1s4t4/kuota-jurusan*') ? 'active' : '' }}">
             <a href="{{ route('kuota-jurusan.index') }}" class="menu-link">Kuota Per Jurusan</a>
+          </li>
+          <li class="menu-item {{ Request::is('w1s4t4/master-biaya*') ? 'active' : '' }}">
+            <a href="{{ route('master-biaya.index') }}" class="menu-link">Master Biaya</a>
           </li>
           @if(!empty($pengaturan->enable_whatsapp))
           <li class="menu-item {{ Request::is('w1s4t4/template-pesan*') ? 'active' : '' }}">
@@ -91,17 +94,12 @@
       </li>
 
       <!-- Pembayaran -->
-      <li class="menu-item {{ Request::is('w1s4t4/master-biaya*') || Request::is('w1s4t4/pembayaran*') || Request::is('w1s4t4/verifikasi-pembayaran*') || Request::is('w1s4t4/laporan-pembayaran*') ? 'open active' : '' }}">
+      <li class="menu-item {{ Request::is('w1s4t4/pembayaran*') || Request::is('w1s4t4/verifikasi-pembayaran*') || Request::is('w1s4t4/laporan-pembayaran*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon bx bx-money"></i>
           <div>Pembayaran</div>
         </a>
         <ul class="menu-sub">
-          @if(in_array($userRole, ['superadmin']))
-          <li class="menu-item {{ Request::is('w1s4t4/master-biaya*') ? 'active' : '' }}">
-            <a href="{{ route('master-biaya.index') }}" class="menu-link">Mater Biaya</a>
-          </li>
-          @endif
           <li class="menu-item {{ Request::is('w1s4t4/verifikasi-pembayaran*') ? 'active' : '' }}">
             <a href="{{ route('verifikasi-pembayaran.index') }}" class="menu-link">Verifikasi Pembayaran</a>
           </li>
@@ -114,6 +112,7 @@
         </ul>
       </li>
     @endif
+
 
     <!-- Data Statistik -->
     <li class="menu-item {{ Request::is('w1s4t4/statistik*') ? 'active' : '' }}">
