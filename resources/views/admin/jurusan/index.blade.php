@@ -3,12 +3,16 @@
 
 @section('content')
 <div class="card">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="mb-0">Daftar Jurusan</h5>
-    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addJurusanModal">
-      <i class="bx bx-plus"></i> Tambah Jurusan
+  <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+    <div>
+      <h5 class="mb-1"><i class="bx bx-certification me-2 text-primary"></i>Daftar Jurusan</h5>
+      <small class="text-muted">Kelola keahlian dan jurusan pendidikan yang dibuka pada PPDB.</small>
+    </div>
+    <button class="btn btn-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#addJurusanModal">
+      <i class="bx bx-plus me-1"></i>Tambah Jurusan
     </button>
   </div>
+
 
   <div class="card-body">
     <div class="table-responsive">

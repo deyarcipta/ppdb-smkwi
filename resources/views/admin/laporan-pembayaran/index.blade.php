@@ -27,11 +27,11 @@
     <div class="row mx-0">
         <div class="col-12 px-3">
             <div class="card card-full-width">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bx bx-receipt me-2"></i>
-                        Laporan Pembayaran Siswa
-                    </h5>
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+                    <div>
+                        <h5 class="mb-1"><i class="bx bx-receipt me-2 text-primary"></i>Laporan Pembayaran</h5>
+                        <small class="text-muted">Rekapitulasi dan laporan rincian pembayaran keuangan pendaftar.</small>
+                    </div>
                 </div>
 
                 <div class="card-body">

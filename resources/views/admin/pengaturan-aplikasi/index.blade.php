@@ -3,16 +3,20 @@
 
 @section('content')
 <div class="card">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="mb-0">Pengaturan Aplikasi</h5>
+  <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+    <div>
+      <h5 class="mb-1"><i class="bx bx-cog me-2 text-primary"></i>Pengaturan Aplikasi</h5>
+      <small class="text-muted">Konfigurasi identitas sekolah, logo, WhatsApp, dan fitur sistem PPDB.</small>
+    </div>
     <form action="{{ route('pengaturan-aplikasi.toggle-maintenance') }}" method="POST" class="d-inline">
       @csrf
-      <button type="submit" class="btn btn-{{ $pengaturan->maintenance_mode ? 'warning' : 'secondary' }} btn-sm">
-        <i class="bx bx-{{ $pengaturan->maintenance_mode ? 'lock' : 'lock-open' }}"></i>
-        {{ $pengaturan->maintenance_mode ? 'Nonaktifkan' : 'Aktifkan' }} Maintenance
+      <button type="submit" class="btn btn-{{ $pengaturan->maintenance_mode ? 'warning' : 'outline-secondary' }} btn-sm text-nowrap">
+        <i class="bx bx-{{ $pengaturan->maintenance_mode ? 'lock' : 'lock-open' }} me-1"></i>
+        {{ $pengaturan->maintenance_mode ? 'Nonaktifkan' : 'Aktifkan' }} Mode Maintenance
       </button>
     </form>
   </div>
+
 
   <div class="card-body">
     <form method="POST" action="{{ route('pengaturan-aplikasi.update') }}" enctype="multipart/form-data">

@@ -12,30 +12,24 @@
 </style>
 <div class="container-fluid p-0">
     <div class="card card-full-width">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+            <div>
+                <h5 class="mb-1"><i class="bx bx-group me-2 text-primary"></i>Data Pendaftar</h5>
+                <small class="text-muted">Kelola seluruh data siswa pendaftar PPDB (Total: {{ $data->total() }} Pendaftar).</small>
+            </div>
 
-            <!-- Judul (KIRI) -->
-            <h5 class="mb-0">Data Pendaftar (Total: {{ $data->total() }} Pendaftar)</h5>
-
-            <!-- Kanan: Search + Button Tambah -->
-            <div class="d-flex align-items-center gap-3">
-
-                <!-- Form Search -->
-                <div class="input-group input-group-sm" style="width: 250px;">
-                    <span class="input-group-text">
-                        <i class="bx bx-search"></i>
-                    </span>
-                    <input type="text" id="searchTable" class="form-control"
-                        placeholder="Cari No Daftar / Nama / Asal Sekolah / No HP...">
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <div class="input-group input-group-sm" style="width: 260px;">
+                    <span class="input-group-text"><i class="bx bx-search"></i></span>
+                    <input type="text" id="searchTable" class="form-control" placeholder="Cari No Daftar / Nama / Sekolah...">
                 </div>
 
-                <!-- Button Tambah -->
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tambahManualModal">
-                    <i class="bx bx-plus-circle"></i> Tambah Pendaftar
+                <button class="btn btn-sm btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#tambahManualModal">
+                    <i class="bx bx-plus-circle me-1"></i>Tambah Pendaftar
                 </button>
-
             </div>
         </div>
+
 
         <div class="card-body">
             <div class="table-responsive">

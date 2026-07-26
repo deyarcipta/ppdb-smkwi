@@ -102,12 +102,16 @@
 
 {{-- RIWAYAT PESAN --}}
 <div class="card mt-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5>📨 Riwayat Pengiriman WhatsApp</h5>
-        <button class="btn btn-sm btn-primary" onclick="refreshLog()">
-            <i class="fas fa-sync"></i> Refresh
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+        <div>
+            <h5 class="mb-1"><i class="bx bx-message-square-dots me-2 text-primary"></i>Riwayat Pengiriman WhatsApp</h5>
+            <small class="text-muted">Log rekap pengiriman pesan notifikasi otomatis WhatsApp ke nomor siswa.</small>
+        </div>
+        <button class="btn btn-sm btn-primary text-nowrap" onclick="refreshLog()">
+            <i class="bx bx-refresh me-1"></i>Refresh Log
         </button>
     </div>
+
 
     <div class="card-body p-0">
         <div class="table-responsive">

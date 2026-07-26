@@ -4,22 +4,23 @@
 @section('content')
 <div class="container-fluid p-0">
     <div class="card card-full-width">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Data Siswa Ditolak</h5>
-            <div class="d-flex align-items-center gap-3">
-                <!-- Form Search -->
-                <div class="input-group input-group-sm" style="width: 300px;">
-                    <span class="input-group-text">
-                        <i class="bx bx-search"></i>
-                    </span>
-                    <input type="text" id="searchTable" class="form-control"
-                        placeholder="Cari No Daftar / Nama / Asal Sekolah / No HP...">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+            <div>
+                <h5 class="mb-1"><i class="bx bx-user-x me-2 text-danger"></i>Data Siswa Ditolak</h5>
+                <small class="text-muted">Menampilkan daftar pendaftar yang tidak memenuhi syarat / ditolak.</small>
+            </div>
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <div class="input-group input-group-sm" style="width: 260px;">
+                    <span class="input-group-text"><i class="bx bx-search"></i></span>
+                    <input type="text" id="searchTable" class="form-control" placeholder="Cari No Daftar / Nama / Sekolah...">
                 </div>
-                <a href="{{ route('data-ditolak.export') }}" class="btn btn-success btn-sm">
+                
+                <a href="{{ route('data-ditolak.export') }}" class="btn btn-success btn-sm text-nowrap">
                     <i class="bx bx-download me-1"></i>Download Excel
                 </a>
             </div>
         </div>
+
 
         <div class="card-body">
             <div class="table-responsive">

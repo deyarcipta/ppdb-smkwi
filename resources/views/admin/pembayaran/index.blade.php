@@ -27,11 +27,11 @@
     <div class="row mx-0">
         <div class="col-12 px-3">
             <div class="card">
-                <div class="card-header bg-transparent border-bottom py-3">
-                    <h5 class="card-title mb-0">
-                        <i class="bx bx-credit-card me-2"></i>
-                        Data Pembayaran Terverifikasi
-                    </h5>
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+                    <div>
+                        <h5 class="mb-1"><i class="bx bx-credit-card me-2 text-primary"></i>Data Pembayaran</h5>
+                        <small class="text-muted">Kelola rekapitulasi data pembayaran keuangan siswa yang terverifikasi.</small>
+                    </div>
                 </div>
 
                 <div class="card-body">
