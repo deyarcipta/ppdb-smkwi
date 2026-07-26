@@ -4,10 +4,8 @@
 !.env.example
 
 # Vendor & Dependencies
-whatsapp-bot/node_modules/
 node_modules/
 vendor/
-whatsapp-bot/sessions/
 
 # Laravel Cache & Sessions
 /storage/*.key
@@ -39,10 +37,6 @@ Homestead.json
 Homestead.yaml
 auth.json
 
-# Custom directories (jika ada folder sessions manual)
+# Custom directories
 sessions/
 *.zip
-whatsapp-bot/whatsapp-bot.zip
-
-whatsapp-bot/sessions/
-whatsapp-bot/.wwebjs_cache/
