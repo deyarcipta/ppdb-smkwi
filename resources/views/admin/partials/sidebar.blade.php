@@ -21,7 +21,7 @@
 
   <ul class="menu-inner py-1">
     <!-- Dashboard -->
-    <li class="menu-item {{ Request::is('w1s4t4/dashboard') ? 'active' : '' }}">
+    <li class="menu-item {{ Request::is('panel/dashboard') ? 'active' : '' }}">
       <a href="{{ route('admin.dashboard') }}" class="menu-link">
         <i class="menu-icon bx bx-home-circle"></i>
         <div>Beranda</div>
@@ -31,33 +31,33 @@
     {{-- Menu hanya untuk superadmin --}}
     @if($userRole == 'superadmin')
       <!-- Data Master -->
-      <li class="menu-item {{ Request::is('w1s4t4/tahun-ajaran*') || Request::is('w1s4t4/jurusan*') || Request::is('w1s4t4/gelombang*') || Request::is('w1s4t4/kuota-jurusan*') || Request::is('w1s4t4/master-biaya*') || Request::is('w1s4t4/template-pesan*') || Request::is('w1s4t4/data-smp*') ? 'open active' : '' }}">
+      <li class="menu-item {{ Request::is('panel/tahun-ajaran*') || Request::is('panel/jurusan*') || Request::is('panel/gelombang*') || Request::is('panel/kuota-jurusan*') || Request::is('panel/master-biaya*') || Request::is('panel/template-pesan*') || Request::is('panel/data-smp*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon bx bx-data"></i>
           <div>Data Master</div>
         </a>
         <ul class="menu-sub">
-          <li class="menu-item {{ Request::is('w1s4t4/tahun-ajaran*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/tahun-ajaran*') ? 'active' : '' }}">
             <a href="{{ route('tahun-ajaran.index') }}" class="menu-link">Tahun Ajaran</a>
           </li>
-          <li class="menu-item {{ Request::is('w1s4t4/jurusan*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/jurusan*') ? 'active' : '' }}">
             <a href="{{ route('jurusan.index') }}" class="menu-link">Jurusan</a>
           </li>
-          <li class="menu-item {{ Request::is('w1s4t4/gelombang*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/gelombang*') ? 'active' : '' }}">
             <a href="{{ route('gelombang.index') }}" class="menu-link">Gelombang Pendaftaran</a>
           </li>
-          <li class="menu-item {{ Request::is('w1s4t4/kuota-jurusan*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/kuota-jurusan*') ? 'active' : '' }}">
             <a href="{{ route('kuota-jurusan.index') }}" class="menu-link">Kuota Per Jurusan</a>
           </li>
-          <li class="menu-item {{ Request::is('w1s4t4/master-biaya*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/master-biaya*') ? 'active' : '' }}">
             <a href="{{ route('master-biaya.index') }}" class="menu-link">Master Biaya</a>
           </li>
           @if(!empty($pengaturan->enable_whatsapp))
-          <li class="menu-item {{ Request::is('w1s4t4/template-pesan*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/template-pesan*') ? 'active' : '' }}">
             <a href="{{ route('template-pesan.index') }}" class="menu-link">Template Pesan</a>
           </li>
           @endif
-          <li class="menu-item {{ Request::is('w1s4t4/data-smp*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/data-smp*') ? 'active' : '' }}">
             <a href="{{ route('data-smp.index') }}" class="menu-link">Data SMP</a>
           </li>
         </ul>
@@ -67,26 +67,26 @@
     {{-- Menu untuk admin & superadmin --}}
     @if(in_array($userRole, ['superadmin','admin']))
       <!-- Data Pendaftar -->
-      <li class="menu-item {{ Request::is('w1s4t4/verifikasi-pendaftar*') || Request::is('w1s4t4/data-terverifikasi*') || Request::is('w1s4t4/data-diterima*') || Request::is('w1s4t4/data-ditolak*') || Request::is('w1s4t4/data-cetak-kartu*') ? 'open active' : '' }}">
+      <li class="menu-item {{ Request::is('panel/verifikasi-pendaftar*') || Request::is('panel/data-terverifikasi*') || Request::is('panel/data-diterima*') || Request::is('panel/data-ditolak*') || Request::is('panel/data-cetak-kartu*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon bx bx-user"></i>
           <div>Data Pendaftar</div>
         </a>
         <ul class="menu-sub">
-          {{-- <li class="menu-item {{ Request::is('w1s4t4/verifikasi-pendaftar*') ? 'active' : '' }}">
+          {{-- <li class="menu-item {{ Request::is('panel/verifikasi-pendaftar*') ? 'active' : '' }}">
             <a href="{{ route('verifikasi-pendaftar.index') }}" class="menu-link">Verifikasi Pendaftar</a>
           </li> --}}
-          <li class="menu-item {{ Request::is('w1s4t4/data-terverifikasi*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/data-terverifikasi*') ? 'active' : '' }}">
             <a href="{{ route('data-terverifikasi.index') }}" class="menu-link">Data Pendaftar</a>
           </li>
-          <li class="menu-item {{ Request::is('w1s4t4/data-diterima*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/data-diterima*') ? 'active' : '' }}">
             <a href="{{ route('data-diterima.index') }}" class="menu-link">Data Diterima</a>
           </li>
-          <li class="menu-item {{ Request::is('w1s4t4/data-ditolak*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/data-ditolak*') ? 'active' : '' }}">
             <a href="{{ route('data-ditolak.index') }}" class="menu-link">Data Ditolak</a>
           </li>
           @if(!empty($pengaturan->enable_cetak_kartu))
-          <li class="menu-item {{ Request::is('w1s4t4/data-cetak-kartu*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/data-cetak-kartu*') ? 'active' : '' }}">
             <a href="{{ route('data-cetak-kartu.index') }}" class="menu-link">Data Cetak Kartu</a>
           </li>
           @endif
@@ -94,19 +94,19 @@
       </li>
 
       <!-- Pembayaran -->
-      <li class="menu-item {{ Request::is('w1s4t4/pembayaran*') || Request::is('w1s4t4/verifikasi-pembayaran*') || Request::is('w1s4t4/laporan-pembayaran*') ? 'open active' : '' }}">
+      <li class="menu-item {{ Request::is('panel/pembayaran*') || Request::is('panel/verifikasi-pembayaran*') || Request::is('panel/laporan-pembayaran*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon bx bx-money"></i>
           <div>Pembayaran</div>
         </a>
         <ul class="menu-sub">
-          <li class="menu-item {{ Request::is('w1s4t4/verifikasi-pembayaran*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/verifikasi-pembayaran*') ? 'active' : '' }}">
             <a href="{{ route('verifikasi-pembayaran.index') }}" class="menu-link">Verifikasi Pembayaran</a>
           </li>
-          <li class="menu-item {{ Request::is('w1s4t4/pembayaran*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/pembayaran*') ? 'active' : '' }}">
             <a href="{{ route('pembayaran.index') }}" class="menu-link">Data Pembayaran</a>
           </li>
-          <li class="menu-item {{ Request::is('w1s4t4/laporan-pembayaran*') ? 'active' : '' }}">
+          <li class="menu-item {{ Request::is('panel/laporan-pembayaran*') ? 'active' : '' }}">
             <a href="{{ route('laporan-pembayaran.index') }}" class="menu-link">Laporan Pembayaran</a>
           </li>
         </ul>
@@ -115,7 +115,7 @@
 
 
     <!-- Data Statistik -->
-    <li class="menu-item {{ Request::is('w1s4t4/statistik*') ? 'active' : '' }}">
+    <li class="menu-item {{ Request::is('panel/statistik*') ? 'active' : '' }}">
       <a href="{{ route('statistik.index') }}" class="menu-link">
         <i class="menu-icon bx bx-bar-chart-alt-2"></i>
         <div>Data Statistik</div>
@@ -123,25 +123,25 @@
     </li>
     @if(in_array($userRole, ['superadmin']))
     <!-- Web / Informasi -->
-    <li class="menu-item {{ Request::is('w1s4t4/kontak-pendaftaran*') || Request::is('w1s4t4/info-pembayaran*') || Request::is('w1s4t4/persyaratan-pendaftaran*') || Request::is('w1s4t4/testimoni-alumni*') || Request::is('w1s4t4/faq*') ? 'open active' : '' }}">
+    <li class="menu-item {{ Request::is('panel/kontak-pendaftaran*') || Request::is('panel/info-pembayaran*') || Request::is('panel/persyaratan-pendaftaran*') || Request::is('panel/testimoni-alumni*') || Request::is('panel/faq*') ? 'open active' : '' }}">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon bx bx-globe"></i>
         <div>Web</div>
       </a>
       <ul class="menu-sub">
-        <li class="menu-item {{ Request::is('w1s4t4/kontak-pendaftaran*') ? 'active' : '' }}">
+        <li class="menu-item {{ Request::is('panel/kontak-pendaftaran*') ? 'active' : '' }}">
           <a href="{{ route('kontak-pendaftaran.index') }}" class="menu-link">Kontak Pendaftaran</a>
         </li>
-        <li class="menu-item {{ Request::is('w1s4t4/info-pembayaran*') ? 'active' : '' }}">
+        <li class="menu-item {{ Request::is('panel/info-pembayaran*') ? 'active' : '' }}">
           <a href="{{ route('info-pembayaran.index') }}" class="menu-link">Info Pembayaran</a>
         </li>
-        <li class="menu-item {{ Request::is('w1s4t4/persyaratan-pendaftaran*') ? 'active' : '' }}">
+        <li class="menu-item {{ Request::is('panel/persyaratan-pendaftaran*') ? 'active' : '' }}">
           <a href="{{ route('persyaratan-pendaftaran.index') }}" class="menu-link">Persyaratan & Alur</a>
         </li>
-        <li class="menu-item {{ Request::is('w1s4t4/testimoni-alumni*') ? 'active' : '' }}">
+        <li class="menu-item {{ Request::is('panel/testimoni-alumni*') ? 'active' : '' }}">
           <a href="{{ route('testimoni-alumni.index') }}" class="menu-link">Testimoni Alumni</a>
         </li>
-        <li class="menu-item {{ Request::is('w1s4t4/faq*') ? 'active' : '' }}">
+        <li class="menu-item {{ Request::is('panel/faq*') ? 'active' : '' }}">
           <a href="{{ route('faq.index') }}" class="menu-link">FAQ</a>
         </li>
       </ul>
@@ -149,7 +149,7 @@
     @endif
 
     <!-- Pengumuman -->
-    <li class="menu-item {{ Request::is('w1s4t4/pengumuman*') ? 'active' : '' }}">
+    <li class="menu-item {{ Request::is('panel/pengumuman*') ? 'active' : '' }}">
       <a href="{{ route('pengumuman.index') }}" class="menu-link">
         <i class="menu-icon bx bx-broadcast"></i>
         <div>Pengumuman</div>
@@ -158,7 +158,7 @@
 
     {{-- WhatsApp Bot --}}
     @if(!empty($pengaturan->enable_whatsapp))
-    <li class="menu-item {{ Request::is('w1s4t4/whatsapp*') ? 'active' : '' }}">
+    <li class="menu-item {{ Request::is('panel/whatsapp*') ? 'active' : '' }}">
       <a href="{{ route('whatsapp.index') }}" class="menu-link">
         <i class="menu-icon bx bx-message-square-dots"></i>
         <div>WhatsApp Bot</div>
@@ -170,27 +170,28 @@
     @if($userRole == 'superadmin')
       <li class="menu-header small text-uppercase"><span class="menu-header-text">Pengaturan</span></li>
 
-      <li class="menu-item {{ Request::is('w1s4t4/user-management*') ? 'active' : '' }}">
+      <li class="menu-item {{ Request::is('panel/user-management*') ? 'active' : '' }}">
         <a href="{{ route('user-management.index') }}" class="menu-link">
           <i class="menu-icon bx bx-group"></i>
           <div>Manajemen User</div>
         </a>
       </li>
 
-      <li class="menu-item {{ Request::is('w1s4t4/pengaturan-aplikasi*') ? 'active' : '' }}">
+      <li class="menu-item {{ Request::is('panel/pengaturan-aplikasi*') ? 'active' : '' }}">
         <a href="{{ route('pengaturan-aplikasi.index') }}" class="menu-link">
           <i class="menu-icon bx bx-cog"></i>
           <div>Pengaturan Aplikasi</div>
         </a>
       </li>
 
-      <li class="menu-item {{ Request::is('w1s4t4/backup-restore*') ? 'active' : '' }}">
+      <li class="menu-item {{ Request::is('panel/backup-restore*') ? 'active' : '' }}">
         <a href="{{ route('backup-restore.index') }}" class="menu-link">
           <i class="menu-icon bx bx-hdd"></i>
           <div>Backup & Restore</div>
         </a>
       </li>
     @endif
+
 
   </ul>
 </aside>

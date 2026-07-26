@@ -48,7 +48,8 @@ Route::get('/pendaftaran/download-pdf/{id}', [PendaftaranSiswaController::class,
 
 // ===== ADMIN DASHBOARD =====
 // Route untuk halaman login admin
-Route::prefix('w1s4t4')->group(function () {
+Route::prefix('panel')->group(function () {
+
     Route::get('/', [AuthAdminController::class, 'showLoginForm'])->name('backend.login');
     Route::post('/login', [AuthAdminController::class, 'login'])->name('backend.login.submit');
     Route::post('/logout', [AuthAdminController::class, 'logout'])->name('backend.logout');

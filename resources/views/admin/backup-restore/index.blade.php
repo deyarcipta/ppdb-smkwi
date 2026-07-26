@@ -349,7 +349,8 @@
     function confirmDeleteBackup(filename) {
         if (confirm('Apakah Anda yakin ingin menghapus berkas backup "' + filename + '"?')) {
             var form = document.getElementById('formDeleteBackup');
-            form.action = "{{ url('w1s4t4/backup-restore') }}/" + encodeURIComponent(filename);
+            form.action = "{{ url('panel/backup-restore') }}/" + encodeURIComponent(filename);
+
             form.submit();
         }
     }
