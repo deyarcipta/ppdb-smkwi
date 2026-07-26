@@ -3,11 +3,35 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Data SMP</h5>
-        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#dataSmpModal">
-            <i class="bx bx-plus"></i> Tambah
-        </button>
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+        <div>
+            <h5 class="mb-1"><i class="bx bx-building-house me-2 text-primary"></i>Data SMP / MTs Asal</h5>
+            <small class="text-muted">Kelola data sekolah asal siswa pendaftar PPDB.</small>
+        </div>
+
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <form action="{{ route('data-smp.index') }}" method="GET" class="d-flex gap-2">
+                <div class="input-group input-group-sm" style="width: 250px;">
+                    <input type="text" name="search" class="form-control" placeholder="Cari Nama SMP..." value="{{ request('search') }}">
+                    <button type="submit" class="btn btn-primary"><i class="bx bx-search"></i></button>
+                </div>
+                @if(request()->filled('search'))
+                    <a href="{{ route('data-smp.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset Filter"><i class="bx bx-refresh"></i></a>
+                @endif
+            </form>
+
+            <a href="{{ route('data-smp.export-excel', request()->all()) }}" class="btn btn-success btn-sm text-nowrap">
+                <i class="bx bx-download me-1"></i>Export Excel
+            </a>
+
+            <button class="btn btn-info btn-sm text-nowrap text-white" data-bs-toggle="modal" data-bs-target="#importSmpModal">
+                <i class="bx bx-upload me-1"></i>Import Excel
+            </button>
+
+            <button class="btn btn-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#dataSmpModal">
+                <i class="bx bx-plus me-1"></i>Tambah SMP
+            </button>
+        </div>
     </div>
 
     <div class="card-body">
@@ -62,7 +86,7 @@
         </div>
         
         <!-- Pagination Component -->
-            <x-pagination :paginator="$dataSmp" />
+        <x-pagination :paginator="$dataSmp" />
     </div>
 </div>
 
@@ -98,6 +122,60 @@
         </form>
     </div>
 </div>
+
+<!-- Modal Import Excel -->
+<div class="modal fade" id="importSmpModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="{{ route('data-smp.import-excel') }}" method="POST" enctype="multipart/form-data" class="modal-content">
+            @csrf
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title text-white"><i class="bx bx-upload me-2"></i>Import Data SMP dari Excel</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body py-3">
+                <div class="alert alert-success bg-light-success border border-success p-3 rounded mb-3">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bx bx-file text-success fs-3"></i>
+                        <div>
+                            <strong class="text-success d-block mb-1">Unduh Template Contoh Excel</strong>
+                            <p class="small mb-2 text-muted">Gunakan template berkas Excel resmi agar format kolom data sesuai saat diunggah ke sistem.</p>
+                            <a href="{{ route('data-smp.download-template') }}" class="btn btn-sm btn-success fw-bold">
+                                <i class="bx bx-download me-1"></i>Unduh Template (.xlsx)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Pilih Berkas Excel <span class="text-danger">*</span></label>
+                    <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                    <div class="form-text mt-1">
+                        Format yang didukung: <strong>.xlsx, .xls, .csv</strong> (Maksimal 10MB).
+                    </div>
+                </div>
+
+                <div class="p-3 bg-light rounded border small">
+                    <strong class="d-block mb-1 text-dark"><i class="bx bx-info-circle text-primary me-1"></i>Petunjuk Pengisian Kolom:</strong>
+                    <ul class="mb-0 ps-3 text-muted">
+                        <li>Kolom utama yang dibaca adalah <strong>NAMA SMP</strong> pada kolom B.</li>
+                        <li>Data SMP yang sudah terdaftar di database akan dilewati secara otomatis (pencegahan duplikasi).</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bx bx-x me-1"></i>Batal
+                </button>
+                <button type="submit" class="btn btn-info text-white fw-bold">
+                    <i class="bx bx-cloud-upload me-1"></i>Unggah & Import Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @push('styles')

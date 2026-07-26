@@ -114,8 +114,12 @@ Route::prefix('w1s4t4')->group(function () {
                 ->name('template-pesan.nonaktifkan');
 
             // Data SMP
+            Route::get('data-smp/export-excel', [DataSmpAdminController::class, 'exportExcel'])->name('data-smp.export-excel');
+            Route::get('data-smp/download-template', [DataSmpAdminController::class, 'downloadTemplate'])->name('data-smp.download-template');
+            Route::post('data-smp/import-excel', [DataSmpAdminController::class, 'importExcel'])->name('data-smp.import-excel');
             Route::resource('data-smp', DataSmpAdminController::class)
                 ->except(['show', 'create', 'edit']);
+
             
             // Verifikasi Pendaftar
             Route::get('verifikasi-pendaftar', [VerifikasiPendaftarAdminController::class, 'index'])->name('verifikasi-pendaftar.index');
