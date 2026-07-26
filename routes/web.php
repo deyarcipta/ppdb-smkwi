@@ -271,6 +271,7 @@ Route::prefix('panel')->group(function () {
                 Route::post('backup-restore/restore', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'restore'])->name('backup-restore.restore');
                 Route::delete('backup-restore/{filename}', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'destroy'])->name('backup-restore.destroy');
                 Route::post('backup-restore/fix-storage-link', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'fixStorageLink'])->name('backup-restore.fix-storage');
+                Route::post('backup-restore/reset', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'resetData'])->name('backup-restore.reset');
             });
 
 

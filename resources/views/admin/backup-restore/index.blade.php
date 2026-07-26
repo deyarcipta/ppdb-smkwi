@@ -2,6 +2,79 @@
 
 @section('title', 'Manajemen Backup & Restore - Admin PPDB')
 
+<style>
+    /* Styling Modal persis seperti Sneat Template (Tambah Pendaftar Manual) */
+    .modal-content {
+        border-radius: 0.5rem !important;
+        border: none !important;
+        box-shadow: 0 0.25rem 1.25rem rgba(161, 172, 184, 0.4) !important;
+        background-color: #f8f9fa !important;
+        overflow: hidden !important;
+    }
+    .modal-content form {
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        margin-bottom: 0 !important;
+    }
+    .modal-body {
+        background-color: #ffffff !important;
+    }
+    .modal-header {
+        position: relative !important;
+        border-top-left-radius: 0.5rem !important;
+        border-top-right-radius: 0.5rem !important;
+        padding: 1.25rem 1.5rem !important;
+    }
+    .modal-header .btn-close {
+        position: absolute !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        right: 1rem !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 2rem !important;
+        height: 2rem !important;
+        background-color: #ffffff !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23566a7f'%3E%3Cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3C/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 0.75em !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.15) !important;
+        border: none !important;
+        opacity: 1 !important;
+        filter: none !important;
+        z-index: 1055 !important;
+    }
+    .modal-header .btn-close::before,
+    .modal-header .btn-close::after {
+        display: none !important;
+        content: none !important;
+    }
+    .modal-header .btn-close:hover {
+        background-color: #f8f9fa !important;
+        opacity: 1 !important;
+    }
+    .modal-footer {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        padding: 1rem 1.5rem !important;
+        gap: 0.5rem !important;
+        border-top: 1px solid #e9ecef !important;
+        background-color: #f8f9fa !important;
+        margin-top: auto !important;
+        margin-bottom: 0 !important;
+        border-bottom-left-radius: 0.5rem !important;
+        border-bottom-right-radius: 0.5rem !important;
+    }
+    .modal-footer > * {
+        margin: 0 !important;
+    }
+</style>
+
 @section('content')
 <div class="container-fluid p-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -29,24 +102,21 @@
     @endif
 
     {{-- Banner Perbaiki Storage Link --}}
-    <div class="card border-0 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="card border-0 mb-4 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div class="card-body py-3">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-25" style="width:44px;height:44px;">
-                        <i class="bx bx-link text-white fs-4"></i>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-sm" style="width:44px;height:44px; flex-shrink: 0;">
+                        <i class="bx bx-link-external fs-4" style="color: #667eea;"></i>
                     </div>
                     <div>
                         <p class="mb-0 text-white fw-bold">Foto/Berkas Tidak Muncul Setelah Restore?</p>
-                        <small class="text-white opacity-75">Klik tombol ini untuk memperbaiki storage link secara otomatis (symlink atau copy file)</small>
+                        <small class="text-white opacity-75">Klik tombol ini untuk memperbarui storage link secara otomatis (symlink atau copy file)</small>
                     </div>
                 </div>
-                <form action="{{ route('backup-restore.fix-storage') }}" method="POST" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-light fw-bold px-4" onclick="return confirm('Jalankan perbaikan storage link? Proses ini aman dan tidak menghapus data.')">
-                        <i class="bx bx-wrench me-2"></i> Perbaiki Storage Link Sekarang
-                    </button>
-                </form>
+                <button type="button" class="btn btn-light fw-bold px-4 text-dark" data-bs-toggle="modal" data-bs-target="#modalFixStorageLink">
+                    <i class="bx bx-wrench me-2"></i> Perbaiki Storage Link Sekarang
+                </button>
             </div>
         </div>
     </div>
@@ -167,7 +237,7 @@
                                 <input type="file" name="backup_file" class="form-control form-control-lg" accept=".sql,.zip" required>
                             </div>
                             <div class="col-md-4 text-md-end">
-                                <button type="button" class="btn btn-warning btn-lg px-4 text-dark fw-bold w-100" onclick="confirmRestoreUpload()">
+                                <button type="button" class="btn btn-warning btn-lg px-4 text-dark fw-bold w-100" onclick="triggerRestoreUploadModal()">
                                     <i class="bx bx-refresh me-2"></i> Unggah & Jalankan Restore
                                 </button>
                             </div>
@@ -242,7 +312,7 @@
                                     <!-- Delete Button -->
                                     <button type="button" 
                                             class="btn btn-sm btn-outline-danger" 
-                                            onclick="confirmDeleteBackup('{{ $b['filename'] }}')"
+                                            onclick="triggerDeleteBackupModal('{{ $b['filename'] }}')"
                                             title="Hapus Backup">
                                         <i class="bx bx-trash"></i>
                                     </button>
@@ -260,6 +330,127 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- Danger Zone Card: Reset Data System & Inisialisasi Tahun Ajaran Baru -->
+<div class="card border-danger shadow-sm mb-4">
+    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-between py-3">
+        <h6 class="mb-0 text-white"><i class="bx bx-trash me-2"></i> Reset Data Keseluruhan / Inisialisasi Tahun Ajaran Baru</h6>
+        <span class="badge bg-white text-danger fw-bold">DANGER ZONE</span>
+    </div>
+    <div class="card-body py-4">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h6 class="fw-bold text-danger mb-2">Ingin Menggunakan Sistem Dalam Keadaan Fresh Untuk Tahun Ajaran Baru?</h6>
+                <p class="text-muted small mb-2">
+                    Fitur ini digunakan ketika telah berganti tahun ajaran dan sistem PPDB akan digunakan dari awal kembali. Seluruh data pendaftaran, akun siswa, bukti pembayaran, dan log aktivitas akan dibersihkan.
+                </p>
+                <div class="d-flex flex-wrap gap-3 text-muted small">
+                    <span class="text-danger"><i class="bx bx-x-circle me-1"></i>Dihapus: Data Pendaftar, Akun Siswa, Pembayaran, Log Sistem & Berkas Upload Siswa</span>
+                    <span class="text-success"><i class="bx bx-check-circle me-1"></i>Dipertahankan: Akun Admin/Superadmin, Logo & Pengaturan Sekolah, Master Data</span>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <button type="button" class="btn btn-outline-danger fw-bold px-4" data-bs-toggle="modal" data-bs-target="#modalResetDataSystem">
+                    <i class="bx bx-error-alt me-2"></i> Reset Data Sistem Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reset Data System -->
+<div class="modal fade" id="modalResetDataSystem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-danger">
+            <form action="{{ route('backup-restore.reset') }}" method="POST" id="formResetDataSystem">
+                @csrf
+                <div class="modal-header bg-danger text-white py-3">
+                    <h5 class="modal-title fw-bold text-white"><i class="bx bx-shield-quarter me-2"></i> Konfirmasi Reset Data Sistem</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <div class="alert alert-danger d-flex align-items-start mb-3" role="alert">
+                        <i class="bx bx-error-circle fs-3 me-2 mt-1"></i>
+                        <div>
+                            <strong>PERINGATAN KERAS! Tindakan Tidak Dapat Dibatalkan!</strong>
+                            <p class="mb-0 small">Seluruh data pendaftar, akun pendaftaran siswa, transaksi/bukti pembayaran, serta berkas media pendaftar akan <strong>DIHAPUS PERMANEN</strong>.</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Cakupan Pembersihan Data:</label>
+                        <select name="reset_scope" class="form-select">
+                            <option value="pendaftaran_only" selected>Mode Pendaftaran & Transaksi (Pertahankan Data Master & Pengaturan)</option>
+                            <option value="full_reset">Mode Reset Total (Hapus Pendaftaran + Master Jurusan, Kuota, Tahun Ajaran, SMP, Biaya & Statistik)</option>
+                        </select>
+                        <small class="text-muted">Akun Superadmin/Admin dan Pengaturan Aplikasi utama (Logo/Branding) tetap utuh pada kedua mode agar sistem tidak terkunci.</small>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" name="auto_backup" id="autoBackupSwitch" checked value="1">
+                        <label class="form-check-label fw-bold text-dark" for="autoBackupSwitch">
+                            Buat Cadangan Database Otomatis Sebelum Dihapus (Sangat Direkomendasikan)
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-dark">Password Login Superadmin <span class="text-danger">*</span></label>
+                        <div class="input-group input-group-merge">
+                            <input type="password" name="admin_password" id="inputResetAdminPassword" class="form-control" placeholder="Masukkan password login Anda" required autocomplete="current-password">
+                            <span class="input-group-text cursor-pointer" onclick="toggleResetAdminPassword()" style="cursor: pointer;">
+                                <i class="bx bx-hide" id="iconResetAdminPassword"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-dark">
+                            Ketik Teks Konfirmasi: <code class="user-select-all text-danger fw-bold">RESET DATA SYSTEM</code> <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" name="confirmation_text" class="form-control" placeholder="RESET DATA SYSTEM" autocomplete="off" required>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger fw-bold px-4">
+                        <i class="bx bx-trash me-1"></i> Ya, Hapus & Reset Data Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Fix Storage Link -->
+<div class="modal fade" id="modalFixStorageLink" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ route('backup-restore.fix-storage') }}" method="POST">
+                @csrf
+                <div class="modal-header bg-primary text-white py-3">
+                    <h5 class="modal-title fw-bold text-white"><i class="bx bx-wrench me-2"></i> Konfirmasi Perbaiki Storage Link</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
+                        <i class="bx bx-info-circle fs-3 me-2"></i>
+                        <div>
+                            <strong>Proses Aman!</strong>
+                            <p class="mb-0 small">Proses ini akan memperbarui tautan penyimpanan berkas foto/media pendaftar (symlink/copy file). Tidak ada data yang dihapus.</p>
+                        </div>
+                    </div>
+                    <p class="mb-0 text-dark fw-semibold">Jalankan perbaikan storage link sekarang?</p>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary fw-bold px-4">
+                        <i class="bx bx-check me-1"></i> Ya, Jalankan Perbaikan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -300,11 +491,85 @@
     </div>
 </div>
 
-<!-- Form Delete Backup Hidden -->
-<form id="formDeleteBackup" action="" method="POST" class="d-none">
-    @csrf
-    @method('DELETE')
-</form>
+<!-- Modal Confirm Upload & Restore Luar -->
+<div class="modal fade" id="modalConfirmUploadRestore" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark py-3">
+                <h5 class="modal-title fw-bold text-dark"><i class="bx bx-error me-2"></i> Konfirmasi Restore Berkas Luar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+                    <i class="bx bx-error-circle fs-3 me-2"></i>
+                    <div>
+                        <strong>Peringatan Penting!</strong>
+                        <p class="mb-0 small">Mengunggah dan melakukan restore akan memperbarui dan menimpa data sistem/database Anda saat ini sesuai isi berkas backup yang dipilih.</p>
+                    </div>
+                </div>
+                <p class="mb-1 text-muted">Berkas backup yang dipilih:</p>
+                <div class="p-3 bg-light rounded border font-monospace text-break fw-bold text-dark mb-3" id="uploadFilenameDisplay">
+                    -
+                </div>
+                <p class="mb-0 small text-danger fw-bold"><i class="bx bx-info-circle me-1"></i>Apakah Anda yakin ingin melanjutkan proses restore ini?</p>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-warning text-dark fw-bold px-4" onclick="submitUploadRestoreForm()">
+                    <i class="bx bx-check me-1"></i> Ya, Unggah & Restore Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Delete Backup File -->
+<div class="modal fade" id="modalDeleteBackup" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formDeleteBackup" action="" method="POST">
+                @csrf
+                @method('DELETE')
+                <div class="modal-header bg-danger text-white py-3">
+                    <h5 class="modal-title fw-bold text-white"><i class="bx bx-trash me-2"></i> Konfirmasi Hapus Berkas Backup</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="mb-2 text-dark">Apakah Anda yakin ingin menghapus berkas backup berikut?</p>
+                    <div class="p-3 bg-light rounded border font-monospace text-break fw-bold text-danger mb-3" id="deleteFilenameDisplay">
+                        -
+                    </div>
+                    <small class="text-muted"><i class="bx bx-info-circle me-1"></i>Berkas cadangan yang dihapus tidak dapat dikembalikan lagi.</small>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger fw-bold px-4">
+                        <i class="bx bx-trash me-1"></i> Ya, Hapus Berkas
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Validation Error -->
+<div class="modal fade" id="modalValidationError" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white py-3">
+                <h5 class="modal-title fw-bold text-white"><i class="bx bx-error-circle me-2"></i> Peringatan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4 text-center">
+                <i class="bx bx-error-circle display-3 text-danger mb-3"></i>
+                <h5 class="fw-bold text-dark" id="validationErrorMessage">Silakan pilih berkas terlebih dahulu!</h5>
+            </div>
+            <div class="modal-footer bg-light justify-content-center">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -332,26 +597,46 @@
         modal.show();
     }
 
-    // Confirm restore upload
-    function confirmRestoreUpload() {
+    // Trigger upload & restore modal
+    function triggerRestoreUploadModal() {
         var fileInput = document.querySelector('input[name="backup_file"]');
         if (!fileInput.files || fileInput.files.length === 0) {
-            alert('Silakan pilih berkas backup (.sql atau .zip) terlebih dahulu!');
+            document.getElementById('validationErrorMessage').innerText = 'Silakan pilih berkas backup (.sql atau .zip) terlebih dahulu!';
+            var modalErr = new bootstrap.Modal(document.getElementById('modalValidationError'));
+            modalErr.show();
             return;
         }
 
-        if (confirm('PERINGATAN: Mengunggah dan melakukan restore akan memperbarui data sistem/database Anda saat ini!\n\nApakah Anda yakin ingin melanjutkan?')) {
-            document.getElementById('formUploadRestore').submit();
-        }
+        document.getElementById('uploadFilenameDisplay').innerText = fileInput.files[0].name;
+        var modal = new bootstrap.Modal(document.getElementById('modalConfirmUploadRestore'));
+        modal.show();
     }
 
-    // Confirm delete backup
-    function confirmDeleteBackup(filename) {
-        if (confirm('Apakah Anda yakin ingin menghapus berkas backup "' + filename + '"?')) {
-            var form = document.getElementById('formDeleteBackup');
-            form.action = "{{ url('panel/backup-restore') }}/" + encodeURIComponent(filename);
+    function submitUploadRestoreForm() {
+        document.getElementById('formUploadRestore').submit();
+    }
 
-            form.submit();
+    // Trigger delete backup modal
+    function triggerDeleteBackupModal(filename) {
+        var form = document.getElementById('formDeleteBackup');
+        form.action = "{{ url('panel/backup-restore') }}/" + encodeURIComponent(filename);
+        document.getElementById('deleteFilenameDisplay').innerText = filename;
+        var modal = new bootstrap.Modal(document.getElementById('modalDeleteBackup'));
+        modal.show();
+    }
+
+    // Toggle hide/unhide password superadmin
+    function toggleResetAdminPassword() {
+        var input = document.getElementById('inputResetAdminPassword');
+        var icon = document.getElementById('iconResetAdminPassword');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bx-hide');
+            icon.classList.add('bx-show');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bx-show');
+            icon.classList.add('bx-hide');
         }
     }
 </script>

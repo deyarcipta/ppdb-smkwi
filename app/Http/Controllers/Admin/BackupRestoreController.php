@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use ZipArchive;
 
 class BackupRestoreController extends Controller
@@ -657,5 +659,139 @@ class BackupRestoreController extends Controller
             $size += $file->getSize();
         }
         return $size;
+    }
+
+    /**
+     * Reset Data Sistem / Inisialisasi Tahun Ajaran Baru
+     */
+    public function resetData(Request $request)
+    {
+        $request->validate([
+            'admin_password' => 'required',
+            'confirmation_text' => 'required',
+            'reset_scope' => 'nullable|in:pendaftaran_only,full_reset',
+        ], [
+            'admin_password.required' => 'Password Superadmin wajib diisi.',
+            'confirmation_text.required' => 'Teks konfirmasi wajib diisi.',
+        ]);
+
+        // Verifikasi password superadmin
+        if (!Hash::check($request->admin_password, auth()->user()->password)) {
+            return back()->with('error', 'Password Superadmin salah! Proses reset data dibatalkan.');
+        }
+
+        // Verifikasi kata konfirmasi
+        if (trim(strtoupper($request->confirmation_text)) !== 'RESET DATA SYSTEM') {
+            return back()->with('error', 'Kata konfirmasi tidak sesuai! Ketik "RESET DATA SYSTEM" untuk mengonfirmasi.');
+        }
+
+        $resetScope = $request->input('reset_scope', 'pendaftaran_only');
+        $autoBackup = $request->has('auto_backup');
+
+        try {
+            // 1. Otomatis buat backup database sebelum hapus jika auto_backup dicentang
+            $backupFilename = null;
+            if ($autoBackup) {
+                $timestamp = date('Y-m-d_H-i-s');
+                $backupFilename = "auto_backup_before_reset_{$timestamp}.sql";
+                $backupFilepath = $this->backupPath . '/' . $backupFilename;
+                $this->dumpDatabase($backupFilepath);
+            }
+
+            // 2. Matikan foreign key checks
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+            // 3. Truncate data pendaftaran & transaksi
+            DB::table('data_siswa')->truncate();
+            DB::table('users_siswa')->truncate();
+            DB::table('pembayaran')->truncate();
+            DB::table('activity_logs')->truncate();
+            DB::table('whatsapp_logs')->truncate();
+
+            if (Schema::hasTable('failed_jobs')) {
+                DB::table('failed_jobs')->truncate();
+            }
+            if (Schema::hasTable('personal_access_tokens')) {
+                DB::table('personal_access_tokens')->truncate();
+            }
+            if (Schema::hasTable('password_reset_tokens')) {
+                DB::table('password_reset_tokens')->truncate();
+            }
+
+            if ($resetScope === 'full_reset') {
+                $masterTables = [
+                    'jurusans',
+                    'jurusan',
+                    'kuota_jurusan',
+                    'kuota_jurusans',
+                    'tahun_ajaran',
+                    'data_smp',
+                    'master_biaya',
+                    'gelombang_pendaftaran',
+                    'visitors',
+                ];
+
+                foreach ($masterTables as $mTable) {
+                    if (Schema::hasTable($mTable)) {
+                        DB::table($mTable)->truncate();
+                    }
+                }
+            }
+
+            // 4. Hidupkan kembali foreign key checks
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+            // 5. Hapus berkas pendaftar di storage
+            $this->cleanPendaftarStorageFiles();
+
+            $msg = 'Berhasil mereset data pendaftaran & transaksi sistem!';
+            if ($backupFilename) {
+                $msg .= " Cadangan database otomatis telah dibuat ({$backupFilename}).";
+            }
+
+            return back()->with('success', $msg);
+
+        } catch (\Throwable $e) {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            return back()->with('error', 'Gagal mereset data sistem: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Bersihkan berkas pendaftar di storage (kecuali folder pengaturan logo/branding)
+     */
+    private function cleanPendaftarStorageFiles()
+    {
+        $storagePublic = storage_path('app/public');
+        if (!File::exists($storagePublic)) return;
+
+        // Clean subdirectories except 'pengaturan'
+        $directories = File::directories($storagePublic);
+        foreach ($directories as $dir) {
+            $dirName = basename($dir);
+            if ($dirName !== 'pengaturan') {
+                File::cleanDirectory($dir);
+            }
+        }
+
+        // Clean loose files directly under storage/app/public
+        $files = File::files($storagePublic);
+        foreach ($files as $file) {
+            $filename = $file->getFilename();
+            if (!str_starts_with($filename, '.')) {
+                File::delete($file->getPathname());
+            }
+        }
+
+        // Clean public/storage mirror copies if they exist (for shared hosting mode copy)
+        $publicStorage = public_path('storage');
+        if (File::exists($publicStorage) && !is_link($publicStorage)) {
+            $publicDirs = File::directories($publicStorage);
+            foreach ($publicDirs as $dir) {
+                if (basename($dir) !== 'pengaturan') {
+                    File::cleanDirectory($dir);
+                }
+            }
+        }
     }
 }
