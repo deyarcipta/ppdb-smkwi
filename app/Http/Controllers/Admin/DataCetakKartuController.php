@@ -8,9 +8,11 @@ use App\Models\UserSiswa;
 use App\Models\PengaturanAplikasi;
 use App\Models\GelombangPendaftaran;
 use App\Models\Jurusan;
-use Illuminate\Http\Request;
+use App\Exports\DataCetakKartuExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DataCetakKartuController extends Controller
+
 {
     public function index(Request $request)
     {
@@ -62,4 +64,18 @@ class DataCetakKartuController extends Controller
 
         return view('siswa.cetak-kartu', compact('user', 'dataSiswa', 'pengaturan'));
     }
+
+    public function exportExcel(Request $request)
+    {
+        $pengaturan = PengaturanAplikasi::getSettings();
+
+        if (!$pengaturan->enable_cetak_kartu) {
+            return redirect()->route('admin.dashboard')
+                ->with('error', 'Fitur cetak kartu saat ini sedang dinonaktifkan.');
+        }
+
+        $filename = 'Data_Cetak_Kartu_Peserta_' . date('Ymd_His') . '.xlsx';
+        return Excel::download(new DataCetakKartuExport($request->search, $request->jurusan_id, $request->gelombang_id), $filename);
+    }
 }
+

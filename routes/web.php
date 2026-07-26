@@ -148,7 +148,9 @@ Route::prefix('w1s4t4')->group(function () {
 
             // Data Cetak Kartu
             Route::get('data-cetak-kartu', [DataCetakKartuAdminController::class, 'index'])->name('data-cetak-kartu.index');
+            Route::get('data-cetak-kartu/export-excel', [DataCetakKartuAdminController::class, 'exportExcel'])->name('data-cetak-kartu.export-excel');
             Route::get('data-cetak-kartu/{id}/cetak', [DataCetakKartuAdminController::class, 'cetakKartu'])->name('data-cetak-kartu.cetak');
+
 
             // Kuota Master Biaya
             Route::resource('master-biaya', MasterBiayaAdminController::class)

@@ -35,8 +35,13 @@
                         <a href="{{ route('data-cetak-kartu.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset Filter"><i class="bx bx-refresh"></i></a>
                     @endif
                 </form>
+
+                <a href="{{ route('data-cetak-kartu.export-excel', request()->all()) }}" class="btn btn-success btn-sm text-nowrap">
+                    <i class="bx bx-download me-1"></i>Download Excel
+                </a>
             </div>
         </div>
+
 
         <div class="card-body">
             @if (session('success'))
