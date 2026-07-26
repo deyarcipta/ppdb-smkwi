@@ -227,7 +227,7 @@
                     <div class="col-md-6">
                         <h6 class="mb-3 text-primary">Informasi Akun & Pendaftaran</h6>
                         <div><strong>Username:</strong> {{ $row->username }}</div>
-                        <div><strong>Password:</strong> {{ !empty($row->password_plain) && $row->password_plain !== 'password123' ? $row->password_plain : str_pad(abs(crc32($row->id . $row->username)) % 900000 + 100000, 6, '0', STR_PAD_LEFT) }}</div>
+                        <div><strong>Password:</strong> {{ $row->password_plain ?? 'password123' }}</div>
                         <div><strong>Status Akun:</strong> <span class="badge bg-success text-white">Aktif</span></div>
                         <div><strong>No. Pendaftaran:</strong> {{ $row->dataSiswa->no_pendaftaran ?? '-' }}</div>
                         <div><strong>Gelombang:</strong> {{ $row->dataSiswa->gelombang->nama_gelombang ?? '-' }}</div>

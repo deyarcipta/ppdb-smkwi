@@ -375,7 +375,7 @@
                         </div>
                         <div class="credential-item">
                             <strong>Password:</strong> 
-                            <code>{{ !empty($pengaturan->kartu_password_contoh) ? $pengaturan->kartu_password_contoh : (!empty($user->password_plain) && $user->password_plain !== 'password123' ? $user->password_plain : str_pad(abs(crc32($user->id . $user->username)) % 900000 + 100000, 6, '0', STR_PAD_LEFT)) }}</code>
+                            <code>{{ !empty($pengaturan->kartu_password_contoh) ? $pengaturan->kartu_password_contoh : str_pad(abs(crc32($user->id . $user->username)) % 900000 + 100000, 6, '0', STR_PAD_LEFT) }}</code>
                         </div>
                     </div>
                 </div>

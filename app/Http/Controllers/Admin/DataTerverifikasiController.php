@@ -300,9 +300,10 @@ public function kirimUlang($id)
             // Generate username otomatis
             $username = $this->generateUsername();
             
-            // Generate password default (random 6 digit)
-            $plainPassword = str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
+            // Password default siswa untuk login ke portal
+            $plainPassword = 'password123';
             $password = Hash::make($plainPassword);
+
 
             // 1. Simpan ke tabel users_siswa
             $user = UserSiswa::create([

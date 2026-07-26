@@ -253,7 +253,7 @@
             </tr>
             <tr>
                 <td class="account-label">PASSWORD AKUN:</td>
-                <td class="account-value">{{ !empty($user->password_plain) && $user->password_plain !== 'password123' ? $user->password_plain : str_pad(abs(crc32($user->id . $user->username)) % 900000 + 100000, 6, '0', STR_PAD_LEFT) }}</td>
+                <td class="account-value">{{ $user->password_plain ?? 'password123' }}</td>
             </tr>
             <tr>
                 <td class="account-label">STATUS AKUN:</td>

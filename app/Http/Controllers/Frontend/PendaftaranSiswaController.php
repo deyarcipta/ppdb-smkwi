@@ -86,9 +86,10 @@ class PendaftaranSiswaController extends Controller
             // Generate username otomatis
             $username = $this->generateUsername();
             
-            // Generate password acak 6 digit
-            $plainPassword = (string) random_int(100000, 999999);
+            // Password default siswa untuk login ke portal
+            $plainPassword = 'password123';
             $password = Hash::make($plainPassword);
+
 
             // 4. SIMPAN KE TABEL USERS_SISWA
             $user = UserSiswa::create([
