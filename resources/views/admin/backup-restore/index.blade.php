@@ -142,7 +142,6 @@
                         <div class="row align-items-center">
                             <div class="col-md-8 mb-3 mb-md-0">
                                 <input type="file" name="backup_file" class="form-control form-control-lg" accept=".sql,.zip" required>
-                                <small class="text-muted d-block mt-1">Pilih berkas cadangan dari komputer Anda (Format: <strong>.sql</strong> atau <strong>.zip</strong>). Maksimal ukuran file: 50MB.</small>
                             </div>
                             <div class="col-md-4 text-md-end">
                                 <button type="button" class="btn btn-warning btn-lg px-4 text-dark fw-bold w-100" onclick="confirmRestoreUpload()">
@@ -150,6 +149,10 @@
                                 </button>
                             </div>
                         </div>
+                        <small class="text-muted d-block mt-2">
+                            Format: <strong>.sql</strong> atau <strong>.zip</strong> — Maksimal: <strong>500MB</strong>.
+                            <span class="text-success fw-semibold ms-2"><i class="bx bx-info-circle"></i> File ZIP Paket Lengkap akan me-restore database <u>dan</u> semua foto/berkas media secara otomatis.</span>
+                        </small>
                     </form>
                 </div>
             </div>

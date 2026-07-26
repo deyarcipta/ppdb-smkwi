@@ -168,7 +168,7 @@ class BackupRestoreController extends Controller
     {
         $request->validate([
             'filename'    => 'nullable|string',
-            'backup_file' => 'nullable|file|mimes:sql,zip|max:51200', // Maks 50MB upload
+            'backup_file' => 'nullable|file|mimes:sql,zip|max:512000', // Maks 500MB upload
         ]);
 
         $filepath = null;
@@ -469,6 +469,9 @@ class BackupRestoreController extends Controller
         $extractedStorage = $tempExtractDir . '/storage_public';
         if (File::exists($extractedStorage)) {
             $targetPublic = storage_path('app/public');
+            if (!File::exists($targetPublic)) {
+                File::makeDirectory($targetPublic, 0755, true, true);
+            }
             File::copyDirectory($extractedStorage, $targetPublic);
         }
 
@@ -476,7 +479,17 @@ class BackupRestoreController extends Controller
         $extractedUploads = $tempExtractDir . '/uploads_public';
         if (File::exists($extractedUploads)) {
             $targetUploads = public_path('uploads');
+            if (!File::exists($targetUploads)) {
+                File::makeDirectory($targetUploads, 0755, true, true);
+            }
             File::copyDirectory($extractedUploads, $targetUploads);
+        }
+
+        // Buat ulang symlink storage agar foto & file bisa diakses via URL
+        try {
+            Artisan::call('storage:link');
+        } catch (\Exception $e) {
+            // Symlink mungkin sudah ada, lanjutkan
         }
 
         // Hapus direktori temp extract
