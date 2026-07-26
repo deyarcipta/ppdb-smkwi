@@ -59,7 +59,25 @@
       height: 100%;
       overflow-y: auto;
       overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
     }
+
+    /* Scrollbar tipis elegan agar simetris & tidak memakan ruang kanan */
+    .content-wrapper::-webkit-scrollbar {
+      width: 6px;
+    }
+    .content-wrapper::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .content-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.18);
+      border-radius: 10px;
+    }
+    .content-wrapper::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.35);
+    }
+
 
     /* Hilangkan scrollbar dari browser */
     .layout-menu::-webkit-scrollbar {
@@ -210,10 +228,10 @@
 
       <div class="layout-page">
 
-        {{-- Navbar --}}
-        @include('admin.partials.navbar')
-
         <div class="content-wrapper">
+          {{-- Navbar --}}
+          @include('admin.partials.navbar')
+
           <div class="container-xxl flex-grow-1 container-p-y">
             <div class="main-content">
               @yield('content')
@@ -224,6 +242,7 @@
           @include('admin.partials.footer')
         </div>
       </div>
+
     </div>
 
     <!-- Overlay untuk mobile sidebar -->
