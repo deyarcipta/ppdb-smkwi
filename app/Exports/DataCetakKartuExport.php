@@ -80,10 +80,11 @@ class DataCetakKartuExport extends DefaultValueBinder implements FromCollection,
         return $data;
     }
 
-    public function customStartCell(): string
+    public function startCell(): string
     {
         return 'A4';
     }
+
 
     public function headings(): array
     {
