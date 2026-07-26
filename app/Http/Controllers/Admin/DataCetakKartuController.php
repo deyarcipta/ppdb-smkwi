@@ -10,8 +10,10 @@ use App\Models\GelombangPendaftaran;
 use App\Models\Jurusan;
 use App\Exports\DataCetakKartuExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\Request;
 
 class DataCetakKartuController extends Controller
+
 
 {
     public function index(Request $request)
