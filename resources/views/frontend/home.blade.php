@@ -114,6 +114,16 @@
     .cta-full-width {
       background: linear-gradient(135deg, {{ $warnaUtama }} 0%, {{ $warnaHeader }} 100%) !important;
     }
+    .cta-btn,
+    .cta-btn i {
+      color: {{ $warnaUtama }} !important;
+    }
+    .cta-btn:hover,
+    .cta-btn:hover i {
+      background: {{ $warnaSekunder }} !important;
+      color: #ffffff !important;
+    }
+
     .accordion-button:not(.collapsed) {
       color: {{ $warnaUtama }} !important;
       background-color: {{ $warnaUtama }}15 !important;

@@ -561,8 +561,9 @@ p {
 
 .cta-btn {
     background: white;
-    color: #6B02B1;
+    color: var(--warna-utama, #6b21a8);
     border: none;
+
     padding: 15px 40px;
     font-size: 1.1rem;
     font-weight: 600;
