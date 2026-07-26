@@ -263,6 +263,7 @@ Route::prefix('w1s4t4')->group(function () {
                 Route::get('backup-restore/download/{filename}', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'download'])->name('backup-restore.download');
                 Route::post('backup-restore/restore', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'restore'])->name('backup-restore.restore');
                 Route::delete('backup-restore/{filename}', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'destroy'])->name('backup-restore.destroy');
+                Route::post('backup-restore/fix-storage-link', [\App\Http\Controllers\Admin\BackupRestoreController::class, 'fixStorageLink'])->name('backup-restore.fix-storage');
             });
 
 

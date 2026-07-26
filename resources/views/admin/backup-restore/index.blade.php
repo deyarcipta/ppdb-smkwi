@@ -28,6 +28,29 @@
         </div>
     @endif
 
+    {{-- Banner Perbaiki Storage Link --}}
+    <div class="card border-0 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="card-body py-3">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-25" style="width:44px;height:44px;">
+                        <i class="bx bx-link text-white fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 text-white fw-bold">Foto/Berkas Tidak Muncul Setelah Restore?</p>
+                        <small class="text-white opacity-75">Klik tombol ini untuk memperbaiki storage link secara otomatis (symlink atau copy file)</small>
+                    </div>
+                </div>
+                <form action="{{ route('backup-restore.fix-storage') }}" method="POST" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-light fw-bold px-4" onclick="return confirm('Jalankan perbaikan storage link? Proses ini aman dan tidak menghapus data.')">
+                        <i class="bx bx-wrench me-2"></i> Perbaiki Storage Link Sekarang
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- System Status & Create Backup Card -->
     <div class="row mb-4">
         <!-- Informasi Status Sistem -->

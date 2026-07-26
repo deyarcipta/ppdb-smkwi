@@ -239,6 +239,70 @@ class BackupRestoreController extends Controller
         return back()->with('error', 'File backup tidak ditemukan.');
     }
 
+    /**
+     * Perbaiki Storage Link - Buat symlink atau copy file ke public/storage
+     * Solusi untuk shared hosting yang tidak support symlink
+     */
+    public function fixStorageLink()
+    {
+        $storagePublic  = storage_path('app/public');
+        $publicStorage  = public_path('storage');
+        $methods        = [];
+        $success        = false;
+
+        // Pastikan folder storage/app/public ada
+        if (!File::exists($storagePublic)) {
+            File::makeDirectory($storagePublic, 0755, true, true);
+        }
+
+        // Coba 1: Artisan storage:link
+        try {
+            // Hapus symlink/folder lama jika ada
+            if (is_link($publicStorage)) {
+                unlink($publicStorage);
+            }
+            Artisan::call('storage:link');
+            $methods[] = 'Symlink berhasil dibuat via artisan storage:link';
+            $success = true;
+        } catch (\Exception $e) {
+            $methods[] = 'Artisan storage:link gagal: ' . $e->getMessage();
+
+            // Coba 2: Buat symlink secara manual (PHP)
+            try {
+                if (is_link($publicStorage)) {
+                    unlink($publicStorage);
+                }
+                if (!file_exists($publicStorage)) {
+                    symlink($storagePublic, $publicStorage);
+                    $methods[] = 'Symlink berhasil dibuat secara manual (PHP symlink)';
+                    $success = true;
+                }
+            } catch (\Exception $e2) {
+                $methods[] = 'PHP symlink gagal: ' . $e2->getMessage();
+
+                // Coba 3: Copy file langsung ke public/storage (fallback shared hosting)
+                try {
+                    if (!File::exists($publicStorage)) {
+                        File::makeDirectory($publicStorage, 0755, true, true);
+                    }
+                    File::copyDirectory($storagePublic, $publicStorage);
+                    $methods[] = 'File berhasil disalin ke public/storage (mode copy - tanpa symlink)';
+                    $success = true;
+                } catch (\Exception $e3) {
+                    $methods[] = 'Copy file gagal: ' . $e3->getMessage();
+                }
+            }
+        }
+
+        $detail = implode(' | ', $methods);
+
+        if ($success) {
+            return back()->with('success', 'Storage berhasil diperbaiki! Foto & berkas media sekarang dapat diakses. Detail: ' . $detail);
+        }
+
+        return back()->with('error', 'Gagal memperbaiki storage. Detail: ' . $detail . '. Silakan hubungi hosting provider untuk membuat symlink manual: public/storage → storage/app/public');
+    }
+
     // ==========================================
     // PRIVATE HELPER METHODS (DUMP & RESTORE)
     // ==========================================
