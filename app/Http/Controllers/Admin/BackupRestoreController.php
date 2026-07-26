@@ -416,7 +416,8 @@ class BackupRestoreController extends Controller
             foreach ($files as $name => $file) {
                 if (!$file->isDir()) {
                     $filePath = $file->getRealPath();
-                    $relativePath = 'storage_public/' . substr($filePath, strlen($storagePublic) + 1);
+                    // Konversi backslash Windows ke forward slash agar compatible di Linux
+                    $relativePath = 'storage_public/' . str_replace('\\', '/', substr($filePath, strlen($storagePublic) + 1));
                     $zip->addFile($filePath, $relativePath);
                 }
             }
@@ -432,7 +433,8 @@ class BackupRestoreController extends Controller
             foreach ($files as $name => $file) {
                 if (!$file->isDir()) {
                     $filePath = $file->getRealPath();
-                    $relativePath = 'uploads_public/' . substr($filePath, strlen($uploadsPublic) + 1);
+                    // Konversi backslash Windows ke forward slash agar compatible di Linux
+                    $relativePath = 'uploads_public/' . str_replace('\\', '/', substr($filePath, strlen($uploadsPublic) + 1));
                     $zip->addFile($filePath, $relativePath);
                 }
             }
@@ -476,7 +478,8 @@ class BackupRestoreController extends Controller
             foreach ($files as $name => $file) {
                 if (!$file->isDir()) {
                     $filePath = $file->getRealPath();
-                    $relativePath = 'storage_public/' . substr($filePath, strlen($storagePublic) + 1);
+                    // Konversi backslash Windows ke forward slash agar compatible di Linux
+                    $relativePath = 'storage_public/' . str_replace('\\', '/', substr($filePath, strlen($storagePublic) + 1));
                     $zip->addFile($filePath, $relativePath);
                 }
             }
@@ -492,7 +495,8 @@ class BackupRestoreController extends Controller
             foreach ($files as $name => $file) {
                 if (!$file->isDir()) {
                     $filePath = $file->getRealPath();
-                    $relativePath = 'uploads_public/' . substr($filePath, strlen($uploadsPublic) + 1);
+                    // Konversi backslash Windows ke forward slash agar compatible di Linux
+                    $relativePath = 'uploads_public/' . str_replace('\\', '/', substr($filePath, strlen($uploadsPublic) + 1));
                     $zip->addFile($filePath, $relativePath);
                 }
             }
