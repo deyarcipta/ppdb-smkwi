@@ -10,23 +10,23 @@
                 <small class="text-muted">Menampilkan daftar akun dan informasi cetak kartu peserta pendaftaran PPDB.</small>
             </div>
             
-            <div class="d-flex align-items-center gap-2">
-                <form action="{{ route('data-cetak-kartu.index') }}" method="GET" class="d-flex gap-2">
-                    <select name="jurusan_id" class="form-select form-select-sm" onchange="this.form.submit()">
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <form action="{{ route('data-cetak-kartu.index') }}" method="GET" class="d-flex flex-wrap align-items-center gap-2">
+                    <select name="jurusan_id" class="form-select form-select-sm" style="width: auto; min-width: 150px;" onchange="this.form.submit()">
                         <option value="">Semua Jurusan</option>
                         @foreach($jurusanList as $j)
                             <option value="{{ $j->id }}" {{ request('jurusan_id') == $j->id ? 'selected' : '' }}>{{ $j->nama_jurusan }}</option>
                         @endforeach
                     </select>
 
-                    <select name="gelombang_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <select name="gelombang_id" class="form-select form-select-sm" style="width: auto; min-width: 160px;" onchange="this.form.submit()">
                         <option value="">Semua Gelombang</option>
                         @foreach($gelombangList as $g)
                             <option value="{{ $g->id }}" {{ request('gelombang_id') == $g->id ? 'selected' : '' }}>{{ $g->nama_gelombang }}</option>
                         @endforeach
                     </select>
 
-                    <div class="input-group input-group-sm" style="width: 220px;">
+                    <div class="input-group input-group-sm" style="width: 280px; min-width: 260px;">
                         <input type="text" name="search" class="form-control" placeholder="Cari Nama / NISN / No. Daftar..." value="{{ request('search') }}">
                         <button type="submit" class="btn btn-primary"><i class="bx bx-search"></i></button>
                     </div>
@@ -41,6 +41,7 @@
                 </a>
             </div>
         </div>
+
 
 
         <div class="card-body">
