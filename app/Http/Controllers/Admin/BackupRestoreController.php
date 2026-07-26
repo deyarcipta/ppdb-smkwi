@@ -141,7 +141,7 @@ class BackupRestoreController extends Controller
             }
 
             return response()->download($filepath);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return back()->with('error', 'Gagal membuat backup: ' . $e->getMessage());
         }
     }
@@ -215,7 +215,7 @@ class BackupRestoreController extends Controller
             }
 
             return back()->with('success', $msg);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             if ($tempUploadPath && File::exists($tempUploadPath)) {
                 File::delete($tempUploadPath);
             }
@@ -255,42 +255,47 @@ class BackupRestoreController extends Controller
             File::makeDirectory($storagePublic, 0755, true, true);
         }
 
-        // Coba 1: Artisan storage:link
-        try {
-            // Hapus symlink/folder lama jika ada
-            if (is_link($publicStorage)) {
-                unlink($publicStorage);
-            }
-            Artisan::call('storage:link');
-            $methods[] = 'Symlink berhasil dibuat via artisan storage:link';
-            $success = true;
-        } catch (\Exception $e) {
-            $methods[] = 'Artisan storage:link gagal: ' . $e->getMessage();
-
-            // Coba 2: Buat symlink secara manual (PHP)
+        // Coba 1: Buat symlink via PHP function (jika fungsi symlink tersedia)
+        if (function_exists('symlink')) {
             try {
                 if (is_link($publicStorage)) {
-                    unlink($publicStorage);
+                    @unlink($publicStorage);
                 }
                 if (!file_exists($publicStorage)) {
-                    symlink($storagePublic, $publicStorage);
-                    $methods[] = 'Symlink berhasil dibuat secara manual (PHP symlink)';
-                    $success = true;
-                }
-            } catch (\Exception $e2) {
-                $methods[] = 'PHP symlink gagal: ' . $e2->getMessage();
-
-                // Coba 3: Copy file langsung ke public/storage (fallback shared hosting)
-                try {
-                    if (!File::exists($publicStorage)) {
-                        File::makeDirectory($publicStorage, 0755, true, true);
+                    @symlink($storagePublic, $publicStorage);
+                    if (is_link($publicStorage) || File::exists($publicStorage)) {
+                        $methods[] = 'Symlink berhasil dibuat (PHP symlink)';
+                        $success = true;
                     }
-                    File::copyDirectory($storagePublic, $publicStorage);
-                    $methods[] = 'File berhasil disalin ke public/storage (mode copy - tanpa symlink)';
-                    $success = true;
-                } catch (\Exception $e3) {
-                    $methods[] = 'Copy file gagal: ' . $e3->getMessage();
                 }
+            } catch (\Throwable $e) {
+                $methods[] = 'PHP symlink gagal: ' . $e->getMessage();
+            }
+
+            if (!$success) {
+                try {
+                    Artisan::call('storage:link');
+                    $methods[] = 'Artisan storage:link berhasil';
+                    $success = true;
+                } catch (\Throwable $e) {
+                    $methods[] = 'Artisan storage:link gagal: ' . $e->getMessage();
+                }
+            }
+        } else {
+            $methods[] = 'Fungsi symlink() dinonaktifkan di server PHP (disable_functions)';
+        }
+
+        // Coba 2: Mode Copy (Fallback untuk shared hosting / aaPanel tanpa symlink)
+        if (!$success) {
+            try {
+                if (!File::exists($publicStorage)) {
+                    File::makeDirectory($publicStorage, 0755, true, true);
+                }
+                $this->copyDirectorySafe($storagePublic, $publicStorage);
+                $methods[] = 'File berhasil disalin ke public/storage (Mode Copy Fallback)';
+                $success = true;
+            } catch (\Throwable $e3) {
+                $methods[] = 'Copy file gagal: ' . $e3->getMessage();
             }
         }
 
@@ -300,7 +305,7 @@ class BackupRestoreController extends Controller
             return back()->with('success', 'Storage berhasil diperbaiki! Foto & berkas media sekarang dapat diakses. Detail: ' . $detail);
         }
 
-        return back()->with('error', 'Gagal memperbaiki storage. Detail: ' . $detail . '. Silakan hubungi hosting provider untuk membuat symlink manual: public/storage → storage/app/public');
+        return back()->with('error', 'Gagal memperbarui storage link. Detail: ' . $detail);
     }
 
     // ==========================================
@@ -521,6 +526,9 @@ class BackupRestoreController extends Controller
         $zip->extractTo($tempExtractDir);
         $zip->close();
 
+        // Perbaiki file-file hasil ekstraksi jika ada backslash (\) dari Windows
+        $this->fixExtractedBackslashes($tempExtractDir);
+
         // Check if database.sql exists
         $sqlPath = $tempExtractDir . '/database.sql';
         if (File::exists($sqlPath)) {
@@ -537,31 +545,98 @@ class BackupRestoreController extends Controller
         $extractedStorage = $tempExtractDir . '/storage_public';
         if (File::exists($extractedStorage)) {
             $targetPublic = storage_path('app/public');
-            if (!File::exists($targetPublic)) {
-                File::makeDirectory($targetPublic, 0755, true, true);
-            }
-            File::copyDirectory($extractedStorage, $targetPublic);
+            $this->copyDirectorySafe($extractedStorage, $targetPublic);
+
+            // Juga salin langsung ke public/storage untuk jaminan tampilan di shared hosting
+            $publicStorage = public_path('storage');
+            $this->copyDirectorySafe($extractedStorage, $publicStorage);
         }
 
         // Restore uploads_public files
         $extractedUploads = $tempExtractDir . '/uploads_public';
         if (File::exists($extractedUploads)) {
             $targetUploads = public_path('uploads');
-            if (!File::exists($targetUploads)) {
-                File::makeDirectory($targetUploads, 0755, true, true);
-            }
-            File::copyDirectory($extractedUploads, $targetUploads);
+            $this->copyDirectorySafe($extractedUploads, $targetUploads);
         }
 
-        // Buat ulang symlink storage agar foto & file bisa diakses via URL
-        try {
-            Artisan::call('storage:link');
-        } catch (\Exception $e) {
-            // Symlink mungkin sudah ada, lanjutkan
+        // Coba buat ulang symlink storage jika symlink didukung di server
+        if (function_exists('symlink')) {
+            try {
+                $publicStorage = public_path('storage');
+                if (!is_link($publicStorage) && !File::exists($publicStorage)) {
+                    Artisan::call('storage:link');
+                }
+            } catch (\Throwable $e) {
+                // Ignore if symlink fails or disabled
+            }
         }
 
         // Hapus direktori temp extract
         File::deleteDirectory($tempExtractDir);
+    }
+
+    private function copyDirectorySafe($src, $dst)
+    {
+        if (!File::exists($src)) return;
+        if (!File::exists($dst)) {
+            File::makeDirectory($dst, 0755, true, true);
+        }
+
+        $dir = @opendir($src);
+        if (!$dir) return;
+
+        while (($file = readdir($dir)) !== false) {
+            if ($file === '.' || $file === '..') continue;
+
+            $srcPath = $src . '/' . $file;
+            $dstPath = $dst . '/' . $file;
+
+            if (is_dir($srcPath)) {
+                $this->copyDirectorySafe($srcPath, $dstPath);
+            } else {
+                if (File::exists($dstPath)) {
+                    @chmod($dstPath, 0666);
+                    @unlink($dstPath);
+                }
+                @copy($srcPath, $dstPath);
+                @chmod($dstPath, 0644);
+            }
+        }
+        closedir($dir);
+    }
+
+    private function fixExtractedBackslashes($dir)
+    {
+        if (!File::exists($dir)) return;
+
+        try {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
+
+            foreach ($files as $file) {
+                $filename = $file->getFilename();
+                if (str_contains($filename, '\\')) {
+                    $oldPath = $file->getRealPath();
+                    $parentDir = dirname($oldPath);
+                    $parts = explode('\\', $filename);
+                    $curr = $parentDir;
+                    foreach ($parts as $idx => $part) {
+                        $curr .= '/' . $part;
+                        if ($idx < count($parts) - 1) {
+                            if (!File::exists($curr)) {
+                                File::makeDirectory($curr, 0755, true, true);
+                            }
+                        } else {
+                            @rename($oldPath, $curr);
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // Ignore iterator errors
+        }
     }
 
     private function formatBytes($bytes, $precision = 2)
