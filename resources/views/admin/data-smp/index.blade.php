@@ -40,16 +40,23 @@
                 <thead class="table-light">
                     <tr>
                         <th width="50" class="text-center">No</th>
-                        <th>Nama SMP</th>
+                        <th>Nama SMP / MTs</th>
+                        <th width="160" class="text-center">Total Pendaftar</th>
                         <th width="120" class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($dataSmp as $row)
                     <tr>
-                        <td class="text-center">{{ $loop->iteration }}</td>
-                        <td class="align-middle">{{ $row->nama_smp }}</td>
+                        <td class="text-center">{{ $loop->iteration + ($dataSmp->currentPage() - 1) * $dataSmp->perPage() }}</td>
+                        <td class="align-middle fw-semibold">{{ $row->nama_smp }}</td>
                         <td class="text-center">
+                            <span class="badge bg-label-primary px-3 py-2">
+                                <i class="bx bx-user me-1"></i>{{ $row->total_siswa_count }} Siswa
+                            </span>
+                        </td>
+                        <td class="text-center">
+
                             <div class="btn-group btn-group-sm" role="group">
                                 <button class="btn btn-warning btn-sm" 
                                         data-bs-toggle="modal" 

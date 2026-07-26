@@ -101,8 +101,12 @@ class PendaftaranSiswaController extends Controller
                 'status_akun' => 'aktif',
             ]);
 
-            // Cari SMP berdasarkan nama
-            $smp = DataSmp::where('nama_smp', $validated['asal_sekolah'])->first();
+            // Cari atau otomatis buat Data SMP berdasarkan nama sekolah
+            $namaSmpClean = trim($validated['asal_sekolah']);
+            $smp = DataSmp::whereRaw('LOWER(TRIM(nama_smp)) = ?', [strtolower($namaSmpClean)])->first();
+            if (!$smp) {
+                $smp = DataSmp::create(['nama_smp' => $namaSmpClean]);
+            }
 
             // 5. SIMPAN KE TABEL DATA_SISWA DENGAN GELOMBANG_ID DAN TAHUN_AJARAN_ID
             $dataSiswa = DataSiswa::create([
@@ -117,8 +121,9 @@ class PendaftaranSiswaController extends Controller
                 'jenis_kelamin' => $validated['jenis_kelamin'],
                 'no_hp' => $validated['no_hp'],
                 'asal_sekolah' => $validated['asal_sekolah'],
-                'id_smp' => $smp ? $smp->id : null,
+                'id_smp' => $smp->id_smp,
                 'referensi' => $validated['referensi'],
+
                 // 'ket_pembayaran' => 'Belum Bayar',
                 
                 // Data Orang Tua

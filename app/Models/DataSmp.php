@@ -20,4 +20,17 @@ class DataSmp extends Model
     {
         return $this->hasMany(DataSiswa::class, 'id_smp', 'id_smp');
     }
-}
+
+    /**
+     * Hitung total siswa yang mendaftar dari SMP ini
+     * Mencocokkan berdasarkan id_smp ATAU pencocokan teks asal_sekolah
+     */
+    public function getTotalSiswaCountAttribute()
+    {
+        return DataSiswa::where('id_smp', $this->id_smp)
+            ->orWhere(function ($q) {
+                $q->whereNotNull('asal_sekolah')
+                  ->whereRaw('LOWER(TRIM(asal_sekolah)) = ?', [strtolower(trim($this->nama_smp))]);
+            })->count();
+    }
+}

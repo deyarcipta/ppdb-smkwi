@@ -61,8 +61,9 @@ class DataSmpExport implements FromCollection, WithHeadings, WithMapping, WithSt
         return [
             $this->no,
             $row->nama_smp,
-            $row->data_siswa_count ?? 0,
+            $row->total_siswa_count,
             $row->created_at ? $row->created_at->format('d/m/Y H:i') : '-',
+
         ];
     }
 

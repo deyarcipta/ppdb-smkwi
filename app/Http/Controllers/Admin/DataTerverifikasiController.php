@@ -315,8 +315,12 @@ public function kirimUlang($id)
                 'status_akun' => 'aktif',
             ]);
 
-            // Generate nomor pendaftaran
-            $noPendaftaran = $this->generateNoPendaftaran($request->jurusan_id, $request->gelombang_id, $username);
+            // Cari atau buat Data SMP secara otomatis
+            $namaSmpClean = trim($request->asal_sekolah);
+            $smp = DataSmp::whereRaw('LOWER(TRIM(nama_smp)) = ?', [strtolower($namaSmpClean)])->first();
+            if (!$smp) {
+                $smp = DataSmp::create(['nama_smp' => $namaSmpClean]);
+            }
 
             // 2. Simpan ke tabel data_siswa
             $dataSiswa = DataSiswa::create([
@@ -330,9 +334,11 @@ public function kirimUlang($id)
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'no_hp' => $request->no_hp,
                 'asal_sekolah' => $request->asal_sekolah,
+                'id_smp' => $smp->id_smp,
                 'no_hp_ayah' => $request->no_hp_ayah,
                 'no_hp_ibu' => $request->no_hp_ibu,
                 'referensi' => $request->referensi,
+
                 'status_pendaftar' => 'pending',
                 'is_form_completed' => true,
             ]);
