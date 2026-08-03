@@ -37,7 +37,11 @@ class PengaturanAplikasi extends Model
         'hero_bg',
         'warna_utama',
         'warna_sekunder',
-        'warna_header'
+        'warna_header',
+        'wa_status',
+        'wa_api_url',
+        'wa_api_key',
+        'wa_session_id'
     ];
 
     protected $casts = [

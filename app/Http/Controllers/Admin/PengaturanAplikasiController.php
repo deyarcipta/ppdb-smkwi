@@ -4,15 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PengaturanAplikasi;
+use App\Models\WhatsAppSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class PengaturanAplikasiController extends Controller
 {
     public function index()
     {
         $pengaturan = PengaturanAplikasi::getSettings();
-        return view('admin.pengaturan-aplikasi.index', compact('pengaturan'));
+        $waSessions = WhatsAppSession::all();
+        return view('admin.pengaturan-aplikasi.index', compact('pengaturan', 'waSessions'));
     }
 
     public function update(Request $request)
@@ -36,6 +40,10 @@ class PengaturanAplikasiController extends Controller
             'maintenance_message' => 'nullable|string|max:500',
             'enable_cetak_kartu' => 'required|boolean',
             'enable_whatsapp' => 'nullable|boolean',
+            'wa_status' => 'nullable|in:0,1',
+            'wa_api_url' => 'nullable|url',
+            'wa_api_key' => 'nullable|string',
+            'wa_session_id' => 'nullable|string',
             'kartu_username_contoh' => 'nullable|string|max:255',
             'kartu_password_contoh' => 'nullable|string|max:255',
             'ttd_stempel' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
@@ -47,8 +55,13 @@ class PengaturanAplikasiController extends Controller
 
         $pengaturan = PengaturanAplikasi::getSettings();
         $data = $request->except(['logo', 'favicon', 'ttd_stempel', 'hero_bg']);
-        $data['enable_whatsapp'] = $request->has('enable_whatsapp') ? (bool)$request->enable_whatsapp : false;
-        $data['no_hp_admin'] = '-';
+
+        if ($request->has('wa_status')) {
+            $data['wa_status'] = (int)$request->wa_status;
+            $data['enable_whatsapp'] = ($request->wa_status == 1);
+        } else {
+            $data['enable_whatsapp'] = $request->has('enable_whatsapp') ? (bool)$request->enable_whatsapp : false;
+        }
 
         // Upload logo jika ada
         if ($request->hasFile('logo')) {
@@ -114,5 +127,286 @@ class PengaturanAplikasiController extends Controller
         $status = $pengaturan->maintenance_mode ? 'diaktifkan' : 'dinonaktifkan';
         return redirect()->route('pengaturan-aplikasi.index')
             ->with('success', "Maintenance mode berhasil $status.");
+    }
+
+    // ==========================================
+    // WHATSAPP OPEN-WA SESSION MANAGEMENT
+    // ==========================================
+
+    /**
+     * Mengambil daftar semua sesi WhatsApp.
+     */
+    public function listWhatsAppSessions()
+    {
+        return response()->json([
+            'success' => true,
+            'data' => WhatsAppSession::all()
+        ]);
+    }
+
+    /**
+     * Menambahkan sesi WhatsApp baru.
+     */
+    public function addWhatsAppSession(Request $request)
+    {
+        $request->validate([
+            'label' => 'required|string|max:255',
+        ]);
+
+        $setting = PengaturanAplikasi::getSettings();
+        $baseUrl = ($setting && $setting->wa_api_url) ? $setting->wa_api_url : env('OPEN_WA_API_URL', 'http://localhost:2785/api');
+        $apiKey = ($setting && $setting->wa_api_key) ? $setting->wa_api_key : env('OPEN_WA_API_KEY');
+
+        $headers = [
+            'Content-Type' => 'application/json',
+        ];
+
+        if ($apiKey) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['X-API-Key'] = $apiKey;
+        }
+
+        try {
+            // Generate UUID unik untuk OpenWA session name
+            $waSessionName = (string) Str::uuid();
+
+            // Daftarkan/Buat sesi baru terlebih dahulu di server OpenWA
+            $response = Http::withHeaders($headers)
+                ->timeout(10)
+                ->post("{$baseUrl}/sessions", [
+                    'name' => $waSessionName,
+                ]);
+
+            if (!$response->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mendaftarkan sesi di server OpenWA: ' . $response->body()
+                ], 400);
+            }
+
+            $responseData = $response->json();
+            $sessionId = $responseData['id'] ?? null;
+
+            if (!$sessionId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mendapatkan ID Sesi dari server OpenWA.'
+                ], 500);
+            }
+
+            // Simpan sesi ke database aplikasi
+            $session = WhatsAppSession::create([
+                'session_id' => $sessionId,
+                'label' => $request->label,
+                'status' => 'NOT_STARTED',
+                'is_active' => true,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sesi WhatsApp berhasil ditambahkan di server OpenWA. Silakan klik tombol "Mulai Sesi" pada kartu untuk memunculkan QR Code.',
+                'session' => $session
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghubungi OpenWA Server: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Mengaktifkan/menonaktifkan sesi WhatsApp secara manual.
+     */
+    public function toggleWhatsAppSession($id)
+    {
+        $session = WhatsAppSession::findOrFail($id);
+        $session->is_active = !$session->is_active;
+        $session->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status aktif sesi berhasil diubah.',
+            'is_active' => $session->is_active
+        ]);
+    }
+
+    /**
+     * Menghapus sesi WhatsApp dari database dan logout dari server OpenWA.
+     */
+    public function deleteWhatsAppSession($id)
+    {
+        $session = WhatsAppSession::findOrFail($id);
+        
+        $setting = PengaturanAplikasi::getSettings();
+        $baseUrl = ($setting && $setting->wa_api_url) ? $setting->wa_api_url : env('OPEN_WA_API_URL', 'http://localhost:2785/api');
+        $apiKey = ($setting && $setting->wa_api_key) ? $setting->wa_api_key : env('OPEN_WA_API_KEY');
+
+        $headers = [
+            'Content-Type' => 'application/json',
+        ];
+        if ($apiKey) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['X-API-Key'] = $apiKey;
+        }
+
+        try {
+            // Hapus sesi secara permanen dari server OpenWA
+            Http::withHeaders($headers)
+                ->timeout(5)
+                ->delete("{$baseUrl}/sessions/{$session->session_id}");
+        } catch (\Exception $e) {
+            // Abaikan jika server OpenWA tidak terjangkau
+        }
+
+        $session->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sesi WhatsApp berhasil dihapus.'
+        ]);
+    }
+
+    /**
+     * Memeriksa status sesi WhatsApp spesifik di server OpenWA.
+     */
+    public function getWhatsAppSessionStatus($id)
+    {
+        $session = WhatsAppSession::findOrFail($id);
+        $setting = PengaturanAplikasi::getSettings();
+        $baseUrl = ($setting && $setting->wa_api_url) ? $setting->wa_api_url : env('OPEN_WA_API_URL', 'http://localhost:2785/api');
+        $apiKey = ($setting && $setting->wa_api_key) ? $setting->wa_api_key : env('OPEN_WA_API_KEY');
+
+        $headers = [
+            'Content-Type' => 'application/json',
+        ];
+        if ($apiKey) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['X-API-Key'] = $apiKey;
+        }
+
+        try {
+            $response = Http::withHeaders($headers)
+                ->timeout(5)
+                ->get("{$baseUrl}/sessions/{$session->session_id}");
+
+            $qrCode = null;
+            $status = 'UNKNOWN';
+            $message = '';
+            $connected = false;
+            $phoneNumber = $session->phone_number;
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $rawStatus = $data['status'] ?? 'CONNECTED';
+                
+                if ($rawStatus === 'created' || $rawStatus === 'NOT_STARTED') {
+                    $status = 'NOT_STARTED';
+                } else if ($rawStatus === 'ready' || $rawStatus === 'connected' || $rawStatus === 'WORKING') {
+                    $status = 'CONNECTED';
+                } else {
+                    $status = $rawStatus;
+                }
+                
+                $connected = ($status === 'CONNECTED');
+                $message = $connected ? 'WhatsApp Terhubung!' : 'Sesi aktif tetapi belum terhubung (Status: ' . $status . ')';
+
+                $phoneNumber = $data['phone'] ?? (isset($data['me']['id']) ? explode('@', $data['me']['id'])[0] : null);
+                if ($phoneNumber) {
+                    $session->update(['phone_number' => $phoneNumber]);
+                }
+
+                if (!$connected) {
+                    $qrResponse = Http::withHeaders($headers)
+                        ->timeout(5)
+                        ->get("{$baseUrl}/sessions/{$session->session_id}/qr");
+                    if ($qrResponse->successful()) {
+                        $qrData = $qrResponse->json();
+                        $qrCode = $qrData['qrCode'] ?? ($qrData['qr'] ?? null);
+                    }
+                }
+            } else {
+                $statusCode = $response->status();
+                if ($statusCode === 404) {
+                    $status = 'NOT_STARTED';
+                    $message = 'Sesi belum terdaftar/dimulai di server OpenWA.';
+                } else if ($statusCode === 409) {
+                    $status = 'NOT_READY';
+                    $message = 'WhatsApp belum terhubung (Conflict 409).';
+                    
+                    $qrResponse = Http::withHeaders($headers)
+                        ->timeout(5)
+                        ->get("{$baseUrl}/sessions/{$session->session_id}/qr");
+                    if ($qrResponse->successful()) {
+                        $qrData = $qrResponse->json();
+                        $qrCode = $qrData['qrCode'] ?? ($qrData['qr'] ?? null);
+                    }
+                } else {
+                    $status = 'ERROR';
+                    $message = 'Server OpenWA merespon dengan status: ' . $statusCode;
+                }
+            }
+
+            $session->update(['status' => $status]);
+
+            return response()->json([
+                'success' => true,
+                'connected' => $connected,
+                'status' => $status,
+                'message' => $message,
+                'qrCode' => $qrCode,
+                'phone_number' => $phoneNumber,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghubungi OpenWA Server: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Memulai/menginisialisasi sesi WhatsApp spesifik di server OpenWA.
+     */
+    public function startWhatsAppSessionSpec($id)
+    {
+        $session = WhatsAppSession::findOrFail($id);
+        $setting = PengaturanAplikasi::getSettings();
+        $baseUrl = ($setting && $setting->wa_api_url) ? $setting->wa_api_url : env('OPEN_WA_API_URL', 'http://localhost:2785/api');
+        $apiKey = ($setting && $setting->wa_api_key) ? $setting->wa_api_key : env('OPEN_WA_API_KEY');
+
+        $headers = [
+            'Content-Type' => 'application/json',
+        ];
+        if ($apiKey) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['X-API-Key'] = $apiKey;
+        }
+
+        try {
+            $response = Http::withHeaders($headers)
+                ->timeout(10)
+                ->post("{$baseUrl}/sessions/{$session->session_id}/start");
+
+            if ($response->successful()) {
+                $session->update(['status' => 'STARTING']);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Sesi berhasil dimulai. Silakan tunggu beberapa saat dan klik "Cek Koneksi".'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal memulai sesi: ' . $response->body()
+                ], $response->status());
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghubungi OpenWA Server: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -158,28 +158,22 @@
       <!-- Pengaturan Notifikasi WhatsApp -->
       <div class="row">
         <div class="col-12">
-          <div class="card mb-4 border border-warning">
-            <div class="card-header bg-secondary text-white d-flex align-items-center justify-content-between">
+          <div class="card mb-4 border border-success">
+            <div class="card-header bg-success text-white d-flex align-items-center justify-content-between">
               <h6 class="mb-0 text-white"><i class="bx bxl-whatsapp me-1"></i> Pengaturan Notifikasi WhatsApp</h6>
-              <span class="badge bg-warning text-dark fs-12"><i class="bx bx-time-five me-1"></i> Masih Dalam Pengembangan</span>
+              <span class="badge bg-white text-success fw-bold"><i class="bx bx-check-circle me-1"></i> Status Pengiriman</span>
             </div>
             <div class="card-body mt-3">
-              <div class="alert alert-warning py-2 mb-3" role="alert">
-                <i class="bx bx-info-circle me-1"></i> Fitur notifikasi otomatis via WhatsApp Bot saat ini <strong>Masih Dalam Pengembangan</strong> dan status otomatis di-set <strong>Nonaktif</strong>.
-              </div>
               <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label class="form-label fw-bold">Status Notifikasi WhatsApp <span class="text-danger">*</span></label>
-                  <select class="form-select bg-light" disabled>
-                    <option value="0" selected>Nonaktif (Matikan semua pengiriman pesan otomatis via WA)</option>
+                <div class="col-md-12 mb-3">
+                  <label class="form-label fw-bold">Status Notifikasi WhatsApp Sistem <span class="text-danger">*</span></label>
+                  <select name="wa_status" class="form-select" required>
+                    <option value="0" {{ ($pengaturan->wa_status ?? 0) == 0 ? 'selected' : '' }}>Nonaktif (Matikan semua pengiriman WhatsApp otomatis)</option>
+                    <option value="1" {{ ($pengaturan->wa_status ?? 0) == 1 ? 'selected' : '' }}>Aktif (Kirim notifikasi otomatis pendaftaran, verifikasi, dan pembayaran)</option>
                   </select>
-                  <input type="hidden" name="enable_whatsapp" value="0">
-                  <small class="text-muted d-block mt-1">Fitur notifikasi WhatsApp dinonaktifkan sementara selama tahap pengembangan.</small>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label fw-bold">Nomor HP Admin (Penerima Notifikasi Pembayaran)</label>
-                  <input type="text" class="form-control bg-light" value="-" disabled>
-                  <small class="text-muted d-block mt-1">Nomor HP Admin diset <code>-</code> karena integrasi bot WhatsApp belum diaktifkan.</small>
+                  <small class="text-muted d-block mt-1">
+                    Aktifkan untuk mengizinkan sistem mengirim pesan WhatsApp otomatis. Untuk konfigurasi URL API, API Key, dan Sesi WhatsApp, silakan buka menu <a href="{{ route('whatsapp.index') }}" class="fw-bold text-primary"><i class="bx bxl-whatsapp me-1"></i>WhatsApp Bot</a>.
+                  </small>
                 </div>
               </div>
             </div>
@@ -339,6 +333,33 @@
     </form>
   </div>
 </div>
+
+<!-- Modal Tambah Sesi WhatsApp -->
+<div class="modal fade" id="modalAddWaSession" tabindex="-1" aria-labelledby="modalAddWaSessionLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content text-start">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="modalAddWaSessionLabel">Tambah Sesi WhatsApp Baru</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="form_add_wa_session">
+        @csrf
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="new_session_label" class="form-label">Label Pengenal Nomor / Sesi</label>
+            <input type="text" class="form-control" id="new_session_label" name="label" required 
+                   placeholder="Contoh: Nomor Utama PPDB, Nomor Cadangan Admin 1">
+            <small class="form-text text-muted">Label ini membantu Anda mengidentifikasi nomor WhatsApp yang terhubung.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary" id="btn_submit_add_session">Simpan & Daftarkan Sesi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -356,22 +377,296 @@
   @endif
 
   // Hitung karakter meta description
-  document.querySelector('textarea[name="meta_description"]').addEventListener('input', function() {
-    const maxLength = 160;
-    const currentLength = this.value.length;
-    const counter = this.parentElement.querySelector('.char-counter') || 
-                   document.createElement('small');
-    
-    counter.className = 'text-muted char-counter';
-    counter.textContent = `${currentLength}/${maxLength} karakter`;
-    
-    if (!this.parentElement.querySelector('.char-counter')) {
-      this.parentElement.appendChild(counter);
+  const metaDesc = document.querySelector('textarea[name="meta_description"]');
+  if (metaDesc) {
+    metaDesc.addEventListener('input', function() {
+      const maxLength = 160;
+      const currentLength = this.value.length;
+      const counter = this.parentElement.querySelector('.char-counter') || 
+                     document.createElement('small');
+      
+      counter.className = 'text-muted char-counter';
+      counter.textContent = `${currentLength}/${maxLength} karakter`;
+      
+      if (!this.parentElement.querySelector('.char-counter')) {
+        this.parentElement.appendChild(counter);
+      }
+
+      if (currentLength > maxLength) {
+        counter.className = 'text-danger char-counter';
+      }
+    });
+  }
+
+  // Toggle show/hide password OpenWA API Key
+  const toggleApiKeyBtn = document.getElementById('toggleApiKey');
+  if (toggleApiKeyBtn) {
+    toggleApiKeyBtn.addEventListener('click', function() {
+      const input = document.getElementById('wa_api_key_input');
+      const icon = document.getElementById('toggleIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bx bx-hide';
+      } else {
+        input.type = 'password';
+        icon.className = 'bx bx-show';
+      }
+    });
+  }
+
+  // OpenWA Multi-Session Polling & AJAX Handlers
+  const activePolls = {};
+
+  function checkSessionStatus(sessionId, forceShowLoading = false) {
+    const loadingEl = document.getElementById(`loading_${sessionId}`);
+    const contentEl = document.getElementById(`content_${sessionId}`);
+    const badgeEl = document.getElementById(`badge_${sessionId}`);
+    const phoneEl = document.getElementById(`phone_${sessionId}`);
+    const stateEl = document.getElementById(`raw_state_${sessionId}`);
+    const qrContainer = document.getElementById(`qr_container_${sessionId}`);
+    const qrImage = document.getElementById(`qr_image_${sessionId}`);
+    const btnStart = document.getElementById(`btn_start_${sessionId}`);
+
+    if (!loadingEl || !contentEl) return;
+
+    if (forceShowLoading) {
+      loadingEl.classList.remove('d-none');
+      contentEl.classList.add('d-none');
     }
 
-    if (currentLength > maxLength) {
-      counter.className = 'text-danger char-counter';
+    fetch(`/panel/whatsapp-sessions/${sessionId}/status`)
+      .then(response => response.json())
+      .then(data => {
+        loadingEl.classList.add('d-none');
+        contentEl.classList.remove('d-none');
+
+        if (data.success) {
+          stateEl.textContent = data.status;
+          phoneEl.textContent = data.phone_number || '-';
+          badgeEl.className = 'badge p-2 px-3';
+
+          if (data.connected) {
+            badgeEl.classList.add('bg-success');
+            badgeEl.textContent = 'Terhubung';
+            qrContainer.classList.add('d-none');
+            btnStart.classList.add('d-none');
+            stopPolling(sessionId);
+          } else {
+            if (data.status === 'NOT_STARTED') {
+              badgeEl.classList.add('bg-danger');
+              badgeEl.textContent = 'Offline';
+              qrContainer.classList.add('d-none');
+              btnStart.classList.remove('d-none');
+              stopPolling(sessionId);
+            } else {
+              badgeEl.classList.add('bg-warning', 'text-dark');
+              badgeEl.textContent = 'Butuh Scan QR';
+              btnStart.classList.add('d-none');
+
+              if (data.qrCode) {
+                qrContainer.classList.remove('d-none');
+                const qrSrc = data.qrCode.startsWith('data:') ? data.qrCode : 'data:image/png;base64,' + data.qrCode;
+                qrImage.src = qrSrc;
+              } else {
+                qrContainer.classList.add('d-none');
+              }
+              startPolling(sessionId);
+            }
+          }
+        } else {
+          badgeEl.className = 'badge p-2 px-3 bg-danger';
+          badgeEl.textContent = 'Error Gateway';
+          stateEl.textContent = 'ERROR';
+          qrContainer.classList.add('d-none');
+          btnStart.classList.add('d-none');
+          stopPolling(sessionId);
+        }
+      })
+      .catch(error => {
+        loadingEl.classList.add('d-none');
+        contentEl.classList.remove('d-none');
+        badgeEl.className = 'badge p-2 px-3 bg-danger';
+        badgeEl.textContent = 'Server Error';
+        stateEl.textContent = 'SERVER_ERROR';
+        qrContainer.classList.add('d-none');
+        btnStart.classList.add('d-none');
+        stopPolling(sessionId);
+      });
+  }
+
+  function startPolling(sessionId) {
+    if (!activePolls[sessionId]) {
+      activePolls[sessionId] = setInterval(() => checkSessionStatus(sessionId), 5000);
+    }
+  }
+
+  function stopPolling(sessionId) {
+    if (activePolls[sessionId]) {
+      clearInterval(activePolls[sessionId]);
+      delete activePolls[sessionId];
+    }
+  }
+
+  function checkAllSessions() {
+    document.querySelectorAll('.session-card-wrapper').forEach(card => {
+      const sessionId = card.getAttribute('data-id');
+      checkSessionStatus(sessionId);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    checkAllSessions();
+  });
+
+  document.addEventListener('click', function(e) {
+    // Cek koneksi manual
+    if (e.target.closest('.check-session-btn')) {
+      const btn = e.target.closest('.check-session-btn');
+      const sessionId = btn.getAttribute('data-id');
+      checkSessionStatus(sessionId, true);
+    }
+
+    // Mulai Sesi
+    if (e.target.closest('.start-session-btn')) {
+      const btn = e.target.closest('.start-session-btn');
+      const sessionId = btn.getAttribute('data-id');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Memproses...';
+
+      fetch(`/panel/whatsapp-sessions/${sessionId}/start`, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        Swal.fire({
+          icon: data.success ? 'success' : 'error',
+          title: data.success ? 'Berhasil' : 'Gagal',
+          text: data.message
+        });
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bx bx-play-circle me-1"></i> Mulai Sesi';
+        checkSessionStatus(sessionId, true);
+      })
+      .catch(error => {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal menghubungi server untuk memulai sesi.' });
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bx bx-play-circle me-1"></i> Mulai Sesi';
+      });
+    }
+
+    // Menghapus Sesi
+    if (e.target.closest('.delete-session-btn')) {
+      const btn = e.target.closest('.delete-session-btn');
+      const sessionId = btn.getAttribute('data-id');
+
+      Swal.fire({
+        title: 'Hapus Sesi WhatsApp?',
+        text: "Sesi ini akan dihapus dari database dan server OpenWA.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`/panel/whatsapp-sessions/${sessionId}`, {
+            method: 'DELETE',
+            headers: {
+              'X-CSRF-TOKEN': '{{ csrf_token() }}',
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              stopPolling(sessionId);
+              location.reload();
+            } else {
+              Swal.fire('Gagal', data.message || 'Gagal menghapus sesi.', 'error');
+            }
+          })
+          .catch(error => {
+            Swal.fire('Error', 'Gagal menghubungi server.', 'error');
+          });
+        }
+      });
     }
   });
+
+  // Toggle Switch status aktif sesi
+  document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('toggle-session-switch')) {
+      const switchEl = e.target;
+      const sessionId = switchEl.getAttribute('data-id');
+
+      fetch(`/panel/whatsapp-sessions/${sessionId}/toggle`, {
+        method: 'PUT',
+        headers: {
+          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          switchEl.checked = !switchEl.checked;
+          Swal.fire('Gagal', 'Gagal mengubah status sesi.', 'error');
+        }
+      })
+      .catch(error => {
+        switchEl.checked = !switchEl.checked;
+        Swal.fire('Error', 'Gagal menghubungi server.', 'error');
+      });
+    }
+  });
+
+  // Submit form tambah sesi baru
+  const formAddSession = document.getElementById('form_add_wa_session');
+  if (formAddSession) {
+    formAddSession.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btnSubmit = document.getElementById('btn_submit_add_session');
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
+
+      const formData = new FormData(this);
+
+      fetch('/panel/whatsapp-sessions', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          'Accept': 'application/json'
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = 'Simpan & Daftarkan Sesi';
+
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Sesi Berhasil Ditambahkan',
+            text: data.message
+          }).then(() => {
+            location.reload();
+          });
+        } else {
+          Swal.fire('Gagal', data.message || 'Gagal menambahkan sesi baru.', 'error');
+        }
+      })
+      .catch(error => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = 'Simpan & Daftarkan Sesi';
+        Swal.fire('Error', 'Gagal menghubungi server OpenWA.', 'error');
+      });
+    });
+  }
 </script>
 @endpush

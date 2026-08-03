@@ -15,6 +15,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset($logo) }}" type="image/png">
     <title>Formulir Pendaftaran {{ $namaAplikasi }} {{ $namaSekolah }}</title>
     <link rel="stylesheet" href="{{ asset('sneat/css/bootstrap.min.css') }}" />
@@ -694,16 +695,25 @@
             console.log('Menggunakan SMP Lainnya:', asalSekolahLain);
         }
         
+        const getCsrf = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || document.querySelector('input[name="_token"]')?.value || '';
+
         // Send AJAX request
         fetch('{{ route("pendaftaran.store") }}', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': getCsrf(),
                 'Accept': 'application/json'
             },
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            if (response.status === 419) {
+                showAlert('warning', 'Sesi Pendaftaran Kadaluarsa!', 'Sesi pendaftaran Anda telah berakhir. Mengirim ulang pendaftaran...');
+                location.reload();
+                throw new Error('CSRF Token Expired');
+            }
+            return response.json();
+        })
         .then(data => {
             console.log('Response dari server:', data);
             

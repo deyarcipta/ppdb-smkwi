@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
+use App\Services\WhatsappService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 
@@ -21,9 +22,9 @@ class PendaftaranSiswaController extends Controller
 {
     protected $whatsappService;
 
-    public function __construct()
+    public function __construct(WhatsappService $whatsappService)
     {
-        $this->whatsappService = new WhatsAppService();
+        $this->whatsappService = $whatsappService;
     }
 
     public function showForm()
@@ -395,83 +396,5 @@ class PendaftaranSiswaController extends Controller
         $formattedNumber = str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
         
         return $prefix . $formattedNumber;
-    }
-}
-
-/**
- * WhatsApp Service Class
- */
-class WhatsAppService
-{
-    private $client;
-    
-    public function __construct()
-    {
-        $this->client = new Client([
-            'base_uri' => 'http://localhost:3000',
-            'timeout'  => 15.0,
-            'verify' => false,
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ]
-        ]);
-    }
-
-    public function sendMessage($phone, $message)
-    {
-        try {
-            $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
-            if (!$pengaturan->enable_whatsapp) {
-                Log::info("Pengiriman WhatsApp dilewati karena fitur Notifikasi WhatsApp dinonaktifkan di Pengaturan Aplikasi.");
-                return [
-                    'success' => true,
-                    'message' => 'Notifikasi WhatsApp dinonaktifkan di Pengaturan Aplikasi.'
-                ];
-            }
-
-            $formattedPhone = $this->formatPhoneNumber($phone);
-            
-            Log::info("Mengirim WhatsApp ke: {$formattedPhone}");
-            
-            $response = $this->client->post('/send-message', [
-                'json' => [
-                    'phone' => $formattedPhone,
-                    'message' => $message
-                ]
-            ]);
-            
-            $result = json_decode($response->getBody(), true);
-            Log::info("WhatsApp berhasil dikirim: " . json_encode($result));
-            
-            return $result;
-            
-        } catch (\Exception $e) {
-            Log::error('Gagal mengirim WhatsApp: ' . $e->getMessage());
-            return [
-                'success' => false, 
-                'error' => $e->getMessage(),
-                'note' => 'Pastikan WhatsApp bot sedang running di localhost:3000'
-            ];
-        }
-    }
-
-    private function formatPhoneNumber($phone)
-    {
-        $phone = preg_replace('/[^0-9]/', '', $phone);
-        
-        if (substr($phone, 0, 1) === '0') {
-            $phone = '62' . substr($phone, 1);
-        }
-        
-        if (substr($phone, 0, 3) === '+62') {
-            $phone = '62' . substr($phone, 3);
-        }
-        
-        if (substr($phone, 0, 2) !== '62') {
-            $phone = '62' . $phone;
-        }
-        
-        return $phone;
     }
 }

@@ -208,12 +208,20 @@ Route::prefix('panel')->group(function () {
 
             Route::get('/admin/whatsapp', [WhatsappAdminController::class, 'index'])
                 ->name('whatsapp.index');
-
+            Route::post('/admin/whatsapp/settings', [WhatsappAdminController::class, 'updateSettings'])
+                ->name('whatsapp.update-settings');
             Route::get('/admin/whatsapp/status', [WhatsappAdminController::class, 'status'])
                 ->name('whatsapp.status');
-
             Route::post('/admin/whatsapp/start-server', [WhatsappAdminController::class, 'startServer'])
                 ->name('whatsapp.start-server');
+
+            // WhatsApp Multi-Session Routes
+            Route::get('whatsapp-sessions', [WhatsappAdminController::class, 'listWhatsAppSessions'])->name('whatsapp-sessions.index');
+            Route::post('whatsapp-sessions', [WhatsappAdminController::class, 'addWhatsAppSession'])->name('whatsapp-sessions.store');
+            Route::put('whatsapp-sessions/{id}/toggle', [WhatsappAdminController::class, 'toggleWhatsAppSession'])->name('whatsapp-sessions.toggle');
+            Route::delete('whatsapp-sessions/{id}', [WhatsappAdminController::class, 'deleteWhatsAppSession'])->name('whatsapp-sessions.destroy');
+            Route::get('whatsapp-sessions/{id}/status', [WhatsappAdminController::class, 'getWhatsAppSessionStatus'])->name('whatsapp-sessions.status');
+            Route::post('whatsapp-sessions/{id}/start', [WhatsappAdminController::class, 'startWhatsAppSessionSpec'])->name('whatsapp-sessions.start');
 
 
             //Info Persyaratan Pendaftaran
