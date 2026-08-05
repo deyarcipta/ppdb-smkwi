@@ -9,6 +9,8 @@
     $warnaUtama = $pengaturan->warna_utama ?? '#6b21a8';
     $warnaSekunder = $pengaturan->warna_sekunder ?? '#16a34a';
     $warnaHeader = $pengaturan->warna_header ?? '#a948ea';
+    $warnaTeksHero = $pengaturan->warna_teks_hero ?? '#2E004F';
+    $warnaMottoHero = $pengaturan->warna_motto_hero ?? '#6b21a8';
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -54,9 +56,16 @@
       background-size: cover;
       background-position: center;
     }
+    .hero-text h1 {
+      color: {{ $warnaTeksHero }} !important;
+    }
+    .hero-text p {
+      color: {{ $warnaTeksHero }} !important;
+    }
     .hero-text h1 .school-name,
-    .hero-text .motto {
-      color: {{ $warnaUtama }} !important;
+    .hero-text .motto,
+    .hero-text strong {
+      color: {{ $warnaMottoHero }} !important;
     }
     .btn-ppdb,
     .navbar-nav .btn-ppdb {
@@ -206,7 +215,7 @@
   <div class="container hero-content">
     <div class="hero-text">
       <h1>PPDB TA {{ date('Y') }}-{{ date('Y')+1 }}<br><span class="school-name">{{ strtoupper($namaSekolah) }}</span></h1>
-      <p>Ayo! segera daftarkan dirimu ke SMK Wistin dengan cara klik <strong>PENDAFTARAN PPDB</strong> dibawah ini!<br>
+      <p>Ayo! segera daftarkan dirimu ke {{ $namaSekolah }} dengan cara klik <strong>PENDAFTARAN PPDB</strong> dibawah ini!<br>
       <span class="motto">Kreatif, Unggul dan Berakhlak Mulia.</span></p>
       <a href="{{ route('frontend.pendaftaran') }}" class="btn-ppdb">PENDAFTARAN PPDB</a>
     </div>
@@ -693,7 +702,7 @@
       {{-- Kolom 3: Statistik & Sosial Media --}}
       <div class="col-md-4 mb-4">
           <h4 class="fw-bold">Statistik</h4>
-          <h3 class="mb-1"><strong>Website PPDB Wistin</strong></h3>
+          <h3 class="mb-1"><strong>Website {{ $namaAplikasi }}</strong></h3>
           <p class="mb-1">Pageview Hari Ini : {{ $statistikVisitor['hari_ini']['pageviews'] }}</p>
           <p class="mb-1">Visitor Hari Ini : {{ $statistikVisitor['hari_ini']['visitors'] }}</p>
           <p class="mb-1">Visitor Bulan Ini : {{ $statistikVisitor['bulan_ini']['visitors'] }}</p>

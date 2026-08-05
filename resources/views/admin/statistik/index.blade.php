@@ -2,6 +2,9 @@
 @section('title', 'Data Statistik Pendaftar')
 
 @section('content')
+@php
+    $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::first();
+@endphp
 <div class="container-fluid p-0">
     <!-- Statistik Visitor -->
     <div class="row" style="margin-bottom: 0.75rem !important;">
@@ -9,7 +12,7 @@
             <div class="card bg-dark text-white">
                 <div class="card-body py-2">
                     <h6 class="card-title text-white mb-2">
-                        <i class="bx bx-stats"></i> Statistik Website PPDB Wistin
+                        <i class="bx bx-stats"></i> Statistik Website {{ $pengaturan->nama_aplikasi ?? 'PPDB' }}
                     </h6>
                     <div class="row">
                         <div class="col-lg-3 col-md-6 col-12 mb-2">

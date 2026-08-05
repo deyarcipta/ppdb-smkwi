@@ -51,6 +51,8 @@ class PengaturanAplikasiController extends Controller
             'warna_utama' => 'nullable|string|max:10',
             'warna_sekunder' => 'nullable|string|max:10',
             'warna_header' => 'nullable|string|max:10',
+            'warna_teks_hero' => 'nullable|string|max:10',
+            'warna_motto_hero' => 'nullable|string|max:10',
         ]);
 
         $pengaturan = PengaturanAplikasi::getSettings();

@@ -38,6 +38,8 @@ class PengaturanAplikasi extends Model
         'warna_utama',
         'warna_sekunder',
         'warna_header',
+        'warna_teks_hero',
+        'warna_motto_hero',
         'wa_status',
         'wa_api_url',
         'wa_api_key',

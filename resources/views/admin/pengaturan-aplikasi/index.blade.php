@@ -291,6 +291,22 @@
                       <small class="text-muted">Digunakan untuk tombol utama Pendaftaran PPDB dan elemen sorotan aksi.</small>
                     </div>
                   </div>
+
+                  <div class="mb-3 d-flex align-items-center gap-3">
+                    <input type="color" name="warna_teks_hero" class="form-control form-control-color" value="{{ $pengaturan->warna_teks_hero ?? '#2E004F' }}" title="Pilih Warna Teks Hero">
+                    <div>
+                      <strong class="d-block">Warna Teks Hero (Judul & Deskripsi)</strong>
+                      <small class="text-muted">Digunakan untuk warna teks judul dan deskripsi di seksi Hero.</small>
+                    </div>
+                  </div>
+
+                  <div class="mb-3 d-flex align-items-center gap-3">
+                    <input type="color" name="warna_motto_hero" class="form-control form-control-color" value="{{ $pengaturan->warna_motto_hero ?? '#6b21a8' }}" title="Pilih Warna Aksen/Motto Hero">
+                    <div>
+                      <strong class="d-block">Warna Aksen / Motto Hero</strong>
+                      <small class="text-muted">Digunakan untuk nama sekolah dan motto ("Kreatif, Unggul...") di seksi Hero.</small>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

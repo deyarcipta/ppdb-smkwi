@@ -40,3 +40,5 @@ auth.json
 # Custom directories
 sessions/
 *.zip
+app/Services/WhatsAppService_BESAR.php
+app/Services/WhatsappService_kecil.php
