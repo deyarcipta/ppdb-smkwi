@@ -42,3 +42,5 @@ sessions/
 *.zip
 app/Services/WhatsAppService_BESAR.php
 app/Services/WhatsappService_kecil.php
+/.wwebjs_cache/
+/.well-known/
