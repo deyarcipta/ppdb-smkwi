@@ -8,7 +8,7 @@ use App\Models\PembayaranSiswa;
 use App\Models\MasterBiaya;
 use App\Models\TemplatePesan;
 use App\Models\ActivityLog;
-use App\Services\WhatsAppService;
+use App\Services\WhatsappService;
 use App\Models\InfoPembayaran;
 use App\Models\DataSiswa;
 use App\Models\GelombangPendaftaran;
@@ -23,7 +23,7 @@ class DataTerverifikasiController extends Controller
 {
     protected $whatsappService;
 
-    public function __construct(WhatsAppService $whatsappService)
+    public function __construct(WhatsappService $whatsappService)
     {
         $this->whatsappService = $whatsappService;
     }

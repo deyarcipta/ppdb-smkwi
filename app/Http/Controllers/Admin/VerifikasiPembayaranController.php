@@ -10,7 +10,7 @@ use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\TemplatePesan;
-use App\Services\WhatsAppService;
+use App\Services\WhatsappService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +18,7 @@ class VerifikasiPembayaranController extends Controller
 {
     protected $whatsappService;
 
-    public function __construct(WhatsAppService $whatsappService)
+    public function __construct(WhatsappService $whatsappService)
     {
         $this->whatsappService = $whatsappService;
     }
