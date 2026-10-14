@@ -488,27 +488,20 @@ class DashboardController extends Controller
         }
         
         // Step 3: Pengisian Formulir
-        if ($dataSiswa && $dataSiswa->jurusan_id) {
-            $progress = $this->progressService->hitungProgressDataDiri($dataSiswa);
-            
-            // Jika progress kurang dari 100% (belum lengkap)
-            // if ($progress['total'] < 100) {
-            //     return 3;
-            // }
-            
-            // Atau jika ingin threshold tertentu, misalnya 95%
-            if ($progress['total'] < 80) {
-                return 3;
-            }
+        // Tetap di Step 3 jika formulir belum disubmit sampai selesai
+        if (!$dataSiswa || !$dataSiswa->is_form_completed) {
+            return 3;
         }
         
-        // Step 4: Pembayaran PPDB (DIPINDAH KE POSISI INI)
-        if ($dataSiswa && $dataSiswa->is_form_completed && !$dataSiswa->is_paid) {
+        // Step 4: Pembayaran PPDB
+        // Jika formulir sudah disubmit, namun belum lunas pembayaran PPDB
+        if (!$dataSiswa->is_paid) {
             return 4;
         }
         
-        // Step 5: Review/Verifikasi Data (DIPINDAH KE POSISI INI)
-        if ($dataSiswa && $dataSiswa->is_paid && $dataSiswa->status_pendaftar != 'diterima') {
+        // Step 5: Review/Verifikasi Data
+        // Jika pembayaran PPDB sudah lunas, menunggu verifikasi berkas/pendaftar oleh admin
+        if ($dataSiswa->status_pendaftar != 'diterima') {
             return 5;
         }
         
