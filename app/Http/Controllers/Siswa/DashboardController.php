@@ -67,10 +67,33 @@ class DashboardController extends Controller
         // Tentukan status text dan color
         list($statusText, $statusColor) = $this->getStatusInfo($currentStep, $pembayaran, $dataSiswa);
 
+        // Ambil data biaya formulir dari master biaya (berdasarkan gelombang siswa atau default aktif)
+        $gelombangId = $dataSiswa->gelombang_id ?? null;
+        $biayaFormulir = null;
+        if ($gelombangId) {
+            $biayaFormulir = MasterBiaya::where('jenis_biaya', 'formulir')
+                ->where('gelombang_id', $gelombangId)
+                ->where('status', 1)
+                ->first();
+        }
+        if (!$biayaFormulir) {
+            $biayaFormulir = MasterBiaya::where('jenis_biaya', 'formulir')
+                ->where('status', 1)
+                ->first();
+        }
+
+        $nominalFormulir = 150000;
+        if ($biayaFormulir) {
+            $diskon = $biayaFormulir->diskon ?? 0;
+            $nominalFormulir = $biayaFormulir->total_biaya - ($biayaFormulir->total_biaya * ($diskon / 100));
+        }
+
         return view('siswa.dashboard', compact(
             'user', 
             'dataSiswa', 
             'masterPPDB',
+            'biayaFormulir',
+            'nominalFormulir',
             'pembayaran',
             'pembayaranPPDB',
             'infoPembayaran',
@@ -141,15 +164,37 @@ class DashboardController extends Controller
 
             $tanggalSekarang = now()->format('Y-m-d H:i:s');
 
+            // Ambil biaya formulir dari MasterBiaya
+            $gelombangId = $dataSiswa->gelombang_id ?? null;
+            $biayaFormulir = null;
+            if ($gelombangId) {
+                $biayaFormulir = MasterBiaya::where('jenis_biaya', 'formulir')
+                    ->where('gelombang_id', $gelombangId)
+                    ->where('status', 1)
+                    ->first();
+            }
+            if (!$biayaFormulir) {
+                $biayaFormulir = MasterBiaya::where('jenis_biaya', 'formulir')
+                    ->where('status', 1)
+                    ->first();
+            }
+
+            $nominalFormulir = 150000;
+            if ($biayaFormulir) {
+                $diskon = $biayaFormulir->diskon ?? 0;
+                $nominalFormulir = $biayaFormulir->total_biaya - ($biayaFormulir->total_biaya * ($diskon / 100));
+            }
+
             // Data untuk pembayaran
             $pembayaranData = [
                 'user_id' => $user->id,
+                'master_biaya_id' => $biayaFormulir->id ?? null,
                 'no_pendaftaran' => $user->username,
                 'nama_siswa' => $dataSiswa->nama_lengkap ?? 'Belum diisi', // Ambil dari data_siswa
                 'jenis_pembayaran' => 'formulir',
                 'bukti_pembayaran' => $filePath,
                 'tanggal_bayar' => $tanggalSekarang,
-                'jumlah' => 100000,
+                'jumlah' => $nominalFormulir,
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'keterangan' => $request->keterangan,
                 'status' => 'pending',

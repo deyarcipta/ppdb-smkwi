@@ -79,7 +79,7 @@
                   <p class="mb-1"><strong>Bank:</strong> {{ $infoPembayaran->nama_bank ?? '-' }}</p>
                   <p class="mb-1"><strong>No. Rekening:</strong> {{ $infoPembayaran->nomor_rekening ?? '-' }}</p>
                   <p class="mb-1"><strong>Atas Nama:</strong> {{ $infoPembayaran->atas_nama ?? '-' }}</p>
-                  <p class="mb-0"><strong>Jumlah:</strong> Rp 100.000</p>
+                  <p class="mb-0"><strong>Jumlah:</strong> Rp {{ number_format($nominalFormulir ?? 150000, 0, ',', '.') }}</p>
                 </div>
               </div>
 
@@ -87,9 +87,9 @@
               <div class="mb-3" id="info-cash" style="display: none;">
                 <div class="alert alert-warning">
                   <h6 class="alert-heading">Informasi Pembayaran Tunai:</h6>
-                  <p class="mb-1"><strong>Lokasi Pembayaran:</strong> Kantor Administrasi SMP Contoh Jakarta</p>
+                  <p class="mb-1"><strong>Lokasi Pembayaran:</strong> Kantor Administrasi {{ $pengaturan_aplikasi->nama_sekolah ?? 'Sekolah' }}</p>
                   <p class="mb-1"><strong>Jam Operasional:</strong> Senin - Jumat, 08:00 - 15:00 WIB</p>
-                  <p class="mb-1"><strong>Jumlah:</strong> Rp 100.000</p>
+                  <p class="mb-1"><strong>Jumlah:</strong> Rp {{ number_format($nominalFormulir ?? 150000, 0, ',', '.') }}</p>
                   <p class="mb-0"><strong>Bawa:</strong> Formulir pendaftaran dan uang tepat</p>
                 </div>
               </div>
@@ -112,7 +112,7 @@
             <div class="col-md-4">
               <div class="alert alert-warning">
                 <h6>Informasi Penting:</h6>
-                <p class="mb-2"><strong>Biaya Formulir:</strong> Rp 100.000</p>
+                <p class="mb-2"><strong>Biaya Formulir:</strong> Rp {{ number_format($nominalFormulir ?? 150000, 0, ',', '.') }}</p>
                 <p class="mb-0 small">Setelah upload, bukti akan diverifikasi oleh admin dalam 1-2 hari kerja.</p>
               </div>
 
