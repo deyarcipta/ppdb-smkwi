@@ -38,8 +38,14 @@ class DataTerverifikasiController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(10);
 
-        // Ambil total biaya dari master biaya
+        // Ambil total biaya dari master biaya (dan per gelombang)
         $totalBiaya = MasterBiaya::where('status', 1)->sum('total_biaya');
+        $totalBiayaPerGelombang = MasterBiaya::where('status', 1)
+            ->get()
+            ->groupBy('gelombang_id')
+            ->map(function ($items) {
+                return $items->sum('total_biaya');
+            });
 
         // Ambil gelombang dan jurusan aktif untuk modal tambah
         $gelombangs = GelombangPendaftaran::where('status', 'aktif')->get();
@@ -47,7 +53,7 @@ class DataTerverifikasiController extends Controller
         $dataSmp = DataSmp::all();
         $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
 
-        return view('admin.data-terverifikasi.index', compact('data', 'totalBiaya', 'gelombangs', 'jurusans', 'dataSmp', 'pengaturan'));
+        return view('admin.data-terverifikasi.index', compact('data', 'totalBiaya', 'totalBiayaPerGelombang', 'gelombangs', 'jurusans', 'dataSmp', 'pengaturan'));
     }
 
     public function update(Request $request)

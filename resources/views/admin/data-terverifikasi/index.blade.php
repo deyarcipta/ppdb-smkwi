@@ -54,13 +54,16 @@
                         @php
                             // Hitung total pembayaran yang sudah diverifikasi
                             $totalBayar = $row->pembayaran->where('status', 'diverifikasi')->sum('jumlah');
-                            $totalBiaya = $totalBiaya ?? 0;
+                            $siswaGelId = $row->dataSiswa->gelombang_id ?? null;
+                            $rowTotalBiaya = ($siswaGelId && isset($totalBiayaPerGelombang[$siswaGelId])) 
+                                ? $totalBiayaPerGelombang[$siswaGelId] 
+                                : ($totalBiaya ?? 0);
                             $statusPembayaran = 'belum_bayar';
                             $badgeClass = 'bg-secondary';
                             $statusText = 'Belum Bayar';
 
                             if ($totalBayar > 0) {
-                                if ($totalBayar >= $totalBiaya) {
+                                if ($totalBayar >= $rowTotalBiaya) {
                                     $statusPembayaran = 'lunas';
                                     $badgeClass = 'bg-success';
                                     $statusText = 'Lunas';
@@ -179,13 +182,16 @@
 @foreach ($data as $row)
 @php
     $totalBayar = $row->pembayaran->where('status', 'diverifikasi')->sum('jumlah');
-    $totalBiaya = $totalBiaya ?? 0;
+    $siswaGelId = $row->dataSiswa->gelombang_id ?? null;
+    $modalTotalBiaya = ($siswaGelId && isset($totalBiayaPerGelombang[$siswaGelId])) 
+        ? $totalBiayaPerGelombang[$siswaGelId] 
+        : ($totalBiaya ?? 0);
     $statusPembayaran = 'belum_bayar';
     $badgeClass = 'bg-secondary';
     $statusText = 'Belum Bayar';
 
     if ($totalBayar > 0) {
-        if ($totalBayar >= $totalBiaya) {
+        if ($totalBayar >= $modalTotalBiaya) {
             $statusPembayaran = 'lunas';
             $badgeClass = 'bg-success';
             $statusText = 'Lunas';
@@ -424,14 +430,14 @@
                 <div class="row mb-4">
                     <div class="col-12">
                         <h6 class="mb-3 text-primary">Informasi Pembayaran</h6>
-                        <div><strong>Total Biaya:</strong> Rp {{ number_format($totalBiaya, 0, ',', '.') }}</div>
+                        <div><strong>Total Biaya:</strong> Rp {{ number_format($modalTotalBiaya, 0, ',', '.') }}</div>
                         <div><strong>Total Dibayar:</strong> Rp {{ number_format($totalBayar, 0, ',', '.') }}</div>
                         <div>
                             <strong>Sisa Pembayaran:</strong>
-                            @if($totalBayar >= $totalBiaya)
+                            @if($totalBayar >= $modalTotalBiaya)
                                 <span class="text-success">LUNAS</span>
                             @else
-                                Rp {{ number_format($totalBiaya - $totalBayar, 0, ',', '.') }}
+                                Rp {{ number_format($modalTotalBiaya - $totalBayar, 0, ',', '.') }}
                             @endif
                         </div>
                     </div>

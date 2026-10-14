@@ -45,11 +45,8 @@ class VerifikasiPembayaranController extends Controller
         $data = $query->latest()->paginate(10);
         
         $jenisPembayaran = [
-            'pendaftaran' => 'Biaya Pendaftaran',
             'formulir' => 'Biaya Formulir',
-            'ppdb' => 'Biaya PPDB',
-            'uang_pangkal' => 'Uang Pangkal',
-            'spp' => 'SPP'
+            'ppdb' => 'Biaya PPDB'
         ];
 
         // Hitung statistik
@@ -114,10 +111,16 @@ class VerifikasiPembayaranController extends Controller
     private function checkAndUpdatePaymentStatus($dataSiswa)
     {
         try {
-            // Ambil total biaya PPDB dari master_biaya (penjumlahan seluruh biaya PPDB yang aktif)
-            $totalBiayaPPDB = MasterBiaya::where('jenis_biaya', 'ppdb')
-                ->where('status', '1')
-                ->sum('total_biaya');
+            // Ambil total biaya PPDB dari master_biaya sesuai gelombang siswa
+            $gelombangId = $dataSiswa->gelombang_id ?? null;
+            $masterBiayaQuery = MasterBiaya::where('jenis_biaya', 'ppdb')->where('status', '1');
+            if ($gelombangId) {
+                $masterBiayaQuery->where('gelombang_id', $gelombangId);
+            }
+            $totalBiayaPPDB = $masterBiayaQuery->sum('total_biaya');
+            if ($totalBiayaPPDB <= 0) {
+                $totalBiayaPPDB = MasterBiaya::where('jenis_biaya', 'ppdb')->where('status', '1')->sum('total_biaya');
+            }
 
             if ($totalBiayaPPDB <= 0) {
                 Log::warning('Master biaya PPDB tidak ditemukan');
@@ -202,10 +205,17 @@ class VerifikasiPembayaranController extends Controller
     private function calculateStatusPembayaranPPDB($siswaId)
     {
         try {
-            // Ambil total biaya PPDB dari master_biaya (penjumlahan seluruh biaya PPDB yang aktif)
-            $totalBiayaPPDB = MasterBiaya::where('jenis_biaya', 'ppdb')
-                ->where('status', '1')
-                ->sum('total_biaya');
+            // Ambil total biaya PPDB dari master_biaya sesuai gelombang siswa
+            $dataSiswa = DataSiswa::where('user_id', $siswaId)->first();
+            $gelombangId = $dataSiswa->gelombang_id ?? null;
+            $masterBiayaQuery = MasterBiaya::where('jenis_biaya', 'ppdb')->where('status', '1');
+            if ($gelombangId) {
+                $masterBiayaQuery->where('gelombang_id', $gelombangId);
+            }
+            $totalBiayaPPDB = $masterBiayaQuery->sum('total_biaya');
+            if ($totalBiayaPPDB <= 0) {
+                $totalBiayaPPDB = MasterBiaya::where('jenis_biaya', 'ppdb')->where('status', '1')->sum('total_biaya');
+            }
 
             if ($totalBiayaPPDB <= 0) {
                 Log::warning('Master biaya PPDB tidak ditemukan');
@@ -285,10 +295,16 @@ class VerifikasiPembayaranController extends Controller
     private function getPPDBPlaceholders($statusPembayaran, $dataSiswa)
     {
         try {
-            // Ambil data master biaya dan total dibayar (penjumlahan seluruh biaya PPDB yang aktif)
-            $totalBiayaPPDB = MasterBiaya::where('jenis_biaya', 'ppdb')
-                ->where('status', '1')
-                ->sum('total_biaya');
+            // Ambil data master biaya sesuai gelombang siswa dan total dibayar
+            $gelombangId = $dataSiswa->gelombang_id ?? null;
+            $masterBiayaQuery = MasterBiaya::where('jenis_biaya', 'ppdb')->where('status', '1');
+            if ($gelombangId) {
+                $masterBiayaQuery->where('gelombang_id', $gelombangId);
+            }
+            $totalBiayaPPDB = $masterBiayaQuery->sum('total_biaya');
+            if ($totalBiayaPPDB <= 0) {
+                $totalBiayaPPDB = MasterBiaya::where('jenis_biaya', 'ppdb')->where('status', '1')->sum('total_biaya');
+            }
 
             $totalDibayar = 0;
             if ($dataSiswa) {

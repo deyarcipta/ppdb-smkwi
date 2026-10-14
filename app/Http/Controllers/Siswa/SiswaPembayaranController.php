@@ -29,9 +29,15 @@ class SiswaPembayaranController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            // Ambil data biaya PPDB (termasuk formulir)
-            $MasterBiaya = MasterBiaya::where('status', 1)
-                ->get();
+            // Ambil data biaya PPDB (termasuk formulir) sesuai gelombang siswa
+            $masterBiayaQuery = MasterBiaya::where('status', 1);
+            if (!empty($siswa->gelombang_id)) {
+                $masterBiayaQuery->where('gelombang_id', $siswa->gelombang_id);
+            }
+            $MasterBiaya = $masterBiayaQuery->get();
+            if ($MasterBiaya->isEmpty()) {
+                $MasterBiaya = MasterBiaya::where('status', 1)->get();
+            }
 
             // Ambil data info pembayaran
             $infoPembayaran = InfoPembayaran::where('status', 1)->first();
@@ -148,8 +154,15 @@ class SiswaPembayaranController extends Controller
 
             $jenisPembayaranInput = $validated['jenis_pembayaran'];
             
-            // Hitung sisa_biaya untuk setiap master biaya
-            $masterBiayas = MasterBiaya::where('status', 1)->get();
+            // Hitung sisa_biaya untuk setiap master biaya sesuai gelombang siswa
+            $masterBiayaQuery = MasterBiaya::where('status', 1);
+            if (!empty($siswa->gelombang_id)) {
+                $masterBiayaQuery->where('gelombang_id', $siswa->gelombang_id);
+            }
+            $masterBiayas = $masterBiayaQuery->get();
+            if ($masterBiayas->isEmpty()) {
+                $masterBiayas = MasterBiaya::where('status', 1)->get();
+            }
             $pembayaranSiswa = Pembayaran::where('user_id', Auth::id())
                 ->where('status', 'diverifikasi')
                 ->get();
@@ -297,8 +310,15 @@ class SiswaPembayaranController extends Controller
                 unset($validated['bukti_pembayaran']);
             }
 
-            // Hitung sisa_biaya untuk setiap master biaya (kecuali transaksi ini)
-            $masterBiayas = MasterBiaya::where('status', 1)->get();
+            // Hitung sisa_biaya untuk setiap master biaya sesuai gelombang siswa (kecuali transaksi ini)
+            $masterBiayaQuery = MasterBiaya::where('status', 1);
+            if (!empty($siswa->gelombang_id)) {
+                $masterBiayaQuery->where('gelombang_id', $siswa->gelombang_id);
+            }
+            $masterBiayas = $masterBiayaQuery->get();
+            if ($masterBiayas->isEmpty()) {
+                $masterBiayas = MasterBiaya::where('status', 1)->get();
+            }
             $pembayaranSiswa = Pembayaran::where('user_id', Auth::id())
                 ->where('id', '!=', $id) // Kecualikan transaksi yang sedang diedit
                 ->where('status', 'diverifikasi')
@@ -503,10 +523,13 @@ class SiswaPembayaranController extends Controller
             $jenisPembayaran = $request->input('jenis_pembayaran');
             
             if ($jenisPembayaran === 'semua') {
-                // Hitung total semua biaya
-                $totalAll = MasterBiaya::where('status', 1)
-                    ->where('jenis_biaya', '!=', 'formulir')
-                    ->sum('total_biaya');
+                $siswa = DataSiswa::where('user_id', Auth::id())->first();
+                $masterBiayaQuery = MasterBiaya::where('status', 1)
+                    ->where('jenis_biaya', '!=', 'formulir');
+                if ($siswa && !empty($siswa->gelombang_id)) {
+                    $masterBiayaQuery->where('gelombang_id', $siswa->gelombang_id);
+                }
+                $totalAll = $masterBiayaQuery->sum('total_biaya');
                     
                 return response()->json([
                     'success' => true,

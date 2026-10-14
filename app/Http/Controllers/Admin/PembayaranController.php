@@ -37,10 +37,8 @@ class PembayaranController extends Controller
         $data = $query->latest()->paginate(10);
         
         $jenisPembayaran = [
-            'pendaftaran' => 'Biaya Pendaftaran',
             'formulir' => 'Biaya Formulir',
-            'uang_pangkal' => 'Uang Pangkal',
-            'spp' => 'SPP'
+            'ppdb' => 'Biaya PPDB'
         ];
 
         $statuses = [

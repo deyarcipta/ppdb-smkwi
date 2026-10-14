@@ -32,14 +32,22 @@ class DashboardController extends Controller
         $user = Auth::user();
         $dataSiswa = $user->dataSiswa ?? null;
 
-        // Ambil data dari master pembayaran dengan jenis pembayaran ppdb
-        $masterPPDB = MasterBiaya::where('jenis_biaya', 'ppdb')
-            ->where('status', 1)
-            ->first();
+        $gelombangId = $dataSiswa->gelombang_id ?? null;
+
+        // Ambil data dari master pembayaran dengan jenis pembayaran ppdb sesuai gelombang siswa
+        $masterPPDBQuery = MasterBiaya::where('jenis_biaya', 'ppdb')->where('status', 1);
+        if ($gelombangId) {
+            $masterPPDBQuery->where('gelombang_id', $gelombangId);
+        }
+        $masterPPDB = (clone $masterPPDBQuery)->first();
+        if (!$masterPPDB) {
+            $masterPPDB = MasterBiaya::where('jenis_biaya', 'ppdb')->where('status', 1)->first();
+        }
         if ($masterPPDB) {
-            $masterPPDB->total_biaya = MasterBiaya::where('jenis_biaya', 'ppdb')
-                ->where('status', 1)
-                ->sum('total_biaya');
+            $masterPPDB->total_biaya = (clone $masterPPDBQuery)->sum('total_biaya');
+            if ($masterPPDB->total_biaya <= 0) {
+                $masterPPDB->total_biaya = MasterBiaya::where('jenis_biaya', 'ppdb')->where('status', 1)->sum('total_biaya');
+            }
         }
         
         // Ambil data pembayaran formulir terbaru
