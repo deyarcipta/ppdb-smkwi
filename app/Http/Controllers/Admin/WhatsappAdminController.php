@@ -36,14 +36,13 @@ class WhatsappAdminController extends Controller
         $request->validate([
             'wa_api_url' => 'nullable|url',
             'wa_api_key' => 'nullable|string',
-            'wa_load_balancing' => 'nullable|in:0,1',
         ]);
 
         $pengaturan = PengaturanAplikasi::getSettings();
         $pengaturan->update([
             'wa_api_url' => $request->wa_api_url,
             'wa_api_key' => $request->wa_api_key,
-            'wa_load_balancing' => $request->has('wa_load_balancing') ? (bool)$request->wa_load_balancing : true,
+            'wa_load_balancing' => true,
         ]);
 
         return redirect()->route('whatsapp.index')
@@ -52,38 +51,99 @@ class WhatsappAdminController extends Controller
 
     public function status()
     {
+        $setting = PengaturanAplikasi::getSettings();
+        $apiUrl = ($setting && $setting->wa_api_url) ? $setting->wa_api_url : env('OPEN_WA_API_URL', 'http://localhost:2785/api');
+        $apiKey = ($setting && $setting->wa_api_key) ? $setting->wa_api_key : env('OPEN_WA_API_KEY');
+
+        // Bersihkan "/api" dari akhir URL untuk mendapatkan Root URL server
+        $rootUrl = preg_replace('/\/api\/?$/', '', $apiUrl);
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json'
+        ];
+        if ($apiKey) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['X-API-Key'] = $apiKey;
+        }
+
+        $latency = 'N/A';
+        $ramUsage = 'N/A';
+        $engine = 'Open-WA Gateway';
+        $version = 'N/A';
+        $connected = false;
+
         try {
-            $setting = PengaturanAplikasi::getSettings();
-            $baseUrl = ($setting && $setting->wa_api_url) ? $setting->wa_api_url : env('OPEN_WA_API_URL', 'http://localhost:2785/api');
-            $apiKey = ($setting && $setting->wa_api_key) ? $setting->wa_api_key : env('OPEN_WA_API_KEY');
-
-            $headers = ['Accept' => 'application/json'];
-            if ($apiKey) {
-                $headers['Authorization'] = 'Bearer ' . $apiKey;
-                $headers['X-API-Key'] = $apiKey;
+            $startTime = microtime(true);
+            // 1. Cek Ping atau Sessions
+            $pingResponse = Http::withHeaders($headers)->timeout(4)->get("{$rootUrl}/ping");
+            if (!$pingResponse->successful()) {
+                $pingResponse = Http::withHeaders($headers)->timeout(4)->get("{$apiUrl}/sessions");
             }
 
-            $response = Http::withHeaders($headers)->timeout(5)->get("{$baseUrl}/sessions");
+            $latencyMs = round((microtime(true) - $startTime) * 1000);
 
-            if ($response->successful()) {
-                return response()->json([
-                    'status' => 'connected',
-                    'message' => 'Server Open-WA Gateway Online',
-                    'sessions' => $response->json()
-                ]);
+            if ($pingResponse->successful()) {
+                $connected = true;
+                $latency = $latencyMs . ' ms';
             }
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Server Open-WA Gateway merespon dengan status: ' . $response->status()
-            ], 500);
-
         } catch (\Exception $e) {
             return response()->json([
+                'success' => true,
+                'connected' => false,
                 'status' => 'offline',
-                'message' => 'Server Open-WA Gateway Offline: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Server Open-WA Gateway Offline: ' . $e->getMessage(),
+                'latency' => 'Offline',
+                'ram' => 'N/A',
+                'engine' => 'Open-WA Gateway',
+                'version' => 'N/A',
+            ]);
         }
+
+        if ($connected) {
+            // 2. Ambil Metrik RAM (Prometheus) jika tersedia
+            try {
+                $metricsResponse = Http::withHeaders($headers)->timeout(2)->get("{$rootUrl}/metrics");
+                if ($metricsResponse->successful()) {
+                    $metricsText = $metricsResponse->body();
+                    if (preg_match('/process_resident_memory_bytes\s+(\d+)/', $metricsText, $matches)) {
+                        $ramBytes = (float)$matches[1];
+                        $ramUsage = round($ramBytes / 1024 / 1024, 1) . ' MB';
+                    }
+                }
+            } catch (\Exception $e) {}
+
+            // 3. Ambil Versi jika ada
+            try {
+                $verResponse = Http::withHeaders($headers)->timeout(2)->get("{$rootUrl}/version");
+                if ($verResponse->successful()) {
+                    $verData = $verResponse->json();
+                    $version = $verData['version'] ?? ($verData['name'] ?? 'Aktif');
+                }
+            } catch (\Exception $e) {}
+
+            return response()->json([
+                'success' => true,
+                'connected' => true,
+                'status' => 'connected',
+                'message' => 'Server Open-WA Gateway Online & Terhubung',
+                'latency' => $latency,
+                'ram' => $ramUsage,
+                'engine' => $engine,
+                'version' => $version !== 'N/A' ? $version : 'Online (Port Aktif)',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'connected' => false,
+            'status' => 'error',
+            'message' => 'Server Open-WA tidak merespon dengan benar',
+            'latency' => 'Error',
+            'ram' => 'N/A',
+            'engine' => 'Open-WA Gateway',
+            'version' => 'N/A',
+        ]);
     }
 
     // ==========================================

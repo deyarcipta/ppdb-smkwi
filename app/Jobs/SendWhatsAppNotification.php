@@ -116,8 +116,8 @@ class SendWhatsAppNotification implements ShouldQueue
         $sessionId = null;
         $delaySeconds = rand(12, 18); // Jeda acak 12-18 detik per pesan (Anti-Ban Delay)
 
-        // Load balancing setting (default true)
-        $loadBalancingEnabled = ($setting && isset($setting->wa_load_balancing)) ? (bool)$setting->wa_load_balancing : true;
+        // Load balancing & Anti-Ban selalu aktif permanen (SIAWI Mode)
+        $loadBalancingEnabled = true;
 
         if ($this->specificSessionId) {
             // Jika ada sesi khusus yang ditentukan

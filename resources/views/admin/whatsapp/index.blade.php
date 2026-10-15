@@ -26,6 +26,39 @@
                 <span class="badge bg-white text-success fw-bold"><i class="bx bx-check-circle me-1"></i> Open-WA Gateway</span>
             </div>
             <div class="card-body mt-3">
+                <!-- Widget Status Server Gateway (SIAWI Mode) -->
+                <div class="card bg-light border shadow-none mb-4">
+                    <div class="card-body py-3">
+                        <div class="row align-items-center text-center text-md-start">
+                            <div class="col-md-3 mb-2 mb-md-0 border-end">
+                                <div class="text-xs text-muted fw-bold text-uppercase">Status Koneksi Server</div>
+                                <div class="mt-1 d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+                                    <span id="server_status_badge" class="badge bg-secondary p-1 px-2">Memeriksa...</span>
+                                    <button type="button" class="btn btn-xs btn-outline-primary" id="btn_recheck_server" title="Cek Ulang Status">
+                                        <i class="bx bx-refresh"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-2 mb-2 mb-md-0 border-end">
+                                <div class="text-xs text-muted fw-bold text-uppercase">Ping Latensi</div>
+                                <div class="mt-1 fw-bold fs-6" id="server_latency_val">-</div>
+                            </div>
+                            <div class="col-md-2 mb-2 mb-md-0 border-end">
+                                <div class="text-xs text-muted fw-bold text-uppercase">RAM Server</div>
+                                <div class="mt-1 fw-bold fs-6 text-info" id="server_ram_val">-</div>
+                            </div>
+                            <div class="col-md-2 mb-2 mb-md-0 border-end">
+                                <div class="text-xs text-muted fw-bold text-uppercase">Engine</div>
+                                <div class="mt-1 fw-bold fs-6 text-secondary" id="server_engine_val">Open-WA Gateway</div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-xs text-muted fw-bold text-uppercase">Versi / Info</div>
+                                <div class="mt-1 fw-bold fs-6 text-truncate" id="server_version_val" title="-">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <form action="{{ route('whatsapp.update-settings') }}" method="POST">
                     @csrf
                     <div class="row">
@@ -48,22 +81,6 @@
                                 </button>
                             </div>
                             <small class="text-muted d-block mt-1">API Key autentikasi server OpenWA (Bearer Token / X-API-Key).</small>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <div class="card bg-light border p-3">
-                                <div class="form-check form-switch mb-1">
-                                    <input type="hidden" name="wa_load_balancing" value="0">
-                                    <input class="form-check-input" type="checkbox" id="wa_load_balancing" name="wa_load_balancing" value="1" 
-                                           {{ ($pengaturan->wa_load_balancing ?? true) ? 'checked' : '' }}>
-                                    <label class="form-check-label fw-bold text-dark" for="wa_load_balancing">
-                                        Multi-Session Load Balancing & Anti-Banned Engine (SIAWI Mode)
-                                    </label>
-                                </div>
-                                <small class="text-muted d-block ms-4">
-                                    Mendistribusikan pengiriman pesan otomatis secara bergantian ke seluruh nomor WhatsApp yang aktif (CONNECTED), menyisipkan jeda acak 12–18 detik per pesan, dan otomatis mengistirahatkan nomor selama 1–2 menit setiap 50 pesan terkirim guna melindungi nomor dari pemblokiran WhatsApp.
-                                </small>
-                            </div>
-                        </div>
                     </div>
                     <div class="text-end">
                         <button type="submit" class="btn btn-success">
@@ -522,6 +539,67 @@
                 btnSubmit.innerHTML = 'Simpan & Daftarkan Sesi';
                 Swal.fire('Error', 'Gagal menghubungi server OpenWA.', 'error');
             });
+        });
+    }
+
+    // ==========================================
+    // PENGECEKAN STATUS SERVER OPEN-WA GATEWAY
+    // ==========================================
+    function checkWhatsAppServerStatus() {
+        const badgeEl = document.getElementById('server_status_badge');
+        const latencyEl = document.getElementById('server_latency_val');
+        const ramEl = document.getElementById('server_ram_val');
+        const engineEl = document.getElementById('server_engine_val');
+        const versionEl = document.getElementById('server_version_val');
+
+        if (!badgeEl) return;
+
+        badgeEl.className = 'badge bg-secondary p-1 px-2';
+        badgeEl.textContent = 'Memeriksa...';
+
+        fetch('{{ route('whatsapp.status') }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.connected || data.status === 'connected') {
+                    badgeEl.className = 'badge bg-success p-1 px-2';
+                    badgeEl.textContent = 'Terhubung (Online)';
+                    if (latencyEl) latencyEl.textContent = data.latency || '-';
+                    if (ramEl) ramEl.textContent = data.ram || 'Normal';
+                    if (engineEl) engineEl.textContent = data.engine || 'Open-WA Gateway';
+                    if (versionEl) {
+                        versionEl.textContent = data.version || 'Online';
+                        versionEl.setAttribute('title', data.version || 'Online');
+                    }
+                } else {
+                    badgeEl.className = 'badge bg-danger p-1 px-2';
+                    badgeEl.textContent = 'Terputus (Offline)';
+                    if (latencyEl) latencyEl.textContent = 'Offline';
+                    if (ramEl) ramEl.textContent = 'N/A';
+                    if (engineEl) engineEl.textContent = 'Open-WA Gateway';
+                    if (versionEl) {
+                        versionEl.textContent = 'N/A';
+                        versionEl.setAttribute('title', 'Offline');
+                    }
+                }
+            })
+            .catch(error => {
+                badgeEl.className = 'badge bg-danger p-1 px-2';
+                badgeEl.textContent = 'Error Koneksi';
+                if (latencyEl) latencyEl.textContent = 'Offline';
+                if (ramEl) ramEl.textContent = 'N/A';
+                if (engineEl) engineEl.textContent = 'Open-WA Gateway';
+                if (versionEl) versionEl.textContent = 'N/A';
+            });
+    }
+
+    // Jalankan otomatis saat halaman selesai dimuat
+    checkWhatsAppServerStatus();
+
+    // Tombol refresh pengecekan status server
+    const btnRecheckServer = document.getElementById('btn_recheck_server');
+    if (btnRecheckServer) {
+        btnRecheckServer.addEventListener('click', function() {
+            checkWhatsAppServerStatus();
         });
     }
 </script>
