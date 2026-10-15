@@ -128,8 +128,8 @@ class DataTerverifikasiController extends Controller
         try {
             $user = UserSiswa::findOrFail($request->user_id);
             
-            // Reset password ke 6 digit acak
-            $newPassword = (string) random_int(100000, 999999);
+            // Reset password ke password123 sesuai konfirmasi modal
+            $newPassword = 'password123';
             $user->password = Hash::make($newPassword);
             $user->password_plain = $newPassword;
             $user->save();
