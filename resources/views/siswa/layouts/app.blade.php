@@ -83,6 +83,33 @@
       cursor: pointer;
     }
 
+    @media (max-width: 1199.98px) {
+      .layout-page {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-inline-start: 0 !important;
+        padding-inline-end: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      .container-p-y,
+      .container-xxl.container-p-y {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        padding-top: 0.75rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .table-responsive {
+        -webkit-overflow-scrolling: touch;
+      }
+      .modal-dialog {
+        margin: 0.5rem !important;
+        max-width: calc(100% - 1rem) !important;
+      }
+    }
+
     /* ======== STYLE PAGINATION GLOBAL ======== */
     .pagination-btn {
       border-radius: 6px !important;

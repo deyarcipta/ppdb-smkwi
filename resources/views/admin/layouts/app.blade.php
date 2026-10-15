@@ -26,34 +26,192 @@
   <script src="{{ asset('sneat/vendor/js/helpers.js') }}"></script>
 
   <style>
-    /* ======== LAYOUT DASAR ======== */
-    html, body {
-      height: 100%;
-      overflow: hidden; /* Mencegah double scrollbar di body */
+    /* ======== 1. DESKTOP LAYOUT (Layar >= 1200px) ======== */
+    @media (min-width: 1200px) {
+      html, body {
+        height: 100%;
+        overflow: hidden; /* Mencegah double scrollbar di desktop */
+      }
+
+      .layout-wrapper {
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .layout-container {
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+      }
+
+      .layout-menu {
+        height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000;
+        background-color: #fff !important;
+        border-right: 1px solid #e4e6e8;
+        width: 260px !important;
+        flex-shrink: 0 !important;
+      }
+
+      .layout-page {
+        height: 100%;
+        overflow: hidden;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .content-wrapper {
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+      }
     }
 
-    .layout-wrapper {
-      height: 100vh;
-      overflow: hidden;
+    /* ======== 2. MOBILE & TABLET LAYOUT (< 1200px) ======== */
+    @media (max-width: 1199.98px) {
+      html, body {
+        height: auto !important;
+        min-height: 100% !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      .layout-wrapper {
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        display: block !important;
+      }
+
+      .layout-container {
+        height: auto !important;
+        min-height: 100vh !important;
+        display: block !important;
+        overflow: visible !important;
+        width: 100% !important;
+      }
+
+      /* Sidebar Off-canvas di HP/Tablet */
+      .layout-menu {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        width: 260px !important;
+        z-index: 1090 !important;
+        transform: translate3d(-100%, 0, 0) !important;
+        transition: transform 0.3s ease-in-out !important;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15) !important;
+        background-color: #fff !important;
+      }
+
+      /* Ketika sidebar dibuka di mobile */
+      html.layout-menu-expanded .layout-menu,
+      body.layout-menu-expanded .layout-menu,
+      .layout-menu-expanded .layout-menu {
+        transform: translate3d(0, 0, 0) !important;
+      }
+
+      /* Overlay Backdrop Gelap saat Sidebar Terbuka */
+      .layout-overlay {
+        display: none !important;
+      }
+
+      html.layout-menu-expanded .layout-overlay,
+      body.layout-menu-expanded .layout-overlay,
+      .layout-menu-expanded .layout-overlay {
+        display: block !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        z-index: 1085 !important;
+        backdrop-filter: blur(2px) !important;
+      }
+
+      /* Konten Utama mengambil 100% Lebar Layar HP */
+      .layout-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100vh !important;
+        height: auto !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-inline-start: 0 !important;
+        padding-inline-end: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        display: block !important;
+        flex: 1 1 100% !important;
+      }
+
+      .content-wrapper {
+        height: auto !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .layout-navbar {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 0 0.5rem 0 !important;
+        border-radius: 0 !important;
+        padding: 0.5rem 0.75rem !important;
+        box-sizing: border-box !important;
+      }
+
+      .container-p-y,
+      .container-xxl.container-p-y,
+      .main-content {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        padding-top: 0.75rem !important;
+        padding-bottom: 1rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .layout-menu-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .table-responsive {
+        -webkit-overflow-scrolling: touch;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 0.75rem !important;
+      }
+
+      .modal-dialog {
+        margin: 0.5rem !important;
+        max-width: calc(100% - 1rem) !important;
+      }
     }
 
-    .layout-container {
-      height: 100%;
-      overflow: hidden;
-      display: flex;
-    }
-
-    /* ======== SIDEBAR RESPONSIF & ELEGAN ======== */
-    .layout-menu {
-      height: 100vh !important;
-      display: flex !important;
-      flex-direction: column !important;
-      position: sticky !important;
-      top: 0 !important;
-      z-index: 1000;
-      background-color: #fff !important;
-    }
-
+    /* ======== 3. GAYA UMUM (DESKTOP & MOBILE) ======== */
     .layout-menu .app-brand {
       flex-shrink: 0 !important;
       height: 64px !important;
@@ -124,16 +282,7 @@
       box-shadow: 0 0 0 3px rgba(105, 108, 255, 0.25) !important;
     }
 
-    /* Konten utama bisa discroll jika konten panjang */
-    .content-wrapper {
-      height: 100%;
-      overflow-y: auto;
-      overflow-x: hidden;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-    }
-
-    /* Scrollbar tipis elegan agar simetris & tidak memakan ruang kanan */
+    /* Scrollbar tipis elegan agar simetris & tidak memakan ruang kanan di desktop */
     .content-wrapper::-webkit-scrollbar {
       width: 6px;
     }
@@ -154,10 +303,10 @@
       overflow: visible;
     }
 
-    /* Hapus overflow dari halaman utama */
-    .layout-page {
-      height: 100%;
-      overflow: hidden;
+    /* Responsivitas Tabel di Mobile */
+    .table-responsive {
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 0.5rem;
     }
 
     /* Footer tetap di bawah */
@@ -339,6 +488,41 @@
       document.addEventListener('DOMContentLoaded', cleanSidebarScroll);
       window.addEventListener('load', cleanSidebarScroll);
     })();
+  </script>
+
+  <script>
+    // Handler toggle mobile drawer dan overlay
+    document.addEventListener('DOMContentLoaded', function() {
+      function closeMobileMenu() {
+        document.documentElement.classList.remove('layout-menu-expanded');
+        document.body.classList.remove('layout-menu-expanded');
+      }
+
+      // Pastikan overlay menutup sidebar saat di-tap/klik
+      const overlay = document.querySelector('.layout-overlay');
+      if (overlay) {
+        overlay.addEventListener('click', function(e) {
+          e.preventDefault();
+          closeMobileMenu();
+        });
+      }
+
+      // Pastikan tombol chevron close di dalam sidebar mobile menutup menu
+      const sidebarCloseBtn = document.querySelector('.layout-menu .layout-menu-toggle');
+      if (sidebarCloseBtn) {
+        sidebarCloseBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          closeMobileMenu();
+        });
+      }
+
+      // Tutup menu saat resize ke layar desktop
+      window.addEventListener('resize', function() {
+        if (window.innerWidth >= 1200) {
+          closeMobileMenu();
+        }
+      });
+    });
   </script>
 
   <!-- SweetAlert2 (menggunakan CDN resmi agar versi terbaru selalu terpakai) -->
