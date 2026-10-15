@@ -31,7 +31,7 @@
           @forelse ($data as $row)
           <tr class="text-center">
             <td>{{ $loop->iteration }}</td>
-            <td>{{ \App\Models\TemplatePesan::jenisList()[$row->jenis_pesan] ?? '-' }}</td>
+            <td>{{ \App\Models\TemplatePesan::getLabel($row->jenis_pesan) }}</td>
             <td>{{ $row->judul }}</td>
             <td class="text-start">{{ Str::limit($row->isi_pesan, 80) }}</td>
             <td>
@@ -125,6 +125,9 @@
         <div class="mb-3">
           <label>Jenis Pesan</label>
           <select name="jenis_pesan" class="form-select" required>
+            @if(!array_key_exists($row->jenis_pesan, $jenisList))
+              <option value="{{ $row->jenis_pesan }}" selected>{{ \App\Models\TemplatePesan::getLabel($row->jenis_pesan) }}</option>
+            @endif
             @foreach($jenisList as $key => $value)
               <option value="{{ $key }}" {{ $key == $row->jenis_pesan ? 'selected' : '' }}>{{ $value }}</option>
             @endforeach

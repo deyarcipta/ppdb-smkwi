@@ -36,12 +36,14 @@ class WhatsappAdminController extends Controller
         $request->validate([
             'wa_api_url' => 'nullable|url',
             'wa_api_key' => 'nullable|string',
+            'wa_load_balancing' => 'nullable|in:0,1',
         ]);
 
         $pengaturan = PengaturanAplikasi::getSettings();
         $pengaturan->update([
             'wa_api_url' => $request->wa_api_url,
             'wa_api_key' => $request->wa_api_key,
+            'wa_load_balancing' => $request->has('wa_load_balancing') ? (bool)$request->wa_load_balancing : true,
         ]);
 
         return redirect()->route('whatsapp.index')

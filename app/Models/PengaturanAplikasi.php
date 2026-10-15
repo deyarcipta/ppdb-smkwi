@@ -43,13 +43,15 @@ class PengaturanAplikasi extends Model
         'wa_status',
         'wa_api_url',
         'wa_api_key',
-        'wa_session_id'
+        'wa_session_id',
+        'wa_load_balancing',
     ];
 
     protected $casts = [
         'maintenance_mode' => 'boolean',
         'enable_cetak_kartu' => 'boolean',
-        'enable_whatsapp' => 'boolean'
+        'enable_whatsapp' => 'boolean',
+        'wa_load_balancing' => 'boolean',
     ];
 
     /**

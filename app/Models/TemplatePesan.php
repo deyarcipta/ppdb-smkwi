@@ -18,12 +18,11 @@ class TemplatePesan extends Model
         'status',
     ];
 
-    // Optional: untuk label readable
+    // Label readable untuk form tambah/edit
     public static function jenisList()
     {
         return [
             'pendaftaran_baru' => 'Pesan Pendaftaran Baru',
-            'aktifasi_akun' => 'Pesan Aktivasi Akun',
             'verifikasi_formulir' => 'Pesan Verifikasi Pembayaran Formulir',
             'verifikasi_ppdb' => 'Pesan Verifikasi Pembayaran PPDB',
             'pendaftar_diterima' => 'Pesan Pendaftar Diterima',
@@ -31,5 +30,15 @@ class TemplatePesan extends Model
             'belum_bayar' => 'Pesan Belum Bayar Formulir',
             'sudah_bayar_belum_isi' => 'Pesan Sudah Bayar Tapi Belum Isi Data',
         ];
+    }
+
+    // Label readable untuk tabel list (termasuk legacy / data lama jika ada)
+    public static function getLabel($jenis)
+    {
+        $all = self::jenisList() + [
+            'aktifasi_akun' => 'Pesan Aktivasi Akun (Tidak Digunakan)',
+        ];
+
+        return $all[$jenis] ?? ucwords(str_replace('_', ' ', $jenis));
     }
 }

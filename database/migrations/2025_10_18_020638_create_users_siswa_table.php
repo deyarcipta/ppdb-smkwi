@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['siswa'])->default('siswa');
             $table->enum('status_akun', ['aktif', 'belum_verifikasi'])->default('belum_verifikasi');
+            $table->rememberToken();
             $table->timestamps();
         });
     }

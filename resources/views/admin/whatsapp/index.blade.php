@@ -49,6 +49,21 @@
                             </div>
                             <small class="text-muted d-block mt-1">API Key autentikasi server OpenWA (Bearer Token / X-API-Key).</small>
                         </div>
+                        <div class="col-12 mb-3">
+                            <div class="card bg-light border p-3">
+                                <div class="form-check form-switch mb-1">
+                                    <input type="hidden" name="wa_load_balancing" value="0">
+                                    <input class="form-check-input" type="checkbox" id="wa_load_balancing" name="wa_load_balancing" value="1" 
+                                           {{ ($pengaturan->wa_load_balancing ?? true) ? 'checked' : '' }}>
+                                    <label class="form-check-label fw-bold text-dark" for="wa_load_balancing">
+                                        Multi-Session Load Balancing & Anti-Banned Engine (SIAWI Mode)
+                                    </label>
+                                </div>
+                                <small class="text-muted d-block ms-4">
+                                    Mendistribusikan pengiriman pesan otomatis secara bergantian ke seluruh nomor WhatsApp yang aktif (CONNECTED), menyisipkan jeda acak 12–18 detik per pesan, dan otomatis mengistirahatkan nomor selama 1–2 menit setiap 50 pesan terkirim guna melindungi nomor dari pemblokiran WhatsApp.
+                                </small>
+                            </div>
+                        </div>
                     </div>
                     <div class="text-end">
                         <button type="submit" class="btn btn-success">
