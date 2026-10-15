@@ -109,8 +109,8 @@
       </a>
     </li>
 
-    {{-- WhatsApp Gateway --}}
-    @if(!empty($pengaturan->enable_whatsapp))
+    {{-- WhatsApp Gateway (Khusus Superadmin) --}}
+    @if(!empty($pengaturan->enable_whatsapp) && $userRole == 'superadmin')
       <li class="menu-item {{ Request::is('panel/whatsapp*') || Request::is('panel/template-pesan*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon bx bxl-whatsapp"></i>
