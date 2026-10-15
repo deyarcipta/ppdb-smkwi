@@ -26,33 +26,101 @@
   <script src="{{ asset('sneat/vendor/js/helpers.js') }}"></script>
 
   <style>
-    /* ======== PERBAIKAN SCROLL SIDEBAR DROPDOWN ======== */
+    /* ======== LAYOUT DASAR ======== */
     html, body {
       height: 100%;
-      overflow: hidden; /* Mencegah scroll di body */
+      overflow: hidden; /* Mencegah double scrollbar di body */
     }
 
     .layout-wrapper {
       height: 100vh;
-      overflow: hidden; /* Mencegah scroll di wrapper utama */
+      overflow: hidden;
     }
 
     .layout-container {
       height: 100%;
-      overflow: hidden; /* Mencegah scroll di container */
+      overflow: hidden;
+      display: flex;
     }
 
-    /* Sidebar TANPA scrollbar visible */
+    /* ======== SIDEBAR RESPONSIF & ELEGAN ======== */
     .layout-menu {
       height: 100vh !important;
-      overflow-y: hidden !important; /* Ubah dari auto menjadi hidden */
-      overflow-x: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 1000;
+      background-color: #fff !important;
     }
 
-    /* Menu inner tanpa scrollbar */
+    .layout-menu .app-brand {
+      flex-shrink: 0 !important;
+      height: 64px !important;
+    }
+
+    /* Menu Inner responsif: bisa di-scroll dengan mouse wheel/touch, tidak terpotong */
     .menu-inner {
-      overflow-y: hidden !important;
+      flex: 1 1 auto !important;
+      height: calc(100vh - 64px) !important;
+      overflow-y: auto !important;
       overflow-x: hidden !important;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(105, 108, 255, 0.25) transparent;
+      padding-bottom: 2.5rem !important;
+    }
+
+    /* Scrollbar tipis modern & elegan */
+    .menu-inner::-webkit-scrollbar {
+      width: 4px;
+    }
+    .menu-inner::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .menu-inner::-webkit-scrollbar-thumb {
+      background: rgba(105, 108, 255, 0.2);
+      border-radius: 4px;
+    }
+    .menu-inner::-webkit-scrollbar-thumb:hover {
+      background: rgba(105, 108, 255, 0.45);
+    }
+
+    /* ======== PERBAIKAN INDIKATOR UNGU SIDEBAR ======== */
+    /* Pastikan setiap menu item memiliki positioning relatif agar indikator ::before tidak melayang */
+    .menu-vertical .menu-inner > .menu-item {
+      position: relative !important;
+    }
+
+    /* Hilangkan garis indikator vertikal ungu di parent dropdown yang sedang terbuka */
+    .layout-wrapper:not(.layout-horizontal) .menu-vertical .menu-inner > .menu-item.open::before,
+    .layout-wrapper:not(.layout-horizontal) .menu-vertical .menu-inner > .menu-item:has(.menu-sub)::before {
+      display: none !important;
+    }
+
+    /* Indikator vertikal ungu hanya untuk menu tunggal level 1 (bukan dropdown) yang aktif */
+    .layout-wrapper:not(.layout-horizontal) .menu-vertical .menu-inner > .menu-item.active:not(.open)::before {
+      content: "" !important;
+      position: absolute !important;
+      right: 0 !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      width: 4px !important;
+      height: 2.5rem !important;
+      background-color: #696cff !important;
+      border-radius: 4px 0 0 4px !important;
+      z-index: 5 !important;
+    }
+
+    /* Styling aktif untuk sub-menu item (seperti Template Pesan, Jurusan, dll) */
+    .menu-vertical .menu-sub > .menu-item.active > .menu-link {
+      background-color: rgba(105, 108, 255, 0.12) !important;
+      color: #696cff !important;
+      font-weight: 600 !important;
+      border-radius: 0.375rem !important;
+    }
+    .menu-vertical .menu-sub > .menu-item.active > .menu-link::before {
+      background-color: #696cff !important;
+      box-shadow: 0 0 0 3px rgba(105, 108, 255, 0.25) !important;
     }
 
     /* Konten utama bisa discroll jika konten panjang */
@@ -77,30 +145,6 @@
     }
     .content-wrapper::-webkit-scrollbar-thumb:hover {
       background: rgba(0, 0, 0, 0.35);
-    }
-
-
-    /* Hilangkan scrollbar dari browser */
-    .layout-menu::-webkit-scrollbar {
-      display: none !important;
-      width: 0 !important;
-      height: 0 !important;
-    }
-
-    .layout-menu {
-      -ms-overflow-style: none !important;  /* IE and Edge */
-      scrollbar-width: none !important;  /* Firefox */
-    }
-
-    .menu-inner::-webkit-scrollbar {
-      display: none !important;
-      width: 0 !important;
-      height: 0 !important;
-    }
-
-    .menu-inner {
-      -ms-overflow-style: none !important;  /* IE and Edge */
-      scrollbar-width: none !important;  /* Firefox */
     }
 
     /* Pastikan konten di dalam tidak menyebabkan scroll di luar */
@@ -256,6 +300,26 @@
   <script src="{{ asset('sneat/vendor/js/bootstrap.js') }}"></script>
   <script src="{{ asset('sneat/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
   <script src="{{ asset('sneat/vendor/js/menu.js') }}"></script>
+  <!-- Override Sneat scrollToActive agar posisi sidebar tidak terdorong ekstrem ke tengah -->
+  <script>
+    if (window.Helpers) {
+      window.Helpers.scrollToActive = function() {
+        const layoutMenu = document.querySelector('#layout-menu');
+        if (!layoutMenu) return;
+        const menuInner = layoutMenu.querySelector('.menu-inner');
+        if (!menuInner) return;
+        const activeItem = menuInner.querySelector('.menu-item.active');
+        if (activeItem) {
+          const rect = activeItem.getBoundingClientRect();
+          const innerRect = menuInner.getBoundingClientRect();
+          // Hanya scroll bila posisi item benar-benar terpotong di luar area pandang sidebar
+          if (rect.top < innerRect.top || rect.bottom > innerRect.bottom) {
+            activeItem.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+          }
+        }
+      };
+    }
+  </script>
 
   <!-- Main Sneat JS -->
   <script src="{{ asset('sneat/js/main.js') }}"></script>
