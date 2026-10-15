@@ -62,12 +62,12 @@
     /* Menu Inner responsif: bisa di-scroll dengan mouse wheel/touch, tidak terpotong */
     .menu-inner {
       flex: 1 1 auto !important;
-      height: calc(100vh - 64px) !important;
+      max-height: calc(100vh - 64px) !important;
       overflow-y: auto !important;
       overflow-x: hidden !important;
       scrollbar-width: thin;
       scrollbar-color: rgba(105, 108, 255, 0.25) transparent;
-      padding-bottom: 2.5rem !important;
+      padding-bottom: 0.75rem !important;
     }
 
     /* Scrollbar tipis modern & elegan */
