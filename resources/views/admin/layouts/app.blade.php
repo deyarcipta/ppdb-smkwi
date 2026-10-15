@@ -300,25 +300,25 @@
   <script src="{{ asset('sneat/vendor/js/bootstrap.js') }}"></script>
   <script src="{{ asset('sneat/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
   <script src="{{ asset('sneat/vendor/js/menu.js') }}"></script>
-  <!-- Override Sneat scrollToActive agar posisi sidebar tidak terdorong ekstrem ke tengah -->
+  <!-- Override Sneat scrollToActive agar posisi sidebar tidak terdorong ekstrem ke bawah -->
   <script>
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+
     if (window.Helpers) {
       window.Helpers.scrollToActive = function() {
-        const layoutMenu = document.querySelector('#layout-menu');
-        if (!layoutMenu) return;
-        const menuInner = layoutMenu.querySelector('.menu-inner');
-        if (!menuInner) return;
-        const activeItem = menuInner.querySelector('.menu-item.active');
-        if (activeItem) {
-          const rect = activeItem.getBoundingClientRect();
-          const innerRect = menuInner.getBoundingClientRect();
-          // Hanya scroll bila posisi item benar-benar terpotong di luar area pandang sidebar
-          if (rect.top < innerRect.top || rect.bottom > innerRect.bottom) {
-            activeItem.scrollIntoView({ block: 'nearest', behavior: 'auto' });
-          }
-        }
+        // Dinonaktifkan: agar sidebar tidak auto-scroll ke bawah dan menu aktif (Template Pesan)
+        // tetap tampil prima di atas tanpa meninggalkan ruang kosong di bawah.
       };
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const menuInner = document.querySelector('.menu-inner');
+      if (menuInner) {
+        menuInner.scrollTop = 0;
+      }
+    });
   </script>
 
   <!-- Main Sneat JS -->
