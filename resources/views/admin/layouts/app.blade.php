@@ -70,6 +70,8 @@
         overflow-x: hidden;
         scrollbar-width: thin;
         scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+        display: flex !important;
+        flex-direction: column !important;
       }
     }
 
@@ -331,15 +333,24 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Footer tetap di bawah */
-    footer.footer {
-      padding: 0.75rem 0;
-      background-color: #fff;
-      border-top: 1px solid #e4e6e8;
+    /* Footer persis seperti SIAWI: selalu di paling bawah dokumen/halaman */
+    footer.footer,
+    .content-footer {
+      padding: 0.85rem 1.5rem !important;
+      background-color: #fff !important;
+      border-top: 1px solid #e4e6e8 !important;
       text-align: center;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #6c757d;
-      flex-shrink: 0;
+      flex-shrink: 0 !important;
+      margin-top: auto !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .content-wrapper > .container-xxl,
+    .container-xxl.flex-grow-1 {
+      flex: 1 0 auto !important;
     }
 
     /* Konten utama */
