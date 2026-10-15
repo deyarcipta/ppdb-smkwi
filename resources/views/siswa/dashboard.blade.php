@@ -237,7 +237,84 @@
 <!-- Status Saat Ini Berdasarkan Step -->
 @if($currentStep == 1)
 <!-- Step 1: UPLOAD - Upload Bukti Pembayaran Formulir -->
-<!-- Form upload sudah ditampilkan di atas melalui $showUploadForm -->
+@if(!$showUploadForm && $pembayaran)
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-body text-center py-5">
+        <div class="mb-4">
+          <div class="avatar avatar-xl bg-label-info mx-auto rounded-circle d-flex align-items-center justify-content-center p-3" style="width: 72px; height: 72px;">
+            <i class='bx bx-time-five bx-lg text-info'></i>
+          </div>
+        </div>
+        <h4 class="text-info fw-bold">Menunggu Verifikasi Pembayaran</h4>
+        <p class="text-muted mb-4 mx-auto" style="max-width: 600px;">
+          Terima kasih! Bukti pembayaran formulir pendaftaran Anda telah berhasil diunggah. Saat ini pembayaran Anda sedang dalam antrean verifikasi oleh Panitia {{ $namaAplikasi }} {{ $namaSekolah }}.
+        </p>
+        
+        <div class="alert alert-info mx-auto text-start shadow-none border" style="max-width: 520px; background-color: #f0f8ff;">
+          <h6 class="fw-bold mb-3 text-info d-flex align-items-center">
+            <i class='bx bx-receipt me-2 fs-5'></i>Detail Pembayaran Formulir:
+          </h6>
+          <div class="row g-2">
+            <div class="col-12 col-sm-6">
+              <p class="mb-1 text-muted small">Nama Calon Siswa:</p>
+              <p class="fw-bold mb-2 text-dark">{{ $dataSiswa->nama_lengkap ?? ($user->name ?? $user->username) }}</p>
+              
+              <p class="mb-1 text-muted small">Metode Pembayaran:</p>
+              <p class="fw-bold mb-0 text-dark">{{ ($pembayaran->metode_pembayaran ?? 'transfer') == 'transfer' ? 'Transfer Bank' : 'Tunai (Cash)' }}</p>
+            </div>
+            <div class="col-12 col-sm-6">
+              <p class="mb-1 text-muted small">Nominal Biaya Formulir:</p>
+              <p class="fw-bold mb-2 text-primary">Rp {{ number_format($pembayaran->jumlah ?? ($nominalFormulir ?? 150000), 0, ',', '.') }}</p>
+              
+              <p class="mb-1 text-muted small">Status Pembayaran:</p>
+              <p class="mb-0">
+                <span class="badge bg-warning text-dark px-2 py-1">
+                  <i class='bx bx-time-five me-1'></i>Menunggu Verifikasi
+                </span>
+              </p>
+            </div>
+            @if(!empty($pembayaran->created_at))
+            <div class="col-12 mt-2 pt-2 border-top">
+              <small class="text-muted">
+                <i class='bx bx-calendar me-1'></i>Waktu Unggah: {{ $pembayaran->created_at->translatedFormat('d F Y, H:i') }} WIB
+              </small>
+            </div>
+            @endif
+          </div>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-2 mt-4">
+          @if($pembayaran->bukti_pembayaran)
+          <a href="{{ asset('storage/' . $pembayaran->bukti_pembayaran) }}" target="_blank" class="btn btn-outline-primary w-100 w-sm-auto">
+            <i class='bx bx-file me-1'></i>Lihat Bukti Bayar
+          </a>
+          @endif
+
+          @php
+            $kontakWa = preg_replace('/[^0-9]/', '', $pengaturan_aplikasi->no_hp ?? ($pengaturan_aplikasi->telepon ?? '6285218150720'));
+            if (str_starts_with($kontakWa, '0')) {
+                $kontakWa = '62' . substr($kontakWa, 1);
+            }
+          @endphp
+          <a href="https://wa.me/{{ $kontakWa }}?text=Halo%20Panitia%20PPDB,%20saya%20sudah%20mengunggah%20bukti%20pembayaran%20formulir%20atas%20nama%20{{ urlencode($dataSiswa->nama_lengkap ?? $user->username) }}.%20Mohon%20bantuannya%20untuk%20verifikasi.%20Terima%20kasih." target="_blank" class="btn btn-outline-success w-100 w-sm-auto">
+            <i class='bx bxl-whatsapp me-1'></i>Hubungi Panitia
+          </a>
+        </div>
+
+        <div class="mt-4 pt-2">
+          <p class="small text-muted mb-0">
+            <i class='bx bx-info-circle me-1 text-primary'></i>
+            Setelah pembayaran formulir diverifikasi oleh panitia, tahap ke-2 (<strong>Pilih Jurusan</strong>) akan otomatis terbuka dan notifikasi WhatsApp akan dikirimkan kepada Anda.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+@endif
 
 @elseif($currentStep == 2)
 <!-- Step 2: SELECT - Pilih Jurusan -->
