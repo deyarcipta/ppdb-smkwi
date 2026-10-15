@@ -121,23 +121,45 @@
         transform: translate3d(0, 0, 0) !important;
       }
 
-      /* Overlay Backdrop Gelap saat Sidebar Terbuka */
+      /* Overlay Backdrop Gelap: tersembunyi total saat tertutup */
       .layout-overlay {
         display: none !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
       }
 
+      /* Overlay hanya aktif & menangkap klik saat sidebar terbuka */
       html.layout-menu-expanded .layout-overlay,
       body.layout-menu-expanded .layout-overlay,
       .layout-menu-expanded .layout-overlay {
         display: block !important;
+        pointer-events: auto !important;
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
         right: 0 !important;
         bottom: 0 !important;
-        background-color: rgba(0, 0, 0, 0.5) !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0, 0, 0, 0.45) !important;
         z-index: 1085 !important;
         backdrop-filter: blur(2px) !important;
+        opacity: 1 !important;
+      }
+
+      /* Hilangkan total icon dan warna tombol lingkaran di atas sidebar */
+      .app-brand .layout-menu-toggle,
+      .menu .app-brand .layout-menu-toggle,
+      .layout-menu .layout-menu-toggle,
+      aside .layout-menu-toggle {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        border: none !important;
+        background: transparent !important;
       }
 
       /* Konten Utama mengambil 100% Lebar Layar HP */
@@ -440,8 +462,8 @@
 
     </div>
 
-    <!-- Overlay untuk mobile sidebar -->
-    <div class="layout-overlay layout-menu-toggle"></div>
+    <!-- Overlay untuk mobile sidebar (tanpa class layout-menu-toggle agar tidak terpicu klik tak sengaja) -->
+    <div class="layout-overlay"></div>
   </div>
 
   <!-- Sneat Vendor JS -->
@@ -491,38 +513,61 @@
   </script>
 
   <script>
-    // Handler toggle mobile drawer dan overlay
-    document.addEventListener('DOMContentLoaded', function() {
+    // Handler toggle mobile drawer dan overlay mandiri & terisolasi
+    (function() {
       function closeMobileMenu() {
         document.documentElement.classList.remove('layout-menu-expanded');
         document.body.classList.remove('layout-menu-expanded');
       }
 
-      // Pastikan overlay menutup sidebar saat di-tap/klik
-      const overlay = document.querySelector('.layout-overlay');
-      if (overlay) {
-        overlay.addEventListener('click', function(e) {
-          e.preventDefault();
-          closeMobileMenu();
-        });
+      function openMobileMenu() {
+        document.documentElement.classList.add('layout-menu-expanded');
+        document.body.classList.add('layout-menu-expanded');
       }
 
-      // Pastikan tombol chevron close di dalam sidebar mobile menutup menu
-      const sidebarCloseBtn = document.querySelector('.layout-menu .layout-menu-toggle');
-      if (sidebarCloseBtn) {
-        sidebarCloseBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          closeMobileMenu();
-        });
-      }
+      // Pastikan saat awal halaman dimuat, menu SELALU tertutup sehingga overlay tidak menutupi layar
+      closeMobileMenu();
 
-      // Tutup menu saat resize ke layar desktop
-      window.addEventListener('resize', function() {
-        if (window.innerWidth >= 1200) {
-          closeMobileMenu();
+      document.addEventListener('DOMContentLoaded', function() {
+        closeMobileMenu();
+
+        // Handler klik tombol hamburger di navbar
+        const navbarToggle = document.querySelector('.layout-navbar .layout-menu-toggle');
+        if (navbarToggle) {
+          navbarToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (document.documentElement.classList.contains('layout-menu-expanded')) {
+              closeMobileMenu();
+            } else {
+              openMobileMenu();
+            }
+          });
         }
+
+        // Handler klik overlay backdrop (klik area luar untuk menutup sidebar)
+        const overlay = document.querySelector('.layout-overlay');
+        if (overlay) {
+          overlay.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeMobileMenu();
+          });
+          overlay.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeMobileMenu();
+          }, { passive: false });
+        }
+
+        // Tutup menu saat resize ke layar desktop
+        window.addEventListener('resize', function() {
+          if (window.innerWidth >= 1200) {
+            closeMobileMenu();
+          }
+        });
       });
-    });
+    })();
   </script>
 
   <!-- SweetAlert2 (menggunakan CDN resmi agar versi terbaru selalu terpakai) -->

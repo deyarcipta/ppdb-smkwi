@@ -108,6 +108,45 @@
         margin: 0.5rem !important;
         max-width: calc(100% - 1rem) !important;
       }
+
+      /* Hilangkan total icon dan warna tombol lingkaran di atas sidebar */
+      .app-brand .layout-menu-toggle,
+      .menu .app-brand .layout-menu-toggle,
+      .layout-menu .layout-menu-toggle,
+      aside .layout-menu-toggle {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        border: none !important;
+        background: transparent !important;
+      }
+
+      .layout-overlay {
+        display: none !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
+      }
+
+      html.layout-menu-expanded .layout-overlay,
+      body.layout-menu-expanded .layout-overlay,
+      .layout-menu-expanded .layout-overlay {
+        display: block !important;
+        pointer-events: auto !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0, 0, 0, 0.45) !important;
+        z-index: 1085 !important;
+        backdrop-filter: blur(2px) !important;
+        opacity: 1 !important;
+      }
     }
 
     /* ======== STYLE PAGINATION GLOBAL ======== */
@@ -184,8 +223,8 @@
       </div>
     </div>
 
-    <!-- Overlay untuk mobile sidebar -->
-    <div class="layout-overlay layout-menu-toggle"></div>
+    <!-- Overlay untuk mobile sidebar (tanpa class layout-menu-toggle) -->
+    <div class="layout-overlay"></div>
   </div>
 
   <!-- Sneat Vendor JS -->
@@ -249,21 +288,58 @@
       });
     }
 
-    // Toggle sidebar mobile
-    document.addEventListener('DOMContentLoaded', function() {
-      const menuToggle = document.querySelector('.layout-menu-toggle');
-      const layoutOverlay = document.querySelector('.layout-overlay');
-      
-      if (menuToggle && layoutOverlay) {
-        menuToggle.addEventListener('click', function() {
-          document.body.classList.toggle('layout-menu-expanded');
-        });
-        
-        layoutOverlay.addEventListener('click', function() {
-          document.body.classList.remove('layout-menu-expanded');
-        });
+    // Toggle sidebar mobile mandiri & terisolasi
+    (function() {
+      function closeMobileMenu() {
+        document.documentElement.classList.remove('layout-menu-expanded');
+        document.body.classList.remove('layout-menu-expanded');
       }
-    });
+
+      function openMobileMenu() {
+        document.documentElement.classList.add('layout-menu-expanded');
+        document.body.classList.add('layout-menu-expanded');
+      }
+
+      closeMobileMenu();
+
+      document.addEventListener('DOMContentLoaded', function() {
+        closeMobileMenu();
+
+        const menuToggle = document.querySelector('.layout-navbar .layout-menu-toggle');
+        const layoutOverlay = document.querySelector('.layout-overlay');
+
+        if (menuToggle) {
+          menuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (document.documentElement.classList.contains('layout-menu-expanded') || document.body.classList.contains('layout-menu-expanded')) {
+              closeMobileMenu();
+            } else {
+              openMobileMenu();
+            }
+          });
+        }
+
+        if (layoutOverlay) {
+          layoutOverlay.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeMobileMenu();
+          });
+          layoutOverlay.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeMobileMenu();
+          }, { passive: false });
+        }
+
+        window.addEventListener('resize', function() {
+          if (window.innerWidth >= 1200) {
+            closeMobileMenu();
+          }
+        });
+      });
+    })();
   </script>
 </body>
 </html>

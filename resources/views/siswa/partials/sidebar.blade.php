@@ -3,10 +3,6 @@
     <a href="{{ route('siswa.dashboard') }}" class="app-brand-link">
       <span class="app-brand-text demo fw-bolder ms-2">PPDB Siswa</span>
     </a>
-
-    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-xl-none">
-      <i class="bx bx-chevron-left bx-sm align-middle"></i>
-    </a>
   </div>
   <ul class="menu-inner py-1">
     <li class="menu-item {{ Request::is('siswa/dashboard') ? 'active' : '' }}">
