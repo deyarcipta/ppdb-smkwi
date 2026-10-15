@@ -59,15 +59,16 @@
       height: 64px !important;
     }
 
-    /* Menu Inner responsif: bisa di-scroll dengan mouse wheel/touch, tidak terpotong */
+    /* Menu Inner responsif: pas dengan konten, tidak menyisakan ruang scroll kosong */
     .menu-inner {
-      flex: 1 1 auto !important;
+      flex: 0 1 auto !important;
+      height: auto !important;
       max-height: calc(100vh - 64px) !important;
       overflow-y: auto !important;
       overflow-x: hidden !important;
       scrollbar-width: thin;
       scrollbar-color: rgba(105, 108, 255, 0.25) transparent;
-      padding-bottom: 0.75rem !important;
+      padding-bottom: 0.5rem !important;
     }
 
     /* Scrollbar tipis modern & elegan */
@@ -308,21 +309,37 @@
 
     if (window.Helpers) {
       window.Helpers.scrollToActive = function() {
-        // Dinonaktifkan: agar sidebar tidak auto-scroll ke bawah dan menu aktif (Template Pesan)
-        // tetap tampil prima di atas tanpa meninggalkan ruang kosong di bawah.
+        // Dinonaktifkan: agar sidebar tidak auto-scroll ke bawah dan tidak meninggalkan ruang kosong
       };
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      const menuInner = document.querySelector('.menu-inner');
-      if (menuInner) {
-        menuInner.scrollTop = 0;
-      }
-    });
   </script>
 
   <!-- Main Sneat JS -->
   <script src="{{ asset('sneat/js/main.js') }}"></script>
+
+  <script>
+    // Bersihkan PerfectScrollbar di sidebar agar tidak membuat duplikasi scroll atau phantom height
+    (function() {
+      function cleanSidebarScroll() {
+        if (window.Helpers && window.Helpers.menuPsScroll) {
+          try {
+            window.Helpers.menuPsScroll.destroy();
+            window.Helpers.menuPsScroll = null;
+          } catch(e) {}
+        }
+        const menuInner = document.querySelector('.menu-inner');
+        if (menuInner) {
+          menuInner.classList.remove('ps', 'ps--active-y', 'ps--scrolling-y');
+          menuInner.querySelectorAll('.ps__rail-x, .ps__rail-y').forEach(el => el.remove());
+          menuInner.scrollTop = 0;
+        }
+      }
+
+      cleanSidebarScroll();
+      document.addEventListener('DOMContentLoaded', cleanSidebarScroll);
+      window.addEventListener('load', cleanSidebarScroll);
+    })();
+  </script>
 
   <!-- SweetAlert2 (menggunakan CDN resmi agar versi terbaru selalu terpakai) -->
   <script src="{{ asset('sneat/js/sweetalert2@11.js') }}"></script>
