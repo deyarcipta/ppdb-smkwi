@@ -8,9 +8,14 @@
       <h5 class="mb-1"><i class="bx bx-message-detail me-2 text-primary"></i>Template Pesan</h5>
       <small class="text-muted">Kelola template naskah balasan dan notifikasi otomatis WhatsApp.</small>
     </div>
-    <button class="btn btn-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#addPesanModal">
-      <i class="bx bx-plus me-1"></i>Tambah Template
-    </button>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-info btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#modalPanduanVariabel">
+        <i class="bx bx-help-circle me-1"></i>Panduan Variabel
+      </button>
+      <button class="btn btn-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#addPesanModal">
+        <i class="bx bx-plus me-1"></i>Tambah Template
+      </button>
+    </div>
   </div>
 
 
@@ -150,6 +155,106 @@
   </div>
 </div>
 @endforeach
+
+<!-- Modal Panduan Variabel -->
+<div class="modal fade" id="modalPanduanVariabel" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title"><i class="bx bx-code-alt me-2 text-primary"></i>Panduan Variabel Personalisasi Pesan</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-muted small">Variabel di dalam kurung kurawal <code>{...}</code> akan otomatis diganti oleh sistem dengan data riil siswa saat pesan dikirimkan.</p>
+
+        <h6 class="fw-bold text-primary mt-3"><i class="bx bx-user-plus me-1"></i> 1. Pesan Pendaftaran Baru (<code>pendaftaran_baru</code>)</h6>
+        <div class="table-responsive mb-3">
+          <table class="table table-sm table-bordered">
+            <thead class="table-light"><tr><th width="35%">Variabel</th><th>Keterangan Data</th></tr></thead>
+            <tbody>
+              <tr><td><code>{nama}</code></td><td>Nama lengkap calon siswa</td></tr>
+              <tr><td><code>{username}</code></td><td>Username login portal siswa (contoh: <code>PPDB2026001</code>)</td></tr>
+              <tr><td><code>{password}</code></td><td>Password awal akun siswa (<code>password123</code>)</td></tr>
+              <tr><td><code>{gelombang}</code></td><td>Nama gelombang pendaftaran yang dipilih</td></tr>
+              <tr><td><code>{tahun_ajaran}</code></td><td>Tahun ajaran aktif (contoh: <code>2026/2027</code>)</td></tr>
+              <tr><td><code>{rekening}</code></td><td>Nomor rekening pembayaran sekolah</td></tr>
+              <tr><td><code>{an}</code></td><td>Atas nama pemilik rekening</td></tr>
+              <tr><td><code>{no_admin}</code></td><td>Nomor kontak panitia/admin</td></tr>
+              <tr><td><code>{url_sistem}</code></td><td>Tautan URL portal login siswa</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h6 class="fw-bold text-success mt-3"><i class="bx bx-receipt me-1"></i> 2. Pesan Verifikasi Formulir (<code>verifikasi_formulir</code>)</h6>
+        <div class="table-responsive mb-3">
+          <table class="table table-sm table-bordered">
+            <thead class="table-light"><tr><th width="35%">Variabel</th><th>Keterangan Data</th></tr></thead>
+            <tbody>
+              <tr><td><code>{nama}</code> / <code>{nama_lengkap}</code></td><td>Nama lengkap siswa</td></tr>
+              <tr><td><code>{no_pendaftaran}</code></td><td>Nomor pendaftaran resmi siswa</td></tr>
+              <tr><td><code>{jurusan}</code></td><td>Nama kompetensi keahlian / jurusan</td></tr>
+              <tr><td><code>{jumlah}</code></td><td>Nominal uang formulir yang diverifikasi (Rp)</td></tr>
+              <tr><td><code>{status_judul}</code></td><td>Status judul ("TELAH DIVERIFIKASI")</td></tr>
+              <tr><td><code>{status_badge}</code></td><td>Ikon checklist hijau (✅)</td></tr>
+              <tr><td><code>{status_detail}</code></td><td>Rincian status ("LUNAS & TERVERIFIKASI")</td></tr>
+              <tr><td><code>{tahap_selanjutnya}</code></td><td>Instruksi tahap selanjutnya (lengkapi berkas/pembayaran)</td></tr>
+              <tr><td><code>{no_admin}</code></td><td>Nomor kontak panitia/admin</td></tr>
+              <tr><td><code>{url_sistem}</code></td><td>Tautan login portal siswa</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h6 class="fw-bold text-warning mt-3"><i class="bx bx-credit-card me-1"></i> 3. Pesan Verifikasi Pembayaran PPDB (<code>verifikasi_ppdb</code>)</h6>
+        <div class="table-responsive mb-3">
+          <table class="table table-sm table-bordered">
+            <thead class="table-light"><tr><th width="35%">Variabel</th><th>Keterangan Data</th></tr></thead>
+            <tbody>
+              <tr><td><code>{nama}</code> / <code>{nama_lengkap}</code></td><td>Nama lengkap siswa</td></tr>
+              <tr><td><code>{no_pendaftaran}</code></td><td>Nomor pendaftaran resmi siswa</td></tr>
+              <tr><td><code>{jurusan}</code></td><td>Nama jurusan yang dipilih</td></tr>
+              <tr><td><code>{jumlah}</code></td><td>Nominal transaksi yang baru diverifikasi (Rp)</td></tr>
+              <tr><td><code>{total_biaya}</code></td><td>Total seluruh tagihan biaya PPDB gelombang tersebut</td></tr>
+              <tr><td><code>{total_dibayar}</code></td><td>Total akumulasi pembayaran yang sudah diverifikasi</td></tr>
+              <tr><td><code>{sisa_pembayaran}</code></td><td>Sisa kekurangan tagihan yang belum dibayar</td></tr>
+              <tr><td><code>{status_detail}</code></td><td>"LUNAS & TERVERIFIKASI" atau "TERVERIFIKASI (Belum Lunas)"</td></tr>
+              <tr><td><code>{tahap_selanjutnya}</code></td><td>Instruksi lanjutan sesuai status lunas/belum</td></tr>
+              <tr><td><code>{no_admin}</code></td><td>Nomor kontak panitia/admin</td></tr>
+              <tr><td><code>{url_sistem}</code></td><td>Tautan login portal siswa</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h6 class="fw-bold text-info mt-3"><i class="bx bx-check-circle me-1"></i> 4. Pesan Pendaftar Diterima (<code>pendaftar_diterima</code>)</h6>
+        <div class="table-responsive mb-3">
+          <table class="table table-sm table-bordered">
+            <thead class="table-light"><tr><th width="35%">Variabel</th><th>Keterangan Data</th></tr></thead>
+            <tbody>
+              <tr><td><code>{nama}</code></td><td>Nama panggilan siswa</td></tr>
+              <tr><td><code>{nama_lengkap}</code></td><td>Nama lengkap siswa</td></tr>
+              <tr><td><code>{no_pendaftaran}</code></td><td>Nomor pendaftaran resmi siswa</td></tr>
+              <tr><td><code>{jurusan}</code></td><td>Nama kompetensi keahlian yang diterima</td></tr>
+              <tr><td><code>{gelombang}</code></td><td>Nama gelombang pendaftaran</td></tr>
+              <tr><td><code>{tahun_ajaran}</code></td><td>Tahun ajaran (contoh: <code>2026/2027</code>)</td></tr>
+              <tr><td><code>{batas_daftar_ulang}</code></td><td>Jadwal batas akhir daftar ulang</td></tr>
+              <tr><td><code>{tanggal_mpls}</code></td><td>Tanggal pelaksanaan kegiatan MPLS</td></tr>
+              <tr><td><code>{tanggal_awal_semester}</code></td><td>Tanggal masuk sekolah hari pertama</td></tr>
+              <tr><td><code>{sekolah}</code></td><td>Nama resmi sekolah</td></tr>
+              <tr><td><code>{alamat_sekolah}</code></td><td>Alamat lengkap sekolah</td></tr>
+              <tr><td><code>{telepon_sekolah}</code></td><td>Nomor telepon sekolah</td></tr>
+              <tr><td><code>{email_sekolah}</code></td><td>Email resmi sekolah</td></tr>
+              <tr><td><code>{no_admin}</code></td><td>Nomor WhatsApp panitia/admin</td></tr>
+              <tr><td><code>{website}</code></td><td>Website utama sekolah</td></tr>
+              <tr><td><code>{url_sistem}</code></td><td>Tautan portal pengumuman siswa</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 @endsection
 

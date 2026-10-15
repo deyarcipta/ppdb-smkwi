@@ -18,7 +18,7 @@ class TemplatePesan extends Model
         'status',
     ];
 
-    // Label readable untuk form tambah/edit
+    // Label readable untuk form tambah/edit (Hanya jenis pesan yang aktif digunakan sistem)
     public static function jenisList()
     {
         return [
@@ -26,9 +26,6 @@ class TemplatePesan extends Model
             'verifikasi_formulir' => 'Pesan Verifikasi Pembayaran Formulir',
             'verifikasi_ppdb' => 'Pesan Verifikasi Pembayaran PPDB',
             'pendaftar_diterima' => 'Pesan Pendaftar Diterima',
-            'data_lengkap' => 'Pesan Data Sudah Lengkap',
-            'belum_bayar' => 'Pesan Belum Bayar Formulir',
-            'sudah_bayar_belum_isi' => 'Pesan Sudah Bayar Tapi Belum Isi Data',
         ];
     }
 
@@ -37,6 +34,9 @@ class TemplatePesan extends Model
     {
         $all = self::jenisList() + [
             'aktifasi_akun' => 'Pesan Aktivasi Akun (Tidak Digunakan)',
+            'data_lengkap' => 'Pesan Data Sudah Lengkap (Tidak Digunakan)',
+            'belum_bayar' => 'Pesan Belum Bayar Formulir (Tidak Digunakan)',
+            'sudah_bayar_belum_isi' => 'Pesan Sudah Bayar Belum Isi Data (Tidak Digunakan)',
         ];
 
         return $all[$jenis] ?? ucwords(str_replace('_', ' ', $jenis));
