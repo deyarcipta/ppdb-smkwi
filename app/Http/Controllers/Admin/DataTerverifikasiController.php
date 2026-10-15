@@ -328,6 +328,9 @@ public function kirimUlang($id)
                 $smp = DataSmp::create(['nama_smp' => $namaSmpClean]);
             }
 
+            // Generate nomor pendaftaran otomatis
+            $noPendaftaran = $this->generateNoPendaftaran($request->jurusan_id, $request->gelombang_id, $username);
+
             // 2. Simpan ke tabel data_siswa
             $dataSiswa = DataSiswa::create([
                 'user_id' => $user->id,
