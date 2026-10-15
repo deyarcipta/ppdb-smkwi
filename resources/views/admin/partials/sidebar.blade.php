@@ -2,7 +2,7 @@
     $pengaturan = \App\Models\PengaturanAplikasi::first();
     $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
     $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB SMK WI';
-    $userRole = Auth::user()->role ?? 'admin'; // asumsi kolom role
+    $userRole = Auth::user()->role ?? 'admin';
 @endphp
 
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
@@ -16,7 +16,7 @@
   </div>
 
   <ul class="menu-inner py-1">
-    <!-- Dashboard -->
+    <!-- ======== BERANDA & STATISTIK ======== -->
     <li class="menu-item {{ Request::is('panel/dashboard') ? 'active' : '' }}">
       <a href="{{ route('admin.dashboard') }}" class="menu-link">
         <i class="menu-icon bx bx-home-circle"></i>
@@ -24,125 +24,82 @@
       </a>
     </li>
 
-    {{-- Menu hanya untuk superadmin --}}
-    @if($userRole == 'superadmin')
-      <!-- Data Master -->
-      <li class="menu-item {{ Request::is('panel/tahun-ajaran*') || Request::is('panel/jurusan*') || Request::is('panel/gelombang*') || Request::is('panel/kuota-jurusan*') || Request::is('panel/master-biaya*') || Request::is('panel/template-pesan*') || Request::is('panel/data-smp*') ? 'open active' : '' }}">
-        <a href="javascript:void(0);" class="menu-link menu-toggle">
-          <i class="menu-icon bx bx-data"></i>
-          <div>Data Master</div>
-        </a>
-        <ul class="menu-sub">
-          <li class="menu-item {{ Request::is('panel/tahun-ajaran*') ? 'active' : '' }}">
-            <a href="{{ route('tahun-ajaran.index') }}" class="menu-link">Tahun Ajaran</a>
-          </li>
-          <li class="menu-item {{ Request::is('panel/jurusan*') ? 'active' : '' }}">
-            <a href="{{ route('jurusan.index') }}" class="menu-link">Jurusan</a>
-          </li>
-          <li class="menu-item {{ Request::is('panel/gelombang*') ? 'active' : '' }}">
-            <a href="{{ route('gelombang.index') }}" class="menu-link">Gelombang Pendaftaran</a>
-          </li>
-          <li class="menu-item {{ Request::is('panel/kuota-jurusan*') ? 'active' : '' }}">
-            <a href="{{ route('kuota-jurusan.index') }}" class="menu-link">Kuota Per Jurusan</a>
-          </li>
-          <li class="menu-item {{ Request::is('panel/master-biaya*') ? 'active' : '' }}">
-            <a href="{{ route('master-biaya.index') }}" class="menu-link">Master Biaya</a>
-          </li>
-          @if(!empty($pengaturan->enable_whatsapp))
-          <li class="menu-item {{ Request::is('panel/template-pesan*') ? 'active' : '' }}">
-            <a href="{{ route('template-pesan.index') }}" class="menu-link">Template Pesan</a>
-          </li>
-          @endif
-          <li class="menu-item {{ Request::is('panel/data-smp*') ? 'active' : '' }}">
-            <a href="{{ route('data-smp.index') }}" class="menu-link">Data SMP</a>
-          </li>
-        </ul>
-      </li>
-    @endif
+    <li class="menu-item {{ Request::is('panel/statistik*') ? 'active' : '' }}">
+      <a href="{{ route('statistik.index') }}" class="menu-link">
+        <i class="menu-icon bx bx-bar-chart-alt-2"></i>
+        <div>Statistik & Analitik</div>
+      </a>
+    </li>
 
-    {{-- Menu untuk admin & superadmin --}}
-    @if(in_array($userRole, ['superadmin','admin']))
+    {{-- Menu Operasional untuk Admin & Superadmin --}}
+    @if(in_array($userRole, ['superadmin', 'admin']))
+      <!-- ======== OPERASIONAL PPDB ======== -->
+      <li class="menu-header small text-uppercase">
+        <span class="menu-header-text">Operasional PPDB</span>
+      </li>
+
       <!-- Data Pendaftar -->
-      <li class="menu-item {{ Request::is('panel/verifikasi-pendaftar*') || Request::is('panel/data-terverifikasi*') || Request::is('panel/data-diterima*') || Request::is('panel/data-ditolak*') || Request::is('panel/data-cetak-kartu*') ? 'open active' : '' }}">
+      <li class="menu-item {{ Request::is('panel/data-terverifikasi*') || Request::is('panel/data-diterima*') || Request::is('panel/data-ditolak*') || Request::is('panel/data-cetak-kartu*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
-          <i class="menu-icon bx bx-user"></i>
+          <i class="menu-icon bx bx-user-check"></i>
           <div>Data Pendaftar</div>
         </a>
         <ul class="menu-sub">
-          {{-- <li class="menu-item {{ Request::is('panel/verifikasi-pendaftar*') ? 'active' : '' }}">
-            <a href="{{ route('verifikasi-pendaftar.index') }}" class="menu-link">Verifikasi Pendaftar</a>
-          </li> --}}
           <li class="menu-item {{ Request::is('panel/data-terverifikasi*') ? 'active' : '' }}">
-            <a href="{{ route('data-terverifikasi.index') }}" class="menu-link">Data Pendaftar</a>
+            <a href="{{ route('data-terverifikasi.index') }}" class="menu-link">
+              <div>Semua Pendaftar</div>
+            </a>
           </li>
           <li class="menu-item {{ Request::is('panel/data-diterima*') ? 'active' : '' }}">
-            <a href="{{ route('data-diterima.index') }}" class="menu-link">Data Diterima</a>
+            <a href="{{ route('data-diterima.index') }}" class="menu-link">
+              <div>Siswa Diterima</div>
+            </a>
           </li>
           <li class="menu-item {{ Request::is('panel/data-ditolak*') ? 'active' : '' }}">
-            <a href="{{ route('data-ditolak.index') }}" class="menu-link">Data Ditolak</a>
+            <a href="{{ route('data-ditolak.index') }}" class="menu-link">
+              <div>Siswa Ditolak</div>
+            </a>
           </li>
           @if(!empty($pengaturan->enable_cetak_kartu))
           <li class="menu-item {{ Request::is('panel/data-cetak-kartu*') ? 'active' : '' }}">
-            <a href="{{ route('data-cetak-kartu.index') }}" class="menu-link">Data Cetak Kartu</a>
+            <a href="{{ route('data-cetak-kartu.index') }}" class="menu-link">
+              <div>Cetak Kartu Ujian</div>
+            </a>
           </li>
           @endif
         </ul>
       </li>
 
-      <!-- Pembayaran -->
+      <!-- Transaksi Pembayaran -->
       <li class="menu-item {{ Request::is('panel/pembayaran*') || Request::is('panel/verifikasi-pembayaran*') || Request::is('panel/laporan-pembayaran*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
-          <i class="menu-icon bx bx-money"></i>
+          <i class="menu-icon bx bx-credit-card"></i>
           <div>Pembayaran</div>
         </a>
         <ul class="menu-sub">
           <li class="menu-item {{ Request::is('panel/verifikasi-pembayaran*') ? 'active' : '' }}">
-            <a href="{{ route('verifikasi-pembayaran.index') }}" class="menu-link">Verifikasi Pembayaran</a>
+            <a href="{{ route('verifikasi-pembayaran.index') }}" class="menu-link">
+              <div>Verifikasi Pembayaran</div>
+            </a>
           </li>
           <li class="menu-item {{ Request::is('panel/pembayaran*') ? 'active' : '' }}">
-            <a href="{{ route('pembayaran.index') }}" class="menu-link">Data Pembayaran</a>
+            <a href="{{ route('pembayaran.index') }}" class="menu-link">
+              <div>Riwayat Pembayaran</div>
+            </a>
           </li>
           <li class="menu-item {{ Request::is('panel/laporan-pembayaran*') ? 'active' : '' }}">
-            <a href="{{ route('laporan-pembayaran.index') }}" class="menu-link">Laporan Pembayaran</a>
+            <a href="{{ route('laporan-pembayaran.index') }}" class="menu-link">
+              <div>Laporan Pembayaran</div>
+            </a>
           </li>
         </ul>
       </li>
     @endif
 
-
-    <!-- Data Statistik -->
-    <li class="menu-item {{ Request::is('panel/statistik*') ? 'active' : '' }}">
-      <a href="{{ route('statistik.index') }}" class="menu-link">
-        <i class="menu-icon bx bx-bar-chart-alt-2"></i>
-        <div>Data Statistik</div>
-      </a>
+    <!-- ======== KOMUNIKASI & INFORMASI ======== -->
+    <li class="menu-header small text-uppercase">
+      <span class="menu-header-text">Komunikasi & Informasi</span>
     </li>
-    @if(in_array($userRole, ['superadmin']))
-    <!-- Web / Informasi -->
-    <li class="menu-item {{ Request::is('panel/kontak-pendaftaran*') || Request::is('panel/info-pembayaran*') || Request::is('panel/persyaratan-pendaftaran*') || Request::is('panel/testimoni-alumni*') || Request::is('panel/faq*') ? 'open active' : '' }}">
-      <a href="javascript:void(0);" class="menu-link menu-toggle">
-        <i class="menu-icon bx bx-globe"></i>
-        <div>Web</div>
-      </a>
-      <ul class="menu-sub">
-        <li class="menu-item {{ Request::is('panel/kontak-pendaftaran*') ? 'active' : '' }}">
-          <a href="{{ route('kontak-pendaftaran.index') }}" class="menu-link">Kontak Pendaftaran</a>
-        </li>
-        <li class="menu-item {{ Request::is('panel/info-pembayaran*') ? 'active' : '' }}">
-          <a href="{{ route('info-pembayaran.index') }}" class="menu-link">Info Pembayaran</a>
-        </li>
-        <li class="menu-item {{ Request::is('panel/persyaratan-pendaftaran*') ? 'active' : '' }}">
-          <a href="{{ route('persyaratan-pendaftaran.index') }}" class="menu-link">Persyaratan & Alur</a>
-        </li>
-        <li class="menu-item {{ Request::is('panel/testimoni-alumni*') ? 'active' : '' }}">
-          <a href="{{ route('testimoni-alumni.index') }}" class="menu-link">Testimoni Alumni</a>
-        </li>
-        <li class="menu-item {{ Request::is('panel/faq*') ? 'active' : '' }}">
-          <a href="{{ route('faq.index') }}" class="menu-link">FAQ</a>
-        </li>
-      </ul>
-    </li>
-    @endif
 
     <!-- Pengumuman -->
     <li class="menu-item {{ Request::is('panel/pengumuman*') ? 'active' : '' }}">
@@ -152,19 +109,111 @@
       </a>
     </li>
 
-    {{-- WhatsApp Bot --}}
+    {{-- WhatsApp Gateway --}}
     @if(!empty($pengaturan->enable_whatsapp))
-    <li class="menu-item {{ Request::is('panel/whatsapp*') ? 'active' : '' }}">
-      <a href="{{ route('whatsapp.index') }}" class="menu-link">
-        <i class="menu-icon bx bx-message-square-dots"></i>
-        <div>WhatsApp Bot</div>
-      </a>
-    </li>
+      <li class="menu-item {{ Request::is('panel/whatsapp*') || Request::is('panel/template-pesan*') ? 'open active' : '' }}">
+        <a href="javascript:void(0);" class="menu-link menu-toggle">
+          <i class="menu-icon bx bxl-whatsapp"></i>
+          <div>WhatsApp Gateway</div>
+        </a>
+        <ul class="menu-sub">
+          <li class="menu-item {{ Request::is('panel/whatsapp*') ? 'active' : '' }}">
+            <a href="{{ route('whatsapp.index') }}" class="menu-link">
+              <div>Bot & Log Pesan</div>
+            </a>
+          </li>
+          <li class="menu-item {{ Request::is('panel/template-pesan*') ? 'active' : '' }}">
+            <a href="{{ route('template-pesan.index') }}" class="menu-link">
+              <div>Template Pesan</div>
+            </a>
+          </li>
+        </ul>
+      </li>
     @endif
 
-    {{-- Pengaturan hanya untuk superadmin --}}
+    {{-- Konten Web PPDB (Khusus Superadmin) --}}
     @if($userRole == 'superadmin')
-      <li class="menu-header small text-uppercase"><span class="menu-header-text">Pengaturan</span></li>
+      <li class="menu-item {{ Request::is('panel/kontak-pendaftaran*') || Request::is('panel/info-pembayaran*') || Request::is('panel/persyaratan-pendaftaran*') || Request::is('panel/testimoni-alumni*') || Request::is('panel/faq*') ? 'open active' : '' }}">
+        <a href="javascript:void(0);" class="menu-link menu-toggle">
+          <i class="menu-icon bx bx-globe"></i>
+          <div>Konten Web PPDB</div>
+        </a>
+        <ul class="menu-sub">
+          <li class="menu-item {{ Request::is('panel/persyaratan-pendaftaran*') ? 'active' : '' }}">
+            <a href="{{ route('persyaratan-pendaftaran.index') }}" class="menu-link">
+              <div>Persyaratan & Alur</div>
+            </a>
+          </li>
+          <li class="menu-item {{ Request::is('panel/info-pembayaran*') ? 'active' : '' }}">
+            <a href="{{ route('info-pembayaran.index') }}" class="menu-link">
+              <div>Info Pembayaran</div>
+            </a>
+          </li>
+          <li class="menu-item {{ Request::is('panel/kontak-pendaftaran*') ? 'active' : '' }}">
+            <a href="{{ route('kontak-pendaftaran.index') }}" class="menu-link">
+              <div>Kontak Pendaftaran</div>
+            </a>
+          </li>
+          <li class="menu-item {{ Request::is('panel/testimoni-alumni*') ? 'active' : '' }}">
+            <a href="{{ route('testimoni-alumni.index') }}" class="menu-link">
+              <div>Testimoni Alumni</div>
+            </a>
+          </li>
+          <li class="menu-item {{ Request::is('panel/faq*') ? 'active' : '' }}">
+            <a href="{{ route('faq.index') }}" class="menu-link">
+              <div>Tanya Jawab (FAQ)</div>
+            </a>
+          </li>
+        </ul>
+      </li>
+    @endif
+
+    {{-- Pengaturan & Master hanya untuk superadmin --}}
+    @if($userRole == 'superadmin')
+      <!-- ======== PENGATURAN & MASTER ======== -->
+      <li class="menu-header small text-uppercase">
+        <span class="menu-header-text">Master & Pengaturan</span>
+      </li>
+
+      <!-- Data Master -->
+      <li class="menu-item {{ Request::is('panel/tahun-ajaran*') || Request::is('panel/jurusan*') || Request::is('panel/gelombang*') || Request::is('panel/kuota-jurusan*') || Request::is('panel/master-biaya*') || Request::is('panel/data-smp*') ? 'open active' : '' }}">
+        <a href="javascript:void(0);" class="menu-link menu-toggle">
+          <i class="menu-icon bx bx-data"></i>
+          <div>Data Master</div>
+        </a>
+        <ul class="menu-sub">
+          <li class="menu-item {{ Request::is('panel/tahun-ajaran*') ? 'active' : '' }}">
+            <a href="{{ route('tahun-ajaran.index') }}" class="menu-link">
+              <div>Tahun Ajaran</div>
+            </a>
+          </li>
+          <li class="menu-item {{ Request::is('panel/jurusan*') ? 'active' : '' }}">
+            <a href="{{ route('jurusan.index') }}" class="menu-link">
+              <div>Jurusan</div>
+            </a>
+          </li>
+          <li class="menu-item {{ Request::is('panel/kuota-jurusan*') ? 'active' : '' }}">
+            <a href="{{ route('kuota-jurusan.index') }}" class="menu-link">
+              <div>Kuota Jurusan</div>
+            </a>
+          </li>
+          <li class="menu-item {{ Request::is('panel/gelombang*') ? 'active' : '' }}">
+            <a href="{{ route('gelombang.index') }}" class="menu-link">
+              <div>Gelombang Pendaftaran</div>
+            </a>
+          </li>
+          <li class="menu-item {{ Request::is('panel/master-biaya*') ? 'active' : '' }}">
+            <a href="{{ route('master-biaya.index') }}" class="menu-link">
+              <div>Master Biaya</div>
+            </a>
+          </li>
+          <li class="menu-item {{ Request::is('panel/data-smp*') ? 'active' : '' }}">
+            <a href="{{ route('data-smp.index') }}" class="menu-link">
+              <div>Data Asal SMP</div>
+            </a>
+          </li>
+        </ul>
+      </li>
 
       <li class="menu-item {{ Request::is('panel/user-management*') ? 'active' : '' }}">
         <a href="{{ route('user-management.index') }}" class="menu-link">
