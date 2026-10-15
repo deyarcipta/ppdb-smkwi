@@ -144,13 +144,15 @@
                                                 <i class="bx bx-check-shield me-1"></i> Verify
                                             </button>
 
-                                            <!-- Delete Button -->
+                                            <!-- Delete Button (Hanya Superadmin) -->
+                                            @if(auth()->user()->role === 'superadmin')
                                             <button class="btn btn-danger btn-sm px-3 btn-delete" 
                                                     data-id="{{ $item->id }}"
                                                     data-name="{{ $item->nama_siswa }}"
                                                     title="Hapus Data">
                                                 <i class="bx bx-trash me-1"></i> Hapus
                                             </button>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -177,6 +179,7 @@
     </div>
 </div>
 
+@if(auth()->user()->role === 'superadmin')
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -216,6 +219,7 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Modals di luar main content untuk menghindari masalah rendering -->
 @foreach ($data as $item)
@@ -622,21 +626,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Delete button handler
     const deleteButtons = document.querySelectorAll('.btn-delete');
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-    const deleteForm = document.getElementById('deleteForm');
-    const deleteStudentName = document.getElementById('deleteStudentName');
+    const deleteModalEl = document.getElementById('deleteModal');
+    if (deleteModalEl) {
+        const deleteModal = new bootstrap.Modal(deleteModalEl);
+        const deleteForm = document.getElementById('deleteForm');
+        const deleteStudentName = document.getElementById('deleteStudentName');
 
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            const name = this.getAttribute('data-name');
-            
-            deleteStudentName.textContent = name;
-            deleteForm.action = `{{ route('verifikasi-pembayaran.destroy', '') }}/${id}`;
-            
-            deleteModal.show();
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                
+                deleteStudentName.textContent = name;
+                deleteForm.action = `{{ route('verifikasi-pembayaran.destroy', '') }}/${id}`;
+                
+                deleteModal.show();
+            });
         });
-    });
+    }
 
     // Force modal backdrop
     const modalElements = document.querySelectorAll('.modal');

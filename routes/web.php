@@ -55,7 +55,7 @@ Route::prefix('panel')->group(function () {
     Route::post('/logout', [AuthAdminController::class, 'logout'])->name('backend.logout');
 
     // Dashboard hanya untuk admin
-    Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
+    Route::middleware(['auth', 'role:admin,superadmin', 'prevent.admin.delete'])->group(function () {
 
             // Dashboard
             Route::get('/dashboard', [DashboardAdminController::class, 'index'])
@@ -70,9 +70,11 @@ Route::prefix('panel')->group(function () {
             Route::get('/aktivitas/search', [AktivitasAdminController::class, 'search'])
                 ->name('admin.aktivitas.search');
             Route::delete('/aktivitas/{id}', [AktivitasAdminController::class, 'destroy'])
-                ->name('admin.aktivitas.destroy');
+                ->name('admin.aktivitas.destroy')
+                ->middleware('role:superadmin');
             Route::delete('/aktivitas-clear', [AktivitasAdminController::class, 'clear'])
-                ->name('admin.aktivitas.clear');
+                ->name('admin.aktivitas.clear')
+                ->middleware('role:superadmin');
 
             // Tahun Ajaran
             Route::resource('tahun-ajaran', TahunAjaranAdminController::class)
@@ -125,17 +127,23 @@ Route::prefix('panel')->group(function () {
             // Verifikasi Pendaftar
             Route::get('verifikasi-pendaftar', [VerifikasiPendaftarAdminController::class, 'index'])->name('verifikasi-pendaftar.index');
             Route::post('verifikasi-pendaftar/update', [VerifikasiPendaftarAdminController::class, 'update'])->name('verifikasi-pendaftar.update');
-            Route::delete('verifikasi-pendaftar/{id}', [VerifikasiPendaftarAdminController::class, 'destroy'])->name('verifikasi-pendaftar.destroy');
+            Route::delete('verifikasi-pendaftar/{id}', [VerifikasiPendaftarAdminController::class, 'destroy'])
+                ->name('verifikasi-pendaftar.destroy')
+                ->middleware('role:superadmin');
 
             // Data Diterima
             Route::get('data-diterima', [DataDiterimaAdminController::class, 'index'])->name('data-diterima.index');
-            Route::delete('data-diterima/{id}', [DataDiterimaAdminController::class, 'destroy'])->name('data-diterima.destroy');
+            Route::delete('data-diterima/{id}', [DataDiterimaAdminController::class, 'destroy'])
+                ->name('data-diterima.destroy')
+                ->middleware('role:superadmin');
             Route::post('data-diterima/update', [DataDiterimaAdminController::class, 'update'])->name('data-diterima.update');
             Route::get('data-diterima/export', [DataDiterimaAdminController::class, 'export'])->name('data-diterima.export');
 
-            // Data Diterima
+            // Data Ditolak
             Route::get('data-ditolak', [DataDitolakAdminController::class, 'index'])->name('data-ditolak.index');
-            Route::delete('data-ditolak/{id}', [DataDitolakAdminController::class, 'destroy'])->name('data-ditolak.destroy');
+            Route::delete('data-ditolak/{id}', [DataDitolakAdminController::class, 'destroy'])
+                ->name('data-ditolak.destroy')
+                ->middleware('role:superadmin');
             Route::post('data-ditolak/update', [DataDitolakAdminController::class, 'update'])->name('data-ditolak.update');
             Route::get('data-ditolak/export', [DataDitolakAdminController::class, 'export'])->name('data-ditolak.export');
 
@@ -149,7 +157,9 @@ Route::prefix('panel')->group(function () {
                 'data-terverifikasi/{id}/kirim-ulang',
                 [DataTerverifikasiAdminController::class, 'kirimUlang']
             )->name('data-terverifikasi.kirimUlang');
-            Route::delete('data-terverifikasi/{id}', [DataTerverifikasiAdminController::class, 'destroy'])->name('data-terverifikasi.destroy');
+            Route::delete('data-terverifikasi/{id}', [DataTerverifikasiAdminController::class, 'destroy'])
+                ->name('data-terverifikasi.destroy')
+                ->middleware('role:superadmin');
 
             // Data Cetak Kartu
             Route::get('data-cetak-kartu', [DataCetakKartuAdminController::class, 'index'])->name('data-cetak-kartu.index');
@@ -219,7 +229,9 @@ Route::prefix('panel')->group(function () {
             Route::get('whatsapp-sessions', [WhatsappAdminController::class, 'listWhatsAppSessions'])->name('whatsapp-sessions.index');
             Route::post('whatsapp-sessions', [WhatsappAdminController::class, 'addWhatsAppSession'])->name('whatsapp-sessions.store');
             Route::put('whatsapp-sessions/{id}/toggle', [WhatsappAdminController::class, 'toggleWhatsAppSession'])->name('whatsapp-sessions.toggle');
-            Route::delete('whatsapp-sessions/{id}', [WhatsappAdminController::class, 'deleteWhatsAppSession'])->name('whatsapp-sessions.destroy');
+            Route::delete('whatsapp-sessions/{id}', [WhatsappAdminController::class, 'deleteWhatsAppSession'])
+                ->name('whatsapp-sessions.destroy')
+                ->middleware('role:superadmin');
             Route::get('whatsapp-sessions/{id}/status', [WhatsappAdminController::class, 'getWhatsAppSessionStatus'])->name('whatsapp-sessions.status');
             Route::post('whatsapp-sessions/{id}/start', [WhatsappAdminController::class, 'startWhatsAppSessionSpec'])->name('whatsapp-sessions.start');
 

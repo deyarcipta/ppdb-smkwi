@@ -67,6 +67,7 @@
                                     <i class="bx bx-edit"></i>
                                 </button>
 
+                                @if(auth()->user()->role === 'superadmin')
                                 <form action="{{ route('data-smp.destroy', $row->id_smp) }}" 
                                       method="POST" class="d-inline form-delete">
                                     @csrf
@@ -75,6 +76,7 @@
                                         <i class="bx bx-trash"></i>
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

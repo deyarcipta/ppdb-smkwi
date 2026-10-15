@@ -66,10 +66,12 @@
                 <i class="bx bx-edit"></i>
               </button>
 
+              @if(auth()->user()->role === 'superadmin')
               <form action="{{ route('pengumuman.destroy', $row->id) }}" method="POST" class="d-inline form-delete">
                 @csrf @method('DELETE')
                 <button type="submit" class="btn btn-danger btn-sm"><i class="bx bx-trash"></i></button>
               </form>
+              @endif
 
               @if($row->status)
                 <a href="{{ route('pengumuman.nonaktifkan', $row->id) }}" class="btn btn-secondary btn-sm" title="Nonaktifkan">

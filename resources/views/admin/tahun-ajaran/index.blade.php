@@ -43,7 +43,8 @@
                   <i class="bx bx-edit"></i>
                 </button>
 
-                <!-- Tombol Hapus -->
+                <!-- Tombol Hapus (Hanya Superadmin) -->
+                @if(auth()->user()->role === 'superadmin')
                 <form action="{{ route('tahun-ajaran.destroy', $row->id) }}" method="POST" class="d-inline form-delete">
                   @csrf
                   @method('DELETE')
@@ -51,6 +52,7 @@
                     <i class="bx bx-trash"></i>
                   </button>
                 </form>
+                @endif
 
                 <!-- Tombol Aktif / Nonaktif -->
                 @if($row->status == 'aktif')

@@ -142,7 +142,8 @@
                                         </button>
                                     </form>
 
-                                    <!-- Tombol Hapus -->
+                                    <!-- Tombol Hapus (Hanya Superadmin) -->
+                                    @if(auth()->user()->role === 'superadmin')
                                     <form action="{{ route('data-terverifikasi.destroy', $row->id) }}" method="POST" class="d-inline form-delete">
                                         @csrf
                                         @method('DELETE')
@@ -150,6 +151,7 @@
                                             <i class="bx bx-trash fs-12"></i>
                                         </button>
                                     </form>
+                                    @endif
 
                                     <!-- Tombol Verifikasi Pembayaran -->
                                     <a href="{{ route('verifikasi-pembayaran.index') }}?search={{ $row->no_pendaftaran }}" class="btn btn-info btn-sm p-1" title="Verifikasi Pembayaran">
