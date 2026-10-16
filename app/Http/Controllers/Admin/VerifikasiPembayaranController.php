@@ -183,7 +183,7 @@ class VerifikasiPembayaranController extends Controller
             // Hitung status pembayaran untuk PPDB
             $statusPembayaran = null;
             if ($jenisPembayaran === 'ppdb' && $dataSiswa) {
-                $statusPembayaran = $this->calculateStatusPembayaranPPDB($dataSiswa->id);
+                $statusPembayaran = $this->calculateStatusPembayaranPPDB($dataSiswa->user_id ?? $dataSiswa->id);
             }
 
             // Ganti placeholder dengan data dinamis
@@ -260,16 +260,23 @@ class VerifikasiPembayaranController extends Controller
         $nextYear = $currentYear + 1;
         $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
         $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+        $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+        $tahunAjaran = $dataSiswa?->tahunAjaran?->nama 
+            ?? $dataSiswa?->gelombang?->tahunAjaran?->nama 
+            ?? $pengaturan?->tahunAjaranAktif?->nama 
+            ?? "{$currentYear}/{$nextYear}";
         
         $placeholders = [
             '{nama}' => $namaLengkap,
             '{jenis_pembayaran}' => ucfirst(str_replace('_', ' ', $jenisPembayaran)),
             '{jumlah}' => number_format($jumlah, 0, ',', '.'),
-            '{tahun_ajaran}' => "{$currentYear}/{$nextYear}",
+            '{tahun_ajaran}' => $tahunAjaran,
             '{rekening}' => '1234567890',
             '{an}' => $namaSekolah,
             '{no_admin}' => $pengaturan->no_hp ?? '0852-1815-0720',
             '{url_sistem}' => url('/siswa'),
+            '{tipe_aplikasi}' => $tipeAplikasi,
+            '{nama_aplikasi}' => $pengaturan->nama_aplikasi ?? $tipeAplikasi,
         ];
 
         // Tambahkan placeholder khusus untuk PPDB
@@ -308,7 +315,8 @@ class VerifikasiPembayaranController extends Controller
 
             $totalDibayar = 0;
             if ($dataSiswa) {
-                $totalDibayar = Pembayaran::where('user_id', $dataSiswa->id)
+                $userId = $dataSiswa->user_id ?? $dataSiswa->id;
+                $totalDibayar = Pembayaran::where('user_id', $userId)
                     ->where('jenis_pembayaran', 'ppdb')
                     ->where('status', 'diverifikasi')
                     ->sum('jumlah');

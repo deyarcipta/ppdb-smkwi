@@ -2,7 +2,7 @@
 @section('title', $pengumuman->judul . ' - Pengumuman')
 
 @section('content')
-<div class="container-xxl flex-grow-1 container-p-y">
+<div class="container-fluid p-0">
     <div class="row">
         <!-- Konten Utama -->
         <div class="col-lg-8">

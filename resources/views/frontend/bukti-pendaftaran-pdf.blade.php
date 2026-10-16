@@ -292,9 +292,14 @@
             </td>
         </tr>
         <tr>
-            <td class="data-label">Asal Sekolah (SMP/MTs)</td>
+            <td class="data-label">Asal Sekolah</td>
             <td class="data-separator">:</td>
-            <td class="data-value">{{ $dataSiswa->asal_sekolah ?? '-' }}</td>
+            <td class="data-value">
+                {{ $dataSiswa->asal_sekolah ?? '-' }}
+                @if(!empty($dataSiswa->jenjang_sekolah_asal) || !empty($dataSiswa->status_sekolah_asal) || !empty($dataSiswa->kota_sekolah_asal))
+                    ({{ implode(' - ', array_filter([$dataSiswa->jenjang_sekolah_asal, $dataSiswa->status_sekolah_asal, $dataSiswa->kota_sekolah_asal])) }})
+                @endif
+            </td>
         </tr>
         <tr>
             <td class="data-label">Nomor WhatsApp / HP Siswa</td>

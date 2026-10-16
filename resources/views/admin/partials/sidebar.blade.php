@@ -2,6 +2,7 @@
     $pengaturan = \App\Models\PengaturanAplikasi::first();
     $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
     $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB SMK WI';
+    $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
     $userRole = Auth::user()->role ?? 'admin';
 @endphp
 
@@ -33,9 +34,9 @@
 
     {{-- Menu Operasional untuk Admin & Superadmin --}}
     @if(in_array($userRole, ['superadmin', 'admin']))
-      <!-- ======== OPERASIONAL PPDB ======== -->
+      <!-- ======== OPERASIONAL ======== -->
       <li class="menu-header small text-uppercase">
-        <span class="menu-header-text">Operasional PPDB</span>
+        <span class="menu-header-text">Operasional {{ $tipeAplikasi }}</span>
       </li>
 
       <!-- Data Pendaftar -->
@@ -109,44 +110,55 @@
       </a>
     </li>
 
-    {{-- WhatsApp Gateway (Khusus Superadmin) --}}
-    @if(!empty($pengaturan->enable_whatsapp) && $userRole == 'superadmin')
-      <li class="menu-item {{ Request::is('panel/whatsapp*') || Request::is('panel/template-pesan*') ? 'open active' : '' }}">
-        <a href="javascript:void(0);" class="menu-link menu-toggle">
-          <i class="menu-icon bx bxl-whatsapp"></i>
-          <div>WhatsApp Gateway</div>
-        </a>
-        <ul class="menu-sub">
-          <li class="menu-item {{ Request::is('panel/whatsapp*') ? 'active' : '' }}">
-            <a href="{{ route('whatsapp.index') }}" class="menu-link">
-              <div>Bot & Log Pesan</div>
-            </a>
-          </li>
-          <li class="menu-item {{ Request::is('panel/template-pesan*') ? 'active' : '' }}">
-            <a href="{{ route('template-pesan.index') }}" class="menu-link">
-              <div>Template Pesan</div>
-            </a>
-          </li>
-        </ul>
-      </li>
+    {{-- WhatsApp Gateway --}}
+    @if(!empty($pengaturan->enable_whatsapp))
+      @if($userRole == 'superadmin')
+        {{-- Tampilan Superadmin: Submenu Lengkap --}}
+        <li class="menu-item {{ Request::is('panel/admin/whatsapp*') || Request::is('panel/whatsapp*') || Request::is('panel/whatsapp-sessions*') || Request::is('panel/template-pesan*') || Route::is('whatsapp*') || Route::is('whatsapp-sessions*') || Route::is('template-pesan*') ? 'open active' : '' }}">
+          <a href="javascript:void(0);" class="menu-link menu-toggle">
+            <i class="menu-icon bx bxl-whatsapp"></i>
+            <div>WhatsApp Gateway</div>
+          </a>
+          <ul class="menu-sub">
+            <li class="menu-item {{ (Request::is('panel/admin/whatsapp') || Request::is('panel/admin/whatsapp/status*') || Request::is('panel/whatsapp-sessions*')) && !Request::is('panel/admin/whatsapp/blast*') ? 'active' : '' }}">
+              <a href="{{ route('whatsapp.index') }}" class="menu-link">
+                <div>Bot & Log Pesan</div>
+              </a>
+            </li>
+            <li class="menu-item {{ Request::is('panel/admin/whatsapp/blast*') || Route::is('whatsapp.blast.*') ? 'active' : '' }}">
+              <a href="{{ route('whatsapp.blast.index') }}" class="menu-link">
+                <div>Broadcast Pesan</div>
+              </a>
+            </li>
+            <li class="menu-item {{ Request::is('panel/template-pesan*') || Route::is('template-pesan*') ? 'active' : '' }}">
+              <a href="{{ route('template-pesan.index') }}" class="menu-link">
+                <div>Template Pesan</div>
+              </a>
+            </li>
+          </ul>
+        </li>
+      @else
+        {{-- Tampilan Admin: Menu Langsung Tanpa Submenu Dropdown --}}
+        <li class="menu-item {{ Request::is('panel/admin/whatsapp/blast*') || Route::is('whatsapp.blast.*') ? 'active' : '' }}">
+          <a href="{{ route('whatsapp.blast.index') }}" class="menu-link">
+            <i class="menu-icon bx bxl-whatsapp"></i>
+            <div>Broadcast WhatsApp</div>
+          </a>
+        </li>
+      @endif
     @endif
 
-    {{-- Konten Web PPDB (Khusus Superadmin) --}}
+    {{-- Konten Web (Khusus Superadmin) --}}
     @if($userRole == 'superadmin')
-      <li class="menu-item {{ Request::is('panel/kontak-pendaftaran*') || Request::is('panel/info-pembayaran*') || Request::is('panel/persyaratan-pendaftaran*') || Request::is('panel/testimoni-alumni*') || Request::is('panel/faq*') ? 'open active' : '' }}">
+      <li class="menu-item {{ Request::is('panel/kontak-pendaftaran*') || Request::is('panel/persyaratan-pendaftaran*') || Request::is('panel/testimoni-alumni*') || Request::is('panel/faq*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon bx bx-globe"></i>
-          <div>Konten Web PPDB</div>
+          <div>Konten Web {{ $tipeAplikasi }}</div>
         </a>
         <ul class="menu-sub">
           <li class="menu-item {{ Request::is('panel/persyaratan-pendaftaran*') ? 'active' : '' }}">
             <a href="{{ route('persyaratan-pendaftaran.index') }}" class="menu-link">
               <div>Persyaratan & Alur</div>
-            </a>
-          </li>
-          <li class="menu-item {{ Request::is('panel/info-pembayaran*') ? 'active' : '' }}">
-            <a href="{{ route('info-pembayaran.index') }}" class="menu-link">
-              <div>Info Pembayaran</div>
             </a>
           </li>
           <li class="menu-item {{ Request::is('panel/kontak-pendaftaran*') ? 'active' : '' }}">
@@ -176,7 +188,7 @@
       </li>
 
       <!-- Data Master -->
-      <li class="menu-item {{ Request::is('panel/tahun-ajaran*') || Request::is('panel/jurusan*') || Request::is('panel/gelombang*') || Request::is('panel/kuota-jurusan*') || Request::is('panel/master-biaya*') || Request::is('panel/data-smp*') ? 'open active' : '' }}">
+      <li class="menu-item {{ Request::is('panel/tahun-ajaran*') || Request::is('panel/jurusan*') || Request::is('panel/gelombang*') || Request::is('panel/kuota-jurusan*') || Request::is('panel/master-biaya*') || Request::is('panel/info-pembayaran*') || Request::is('panel/data-smp*') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon bx bx-data"></i>
           <div>Data Master</div>
@@ -205,6 +217,11 @@
           <li class="menu-item {{ Request::is('panel/master-biaya*') ? 'active' : '' }}">
             <a href="{{ route('master-biaya.index') }}" class="menu-link">
               <div>Master Biaya</div>
+            </a>
+          </li>
+          <li class="menu-item {{ Request::is('panel/info-pembayaran*') ? 'active' : '' }}">
+            <a href="{{ route('info-pembayaran.index') }}" class="menu-link">
+              <div>Info Pembayaran</div>
             </a>
           </li>
           <li class="menu-item {{ Request::is('panel/data-smp*') ? 'active' : '' }}">

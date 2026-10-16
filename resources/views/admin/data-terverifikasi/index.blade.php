@@ -15,13 +15,26 @@
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
             <div>
                 <h5 class="mb-1"><i class="bx bx-group me-2 text-primary"></i>Data Pendaftar</h5>
-                <small class="text-muted">Kelola seluruh data siswa pendaftar PPDB (Total: {{ $data->total() }} Pendaftar).</small>
+                <small class="text-muted">Kelola seluruh data siswa pendaftar {{ $pengaturan->tipe_aplikasi ?? 'PPDB' }} (Total: {{ $data->total() }} Pendaftar).</small>
             </div>
 
             <div class="d-flex align-items-center flex-wrap gap-2">
-                <div class="input-group input-group-sm" style="width: 260px;">
+                @if(isset($tahunAjaranList) && $tahunAjaranList->isNotEmpty())
+                <form method="GET" action="{{ route('data-terverifikasi.index') }}" class="d-inline-block">
+                    <select name="tahun_ajaran_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">-- Semua Tahun Ajaran --</option>
+                        @foreach($tahunAjaranList as $ta)
+                            <option value="{{ $ta->id }}" {{ $selectedTahunAjaranId == $ta->id ? 'selected' : '' }}>
+                                T.A {{ $ta->nama }} {{ $ta->status == 'aktif' ? '(Aktif)' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+                @endif
+
+                <div class="input-group input-group-sm" style="width: 240px;">
                     <span class="input-group-text"><i class="bx bx-search"></i></span>
-                    <input type="text" id="searchTable" class="form-control" placeholder="Cari No Daftar / Nama / Sekolah...">
+                    <input type="text" id="searchTable" class="form-control" placeholder="Cari No Daftar / Nama...">
                 </div>
 
                 <button class="btn btn-sm btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#tambahManualModal">
@@ -33,13 +46,13 @@
 
         <div class="card-body">
             <div class="table-responsive">
-                <table id="dataTable" class="table table-sm table-bordered table-hover align-middle">
+                <table id="dataTable" class="table table-bordered table-hover align-middle">
                     <thead class="table-light text-center">
                         <tr>
                             <th width="40">#</th>
                             <th>No Daftar</th>
                             {{-- <th>Password</th> --}}
-                            <th width="200">Nama Pendaftar</th>
+                            <th width="260">Nama Pendaftar</th>
                             <th width="200">Asal Sekolah</th>
                             <th>Gelombang</th>
                             <th>No HP</th>
@@ -85,7 +98,10 @@
                         <tr>
                             <td class="text-center">{{ $data->firstItem() + $key }}</td>
                             <td class="text-center">{{ $row->username }}</td>
-                            <td style="min-width: 200px;">{{ $row->dataSiswa->nama_lengkap ?? '-' }}</td>
+                            <td style="min-width: 260px;">
+                                <div class="fw-bold text-dark">{{ $row->dataSiswa->nama_lengkap ?? '-' }}</div>
+                                <small class="text-primary fw-semibold d-block">{{ $row->dataSiswa->no_pendaftaran ?? '-' }}</small>
+                            </td>
                             <td style="min-width: 200px;">{{ $row->dataSiswa->asal_sekolah ?? '-' }}</td>
                             <td class="text-center">Gelombang 1</td>
                             <td class="text-center">{{ $row->dataSiswa->no_hp ?? '-' }}</td>
@@ -286,7 +302,11 @@
                                 <div><strong>Agama:</strong> {{ $row->dataSiswa->agama ?? '-' }}</div>
                                 <div><strong>No. HP:</strong> {{ $row->dataSiswa->no_hp ?? '-' }}</div>
                                 <div><strong>Email:</strong> {{ $row->email ?? '-' }}</div>
-                                <div><strong>Asal Sekolah:</strong> {{ $row->dataSiswa->asal_sekolah ?? '-' }}</div>
+                                <div><strong>Asal Sekolah:</strong> {{ $row->dataSiswa->asal_sekolah ?? '-' }}
+                                    @if(!empty($row->dataSiswa->jenjang_sekolah_asal) || !empty($row->dataSiswa->status_sekolah_asal) || !empty($row->dataSiswa->kota_sekolah_asal))
+                                        <small class="text-muted">({{ implode(' - ', array_filter([$row->dataSiswa->jenjang_sekolah_asal, $row->dataSiswa->status_sekolah_asal, $row->dataSiswa->kota_sekolah_asal])) }})</small>
+                                    @endif
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <div><strong>Ukuran Baju:</strong> {{ $row->dataSiswa->ukuran_baju ?? '-' }}</div>
@@ -781,34 +801,39 @@ select.select2-hidden-accessible {
     font-size: 12px;
 }
 
+.table th {
+    font-weight: 700;
+    background-color: #e9ecef;
+    border-bottom: 2px solid #dee2e6;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.table td {
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9375rem;
+}
+
 .table-sm th,
 .table-sm td {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.875rem;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9375rem;
 }
 
 .btn-sm.p-1 {
-    padding: 0.25rem 0.4rem;
+    padding: 0.3rem 0.5rem;
 }
 
 .table-responsive {
     overflow-x: auto;
 }
 
-.table td {
-    white-space: normal;
-    word-wrap: break-word;
-}
-
-.table th {
-    font-weight: 600;
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #e4e6e8;
-}
-
 .badge {
-    font-size: 0.7rem;
-    padding: 0.35em 0.65em;
+    font-size: 0.78rem;
+    padding: 0.4em 0.75em;
 }
 
 .modal-header.bg-primary {

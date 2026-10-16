@@ -57,7 +57,6 @@ class PendaftaranSiswaController extends Controller
             'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan',
             'email' => 'required|email|unique:users_siswa,email',
             'no_hp' => 'required|string|max:15',
-            'asal_sekolah' => 'required|string|max:255',
             
             // Data Orang Tua
             'no_hp_ayah' => 'required|string|max:15',
@@ -102,13 +101,6 @@ class PendaftaranSiswaController extends Controller
                 'status_akun' => 'aktif',
             ]);
 
-            // Cari atau otomatis buat Data SMP berdasarkan nama sekolah
-            $namaSmpClean = trim($validated['asal_sekolah']);
-            $smp = DataSmp::whereRaw('LOWER(TRIM(nama_smp)) = ?', [strtolower($namaSmpClean)])->first();
-            if (!$smp) {
-                $smp = DataSmp::create(['nama_smp' => $namaSmpClean]);
-            }
-
             // 5. SIMPAN KE TABEL DATA_SISWA DENGAN GELOMBANG_ID DAN TAHUN_AJARAN_ID
             $dataSiswa = DataSiswa::create([
                 'user_id' => $user->id,
@@ -121,8 +113,6 @@ class PendaftaranSiswaController extends Controller
                 'nama_lengkap' => $validated['nama_lengkap'],
                 'jenis_kelamin' => $validated['jenis_kelamin'],
                 'no_hp' => $validated['no_hp'],
-                'asal_sekolah' => $validated['asal_sekolah'],
-                'id_smp' => $smp->id_smp,
                 'referensi' => $validated['referensi'],
 
                 // 'ket_pembayaran' => 'Belum Bayar',
@@ -290,9 +280,13 @@ class PendaftaranSiswaController extends Controller
      */
     private function getGelombangAktif()
     {
-        // Cari gelombang dengan status aktif saja
-        // Pengecekan tanggal dilakukan di checkPendaftaranStatus()
-        return GelombangPendaftaran::where('status', 'aktif')->first();
+        // Cari gelombang aktif yang tersinkron dengan Tahun Ajaran aktif
+        $tahunAjaranAktif = TahunAjaran::where('status', 'aktif')->first();
+        return GelombangPendaftaran::where('status', 'aktif')
+            ->when($tahunAjaranAktif, function($q) use ($tahunAjaranAktif) {
+                $q->where('tahun_ajaran_id', $tahunAjaranAktif->id);
+            })
+            ->first();
     }
 
     /**
@@ -333,6 +327,8 @@ class PendaftaranSiswaController extends Controller
                 '{an}' => $namaSekolah,
                 '{no_admin}' => $pengaturan->no_hp ?? '0852-1815-0720',
                 '{url_sistem}' => url('/siswa'),
+                '{tipe_aplikasi}' => $pengaturan->tipe_aplikasi ?? 'PPDB',
+                '{nama_aplikasi}' => $pengaturan->nama_aplikasi ?? 'PPDB',
             ];
 
             $message = strtr($template->isi_pesan, $placeholders);
@@ -379,8 +375,10 @@ class PendaftaranSiswaController extends Controller
      */
     private function generateUsername()
     {
+        $pengaturan = \App\Models\PengaturanAplikasi::first();
+        $tipe = $pengaturan->tipe_aplikasi ?? 'PPDB';
         $tahun = date('Y');
-        $prefix = "PPDB{$tahun}";
+        $prefix = "{$tipe}{$tahun}";
         
         $lastUser = UserSiswa::where('username', 'like', $prefix . '%')
             ->orderBy('username', 'desc')

@@ -1,7 +1,15 @@
+@php
+    $pengaturanSidebar = \App\Models\PengaturanAplikasi::first();
+    $tipeAplikasiSidebar = $pengaturanSidebar->tipe_aplikasi ?? 'PPDB';
+    $logoSidebar = $pengaturanSidebar->logo ?? 'sneat/img/logowi.png';
+@endphp
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
   <div class="app-brand demo">
     <a href="{{ route('siswa.dashboard') }}" class="app-brand-link">
-      <span class="app-brand-text demo fw-bolder ms-2">PPDB Siswa</span>
+      <span class="app-brand-logo demo">
+        <img src="{{ asset($logoSidebar) }}" alt="{{ $tipeAplikasiSidebar }}" style="height: 30px; width: 30px; object-fit: contain;" />
+      </span>
+      <span class="app-brand-text demo fw-bolder ms-2">{{ $tipeAplikasiSidebar }} Siswa</span>
     </a>
   </div>
   <ul class="menu-inner py-1">
@@ -55,9 +63,9 @@
         $pengaturan_aplikasi = \App\Models\PengaturanAplikasi::first();
     @endphp
 
-    @if($pengaturan_aplikasi && $pengaturan_aplikasi->enable_cetak_kartu && Auth::user()->dataSiswa && Auth::user()->dataSiswa->status_pendaftar == 'diterima')
+    @if($pengaturan_aplikasi && $pengaturan_aplikasi->enable_cetak_kartu && Auth::user()->dataSiswa && Auth::user()->dataSiswa->is_paid)
         <li class="menu-item {{ Request::is('siswa/cetak-kartu') ? 'active' : '' }}">
-            <a href="{{ route('siswa.cetak-kartu') }}" target="_blank" class="menu-link">
+            <a href="javascript:void(0);" onclick="confirmCetakKartu('{{ route('siswa.cetak-kartu') }}', {{ !Auth::user()->dataSiswa?->is_card_printed ? '1' : '0' }})" class="menu-link">
                 <i class="menu-icon bx bx-printer"></i>
                 <div>Cetak Kartu</div>
             </a>

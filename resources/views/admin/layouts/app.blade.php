@@ -8,9 +8,11 @@
       $pengaturan = \App\Models\PengaturanAplikasi::first();
       $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
       $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB SMK WI';
+      $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+      $tahunAjaranAktif = $pengaturan ? $pengaturan->tahunAjaranAktif : \App\Models\TahunAjaran::where('status', 'aktif')->first();
   @endphp
   <link rel="icon" href="{{ asset($logo) }}" type="image/png">
-  <title>@yield('title', 'Dashboard Admin') - {{ $namaAplikasi }}</title>
+  <title>@yield('title', 'Dashboard Admin') - {{ $namaAplikasi }}{{ $tahunAjaranAktif ? ' (T.A '.$tahunAjaranAktif->nama.')' : '' }}</title>
 
   <!-- Sneat CSS -->
   <link rel="stylesheet" href="{{ asset('sneat/vendor/css/core.css') }}">
@@ -62,16 +64,29 @@
         overflow: hidden;
         flex: 1 1 auto;
         min-width: 0;
+        display: flex !important;
+        flex-direction: column !important;
       }
 
       .content-wrapper {
-        height: 100%;
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        height: auto !important;
         overflow-y: auto;
         overflow-x: hidden;
         scrollbar-width: thin;
         scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
         display: flex !important;
         flex-direction: column !important;
+      }
+
+      .content-wrapper > .container-xxl {
+        padding-left: 1.625rem !important;
+        padding-right: 1.625rem !important;
+        padding-inline: 1.625rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
       }
     }
 
@@ -80,15 +95,11 @@
       html, body {
         height: auto !important;
         min-height: 100% !important;
-        overflow-x: hidden !important;
-        overflow-y: auto !important;
       }
 
       .layout-wrapper {
         height: auto !important;
         min-height: 100vh !important;
-        overflow-x: hidden !important;
-        overflow-y: visible !important;
         display: block !important;
       }
 
@@ -96,7 +107,6 @@
         height: auto !important;
         min-height: 100vh !important;
         display: block !important;
-        overflow: visible !important;
         width: 100% !important;
       }
 
@@ -170,8 +180,6 @@
         max-width: 100% !important;
         min-height: 100vh !important;
         height: auto !important;
-        overflow-x: hidden !important;
-        overflow-y: visible !important;
         padding-left: 0 !important;
         padding-right: 0 !important;
         padding-inline-start: 0 !important;
@@ -184,8 +192,6 @@
 
       .content-wrapper {
         height: auto !important;
-        overflow-x: hidden !important;
-        overflow-y: visible !important;
         width: 100% !important;
         max-width: 100% !important;
         display: flex !important;
@@ -195,24 +201,67 @@
       }
 
       .layout-navbar {
+        position: sticky !important;
+        top: 0.5rem !important;
+        z-index: 1040 !important;
+        width: calc(100% - 1.5rem) !important;
+        inline-size: calc(100% - 1.5rem) !important;
+        max-width: calc(100% - 1.5rem) !important;
+        max-inline-size: calc(100% - 1.5rem) !important;
+        margin: 0.65rem auto 0.75rem auto !important;
+        margin-inline: auto !important;
+        border-radius: 0.5rem !important;
+        padding: 0.5rem 1rem !important;
+        box-sizing: border-box !important;
+        background-color: #ffffff !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07) !important;
+      }
+
+      .content-wrapper > .container-xxl,
+      .container-p-y,
+      .container-xxl.container-p-y {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        padding-inline: 0.75rem !important;
+        padding-top: 0 !important;
+        padding-bottom: 1.5rem !important;
         width: 100% !important;
         max-width: 100% !important;
-        margin: 0 0 0.5rem 0 !important;
-        border-radius: 0 !important;
-        padding: 0.5rem 0.75rem !important;
         box-sizing: border-box !important;
       }
 
-      .container-p-y,
-      .container-xxl.container-p-y,
-      .main-content {
-        padding-left: 0.75rem !important;
-        padding-right: 0.75rem !important;
-        padding-top: 0.75rem !important;
-        padding-bottom: 1rem !important;
+      .main-content,
+      .container-fluid,
+      .container-fluid.p-0,
+      .container-xxl .container-xxl,
+      .container-xxl .container-fluid,
+      .container-xxl .main-content {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
+      }
+
+      .content-wrapper .card,
+      .container-xxl .card,
+      .main-content .card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .content-wrapper .row {
+        margin-left: -0.375rem !important;
+        margin-right: -0.375rem !important;
+      }
+      .content-wrapper .row > [class*="col-"] {
+        padding-left: 0.375rem !important;
+        padding-right: 0.375rem !important;
       }
 
       .layout-menu-toggle {
@@ -333,6 +382,39 @@
       margin-bottom: 0.5rem;
     }
 
+    /* ======== GAYA TABEL ADMIN (Perbesar Sedikit Seluruh Tabel Sesuai Gambar) ======== */
+    .table:not(.table-borderless) {
+      font-size: 0.9375rem;
+    }
+
+    .table:not(.table-borderless) thead th,
+    .table thead.table-light th,
+    .table thead th {
+      font-size: 0.85rem !important;
+      font-weight: 700 !important;
+      background-color: #e9ecef !important;
+      color: #495057 !important;
+      padding: 0.65rem 0.75rem !important;
+      vertical-align: middle !important;
+      border-color: #dee2e6 !important;
+      border-bottom: 2px solid #dee2e6 !important;
+      letter-spacing: 0.3px;
+    }
+
+    .table:not(.table-borderless) tbody td,
+    .table tbody td {
+      font-size: 0.9375rem !important;
+      padding: 0.65rem 0.75rem !important;
+      vertical-align: middle !important;
+      border-color: #dee2e6 !important;
+    }
+
+    .table-sm th,
+    .table-sm td {
+      padding: 0.65rem 0.75rem !important;
+      font-size: 0.9375rem !important;
+    }
+
     /* Footer persis seperti SIAWI: selalu di paling bawah dokumen/halaman */
     footer.footer,
     .content-footer {
@@ -363,6 +445,47 @@
       margin-bottom: 0.75rem !important;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       border-radius: 0.75rem;
+    }
+
+    /* Pastikan seluruh sub-container di semua halaman dinetralkan agar lebar kartu sama dengan navbar */
+    .content-wrapper .container,
+    .content-wrapper .container-fluid,
+    .content-wrapper .container-sm,
+    .content-wrapper .container-md,
+    .content-wrapper .container-lg,
+    .content-wrapper .container-xl,
+    .content-wrapper .main-content,
+    .container-xxl .container-xxl,
+    .container-xxl .container-fluid,
+    .container-xxl .main-content {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      padding-inline: 0 !important;
+      padding-inline-start: 0 !important;
+      padding-inline-end: 0 !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      margin-inline: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .content-wrapper .card,
+    .container-xxl .card,
+    .main-content .card,
+    .card-full-width {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      margin-inline: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .container-p-y .container-p-y {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
     }
 
     /* Perbaikan z-index Swal */
@@ -445,6 +568,7 @@
       overflow: hidden !important;
     }
   </style>
+  @stack('styles')
 </head>
 
 <body>
@@ -456,9 +580,10 @@
 
       <div class="layout-page">
 
+        {{-- Navbar --}}
+        @include('admin.partials.navbar')
+
         <div class="content-wrapper">
-          {{-- Navbar --}}
-          @include('admin.partials.navbar')
 
           <div class="container-xxl flex-grow-1 container-p-y">
             <div class="main-content">
@@ -500,7 +625,7 @@
   <script src="{{ asset('sneat/js/main.js') }}"></script>
 
   <script>
-    // Bersihkan PerfectScrollbar di sidebar agar tidak membuat duplikasi scroll atau phantom height
+    // Bersihkan PerfectScrollbar dan pertahankan fokus menu aktif di sidebar
     (function() {
       function cleanSidebarScroll() {
         if (window.Helpers && window.Helpers.menuPsScroll) {
@@ -513,13 +638,62 @@
         if (menuInner) {
           menuInner.classList.remove('ps', 'ps--active-y', 'ps--scrolling-y');
           menuInner.querySelectorAll('.ps__rail-x, .ps__rail-y').forEach(el => el.remove());
-          menuInner.scrollTop = 0;
+        }
+      }
+
+      function focusActiveSidebarMenu() {
+        const menuInner = document.querySelector('.menu-inner');
+        if (!menuInner) return;
+
+        // Cari item aktif paling spesifik (misal sub-item yang active)
+        const activeItems = menuInner.querySelectorAll('.menu-item.active');
+        const targetItem = activeItems.length > 0 ? activeItems[activeItems.length - 1] : null;
+
+        if (targetItem) {
+          // Cek posisi terhadap viewport menuInner
+          const innerRect = menuInner.getBoundingClientRect();
+          const itemRect = targetItem.getBoundingClientRect();
+
+          if (itemRect.top < innerRect.top + 40 || itemRect.bottom > innerRect.bottom - 40) {
+            targetItem.scrollIntoView({ block: 'center', behavior: 'auto' });
+          }
+        } else {
+          const savedScroll = sessionStorage.getItem('adminSidebarScroll');
+          if (savedScroll !== null) {
+            menuInner.scrollTop = parseInt(savedScroll, 10) || 0;
+          }
         }
       }
 
       cleanSidebarScroll();
-      document.addEventListener('DOMContentLoaded', cleanSidebarScroll);
-      window.addEventListener('load', cleanSidebarScroll);
+
+      document.addEventListener('DOMContentLoaded', function() {
+        cleanSidebarScroll();
+        const menuInner = document.querySelector('.menu-inner');
+        if (menuInner) {
+          menuInner.addEventListener('scroll', function() {
+            sessionStorage.setItem('adminSidebarScroll', menuInner.scrollTop);
+          }, { passive: true });
+        }
+        setTimeout(focusActiveSidebarMenu, 50);
+        setTimeout(focusActiveSidebarMenu, 200);
+      });
+
+      // Simpan scroll saat klik link menu di sidebar
+      document.addEventListener('click', function(e) {
+        const link = e.target.closest('.menu-inner a');
+        if (link) {
+          const menuInner = document.querySelector('.menu-inner');
+          if (menuInner) {
+            sessionStorage.setItem('adminSidebarScroll', menuInner.scrollTop);
+          }
+        }
+      });
+
+      window.addEventListener('load', function() {
+        cleanSidebarScroll();
+        focusActiveSidebarMenu();
+      });
     })();
   </script>
 

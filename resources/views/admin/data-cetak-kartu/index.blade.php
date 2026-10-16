@@ -59,12 +59,12 @@
             @endif
 
             <div class="table-responsive">
-                <table class="table table-sm table-bordered table-hover align-middle">
+                <table class="table table-bordered table-hover align-middle">
                     <thead class="table-light text-center">
                         <tr>
                             <th width="40">#</th>
                             <th width="140">No. Pendaftaran</th>
-                            <th>Nama Siswa</th>
+                            <th width="260">Nama Siswa</th>
                             <th>NISN</th>
                             <th>Jurusan</th>
                             <th>Gelombang</th>
@@ -96,7 +96,7 @@
                             <tr>
                                 <td class="text-center">{{ $dataSiswaList->firstItem() + $key }}</td>
                                 <td class="text-center fw-bold text-primary">{{ $row->no_pendaftaran ?? '-' }}</td>
-                                <td>
+                                <td style="min-width: 250px;">
                                     <div class="fw-bold">{{ $row->nama_lengkap }}</div>
                                     <small class="text-muted">{{ $row->email ?? $user?->email }}</small>
                                 </td>

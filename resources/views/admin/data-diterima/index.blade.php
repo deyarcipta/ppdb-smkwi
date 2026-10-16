@@ -24,13 +24,12 @@
 
         <div class="card-body">
             <div class="table-responsive">
-                <table id="dataTable" class="table table-sm table-bordered table-hover align-middle">
+                <table id="dataTable" class="table table-bordered table-hover align-middle">
                     <thead class="table-light text-center">
                         <tr>
                             <th width="40">#</th>
                             <th>No Daftar</th>
-                            <th>Password</th>
-                            <th width="200">Nama Pendaftar</th>
+                            <th width="260">Nama Pendaftar</th>
                             <th width="200">Asal Sekolah</th>
                             <th>Gelombang</th>
                             <th>Jurusan</th>
@@ -71,8 +70,10 @@
                         <tr>
                             <td class="text-center">{{ $data->firstItem() + $key }}</td>
                             <td class="text-center">{{ $row->username }}</td>
-                            <td class="text-center">{{ $row->password_plain ?? 'password123' }}</td>
-                            <td style="min-width: 200px;">{{ $row->dataSiswa->nama_lengkap ?? '-' }}</td>
+                            <td style="min-width: 260px;">
+                                <div class="fw-bold text-dark">{{ $row->dataSiswa->nama_lengkap ?? '-' }}</div>
+                                <small class="text-primary fw-semibold d-block">{{ $row->dataSiswa->no_pendaftaran ?? '-' }}</small>
+                            </td>
                             <td style="min-width: 200px;">{{ $row->dataSiswa->asal_sekolah ?? '-' }}</td>
                             <td class="text-center">{{ $row->dataSiswa->gelombang->nama_gelombang ?? 'Gelombang 1' }}</td>
                             <td class="text-center">{{ $row->dataSiswa->jurusan->nama_jurusan ?? '-' }}</td>
@@ -99,7 +100,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="10" class="text-center py-4">
+                            <td colspan="9" class="text-center py-4">
                                 <div class="text-muted">
                                     <i class="bx bx-data display-4"></i>
                                     <p class="mt-2">Belum ada data siswa yang diterima</p>
@@ -125,7 +126,7 @@
 <div id="appConfig"
      data-nama-aplikasi="{{ $pengaturan->nama_aplikasi ?? 'PPDB SMK WI' }}"
      data-nama-sekolah="{{ $pengaturan->nama_sekolah ?? '-' }}"
-     data-logo-sekolah="{{ $pengaturan->logo ? Storage::url($pengaturan->logo) : asset('sneat/img/logowi.png') }}"
+     data-logo-sekolah="{{ $pengaturan->logo ? asset($pengaturan->logo) : asset('sneat/img/logowi.png') }}"
      data-alamat-sekolah="{{ $pengaturan->alamat ?? '-' }}"
      data-telepon-sekolah="{{ $pengaturan->telepon ?? '-' }}"
      data-email-sekolah="{{ $pengaturan->email ?? '-' }}">
@@ -171,6 +172,9 @@
      data-agama="{{ $row->dataSiswa->agama ?? '-' }}"
      data-no-hp="{{ $row->dataSiswa->no_hp ?? '-' }}"
      data-asal-sekolah="{{ $row->dataSiswa->asal_sekolah ?? '-' }}"
+     data-jenjang-sekolah="{{ $row->dataSiswa->jenjang_sekolah_asal ?? '-' }}"
+     data-status-sekolah="{{ $row->dataSiswa->status_sekolah_asal ?? '-' }}"
+     data-kota-sekolah="{{ $row->dataSiswa->kota_sekolah_asal ?? '-' }}"
      data-alamat="{{ $row->dataSiswa->alamat ?? '-' }}"
      data-rt="{{ $row->dataSiswa->rt ?? '-' }}"
      data-rw="{{ $row->dataSiswa->rw ?? '-' }}"
@@ -480,8 +484,20 @@
                                     <div class="col-sm-4"><strong>Asal Sekolah:</strong></div>
                                     <div class="col-sm-8">{{ $row->dataSiswa->asal_sekolah ?? '-' }}</div>
                                 </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Jenjang:</strong></div>
+                                    <div class="col-sm-8">{{ $row->dataSiswa->jenjang_sekolah_asal ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Status Sekolah:</strong></div>
+                                    <div class="col-sm-8">{{ $row->dataSiswa->status_sekolah_asal ?? '-' }}</div>
+                                </div>
                             </div>
                             <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Kota Sekolah:</strong></div>
+                                    <div class="col-sm-8">{{ $row->dataSiswa->kota_sekolah_asal ?? '-' }}</div>
+                                </div>
                                 <div class="row mb-2">
                                     <div class="col-sm-4"><strong>Tahun Lulus:</strong></div>
                                     <div class="col-sm-8">{{ $row->dataSiswa->tahun_lulus ?? '-' }}</div>
@@ -788,41 +804,46 @@
     font-size: 12px;
 }
 
+.table th {
+    font-weight: 700;
+    background-color: #e9ecef;
+    border-bottom: 2px solid #dee2e6;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.table td {
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9375rem;
+}
+
 .table-sm th,
 .table-sm td {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.875rem;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9375rem;
 }
 
 .btn-sm.p-1 {
-    padding: 0.25rem 0.4rem;
+    padding: 0.3rem 0.5rem;
 }
 
 .table-responsive {
     overflow-x: auto;
 }
 
-.table td {
-    white-space: normal;
-    word-wrap: break-word;
-}
-
-.table th {
-    font-weight: 600;
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #e4e6e8;
-}
-
 .badge {
-    font-size: 0.7rem;
-    padding: 0.35em 0.65em;
+    font-size: 0.78rem;
+    padding: 0.4em 0.75em;
 }
 </style>
 @endpush
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ asset('sneat/js/printFormulir.js') }}"></script>
+<script src="{{ asset('sneat/js/printFormulir.js') }}?v={{ time() }}"></script>
 
 <script>
 // Fungsi Print Formulir Admin

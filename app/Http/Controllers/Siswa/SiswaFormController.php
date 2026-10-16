@@ -58,16 +58,25 @@ class SiswaFormController extends Controller
             $existingData = DataSiswa::where('user_id', Auth::id())->first();
             
             if ($existingData) {
-                // Untuk data existing, pastikan no_pendaftaran sudah ada
-                if (empty($existingData->no_pendaftaran)) {
-                    // Jika no_pendaftaran belum ada, generate baru
-                    $validated['no_pendaftaran'] = $this->generateNoPendaftaran(
+                // Untuk data existing, pastikan no_pendaftaran resmi sudah ada dan terformat benar
+                if (empty($existingData->no_pendaftaran) || !str_contains($existingData->no_pendaftaran, '/')) {
+                    $validated['no_pendaftaran'] = DataSiswa::generateNoPendaftaranStatic(
                         $existingData->jurusan_id,
-                        $existingData->gelombang_id
+                        $existingData->gelombang_id,
+                        Auth::user()->username
                     );
                     Log::info('Generated new no_pendaftaran for existing data: ' . $validated['no_pendaftaran']);
+                } else {
+                    // Pastikan prefix no_pendaftaran sesuai dengan tipe_aplikasi saat ini (SPMB atau PPDB)
+                    $pengaturan = \App\Models\PengaturanAplikasi::first();
+                    $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+                    $validated['no_pendaftaran'] = preg_replace('/^(PPDB|SPMB)/i', $tipeAplikasi, $existingData->no_pendaftaran);
                 }
-                // Jika sudah ada no_pendaftaran, biarkan yang lama
+                
+                // Sinkronkan ke data pembayaran siswa
+                Pembayaran::where('user_id', Auth::id())->update([
+                    'no_pendaftaran' => $validated['no_pendaftaran']
+                ]);
                 
                 // Update data yang sudah ada
                 $existingData->update($validated);
@@ -153,8 +162,11 @@ class SiswaFormController extends Controller
             $nomorUrut = str_pad($jumlahPendaftar + 1, 3, '0', STR_PAD_LEFT);
             Log::info('Nomor Urut: ' . $nomorUrut);
 
-            // Format: PPDB/TKJ/2025/I/001
-            $noPendaftaran = "PPDB/{$kodeJurusan}/{$tahunAjaran}/{$angkaGelombang}/{$nomorUrut}";
+            // Format: PPDB/TKJ/2025/I/001 atau SPMB/TKJ/2025/I/001
+            $pengaturan = \App\Models\PengaturanAplikasi::first();
+            $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+            $tahunAjaranClean = str_replace('/', '-', $tahunAjaran);
+            $noPendaftaran = "{$tipeAplikasi}/{$kodeJurusan}/{$tahunAjaranClean}/{$angkaGelombang}/{$nomorUrut}";
             Log::info('Generated No Pendaftaran: ' . $noPendaftaran);
 
             return $noPendaftaran;
@@ -162,7 +174,8 @@ class SiswaFormController extends Controller
         } catch (\Exception $e) {
             Log::error('Error generating no_pendaftaran: ' . $e->getMessage());
             // Fallback format jika ada error
-            return "PPDB/UMUM/" . date('Y') . "/I/001";
+            $tipeFallback = \App\Models\PengaturanAplikasi::first()->tipe_aplikasi ?? 'PPDB';
+            return "{$tipeFallback}/UMUM/" . date('Y') . "/I/001";
         }
     }
 
@@ -209,7 +222,10 @@ class SiswaFormController extends Controller
             'tanggal_lahir' => 'nullable|date',
             'jenis_kelamin' => 'nullable|in:Laki-Laki,Perempuan',
             'no_hp' => 'nullable|string|max:15',
-            'asal_sekolah' => 'nullable|string|max:255',
+            'asal_sekolah' => 'required|string|max:255',
+            'jenjang_sekolah_asal' => 'required|string|in:SMP,MTs,PKBM,Lainnya',
+            'status_sekolah_asal' => 'required|string|in:Negeri,Swasta',
+            'kota_sekolah_asal' => 'required|string|max:255',
             'agama' => 'nullable|string|max:50',
             'ukuran_baju' => 'nullable|string|max:10',
             'hobi' => 'nullable|string|max:255',
@@ -265,7 +281,11 @@ class SiswaFormController extends Controller
             'penghasilan_wali' => 'nullable|string|max:255',
             'no_hp_wali' => 'nullable|string|max:15',
         ], [
-            'nama_lengkap.required' => 'Nama lengkap wajib diisi',
+            'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
+            'asal_sekolah.required' => 'Nama asal sekolah wajib diisi.',
+            'jenjang_sekolah_asal.required' => 'Jenjang sekolah asal wajib dipilih.',
+            'status_sekolah_asal.required' => 'Status sekolah asal wajib dipilih.',
+            'kota_sekolah_asal.required' => 'Kota asal sekolah wajib diisi.',
         ]);
     }
 
@@ -329,31 +349,40 @@ class SiswaFormController extends Controller
                 ->where('id', $user->id)
                 ->firstOrFail();
 
-            // Pastikan siswa sudah mengisi formulir
+            // Pastikan data siswa tersedia
             if (!$siswa->dataSiswa) {
-                return back()->with('error', 'Anda belum mengisi formulir pendaftaran');
+                $siswa->dataSiswa()->create([
+                    'nama_lengkap' => $siswa->username,
+                ]);
+                $siswa->load('dataSiswa');
             }
+
+            $pengaturan = \App\Models\PengaturanAplikasi::first();
 
             // Data untuk PDF
             $data = [
+                'pendaftar' => $siswa,
                 'siswa' => $siswa,
                 'dataSiswa' => $siswa->dataSiswa,
+                'pengaturan' => $pengaturan,
                 'totalBayar' => $siswa->pembayaran->where('status', 'diverifikasi')->sum('jumlah'),
-                'totalBiayaPPDB' => $totalBiayaPPDB ?? 0, // Sesuaikan dengan data biaya PPDB
+                'totalBiayaPPDB' => 0,
                 'tanggal' => now()->format('d F Y'),
             ];
 
             // Generate PDF
-            $pdf = Pdf::loadView('formulir.pdf', $data);
+            $pdf = Pdf::loadView('siswa.formulir.pdf', $data);
             
             // Nama file PDF
-            $filename = 'Formulir_Pendaftaran_' . $siswa->dataSiswa->nama_lengkap . '_' . $siswa->dataSiswa->no_pendaftaran . '.pdf';
+            $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $siswa->dataSiswa->nama_lengkap ?? 'siswa');
+            $cleanNo = preg_replace('/[^a-zA-Z0-9_-]/', '_', $siswa->dataSiswa->no_pendaftaran ?? '000');
+            $filename = 'Formulir_Pendaftaran_' . $cleanName . '_' . $cleanNo . '.pdf';
             
-            // Download PDF
-            return $pdf->download($filename);
+            // Stream PDF agar dapat dilihat dan dicetak langsung di browser
+            return $pdf->stream($filename);
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal mengunduh formulir: ' . $e->getMessage());
+            return back()->with('error', 'Gagal memproses formulir: ' . $e->getMessage());
         }
     }
 

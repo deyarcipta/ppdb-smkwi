@@ -283,13 +283,14 @@ class DashboardController extends Controller
             $transformedData = [];
             foreach ($jurusans as $jurusan) {
                 try {
-                    // Hitung jumlah pendaftar berdasarkan jurusan dan gelombang
-                    $jumlahPendaftar = DataSiswa::where('jurusan_id', $jurusan->id)
+                    // Hitung jumlah pendaftar yang sudah diterima berdasarkan jurusan dan gelombang
+                    $jumlahDiterima = DataSiswa::where('jurusan_id', $jurusan->id)
                         ->where('gelombang_id', $jurusan->gelombang_id)
+                        ->where('status_pendaftar', 'diterima')
                         ->count();
 
                     $kuota = (int) $jurusan->kuota;
-                    $kuotaTersedia = max(0, $kuota - $jumlahPendaftar);
+                    $kuotaTersedia = max(0, $kuota - $jumlahDiterima);
 
                     $transformedData[] = [
                         'id' => $jurusan->id,
@@ -298,7 +299,8 @@ class DashboardController extends Controller
                         'deskripsi' => $jurusan->deskripsi,
                         'kuota' => $kuota,
                         'kuota_tersedia' => $kuotaTersedia,
-                        'jumlah_pendaftar' => $jumlahPendaftar,
+                        'jumlah_diterima' => $jumlahDiterima,
+                        'jumlah_pendaftar' => $jumlahDiterima,
                         'gelombang_id' => $jurusan->gelombang_id
                     ];
 
@@ -306,7 +308,7 @@ class DashboardController extends Controller
                         'nama' => $jurusan->nama_jurusan,
                         'kuota' => $kuota,
                         'gelombang_id' => $jurusan->gelombang_id,
-                        'jumlah_pendaftar' => $jumlahPendaftar,
+                        'jumlah_diterima' => $jumlahDiterima,
                         'kuota_tersedia' => $kuotaTersedia
                     ]);
 
@@ -321,6 +323,7 @@ class DashboardController extends Controller
                         'deskripsi' => $jurusan->deskripsi,
                         'kuota' => $jurusan->kuota,
                         'kuota_tersedia' => $jurusan->kuota,
+                        'jumlah_diterima' => 0,
                         'jumlah_pendaftar' => 0,
                         'gelombang_id' => $jurusan->gelombang_id
                     ];
@@ -393,29 +396,43 @@ class DashboardController extends Controller
                 ], 404);
             }
 
-            // Hitung jumlah pendaftar berdasarkan jurusan dan gelombang
-            $jumlahPendaftar = DataSiswa::where('jurusan_id', $request->jurusan_id)
+            // Hitung jumlah pendaftar yang sudah diterima berdasarkan jurusan dan gelombang
+            $jumlahDiterima = DataSiswa::where('jurusan_id', $request->jurusan_id)
                 ->where('gelombang_id', $request->gelombang_id)
+                ->where('status_pendaftar', 'diterima')
                 ->count();
 
             Log::info('Data kuota', [
                 'jurusan_id' => $request->jurusan_id,
                 'gelombang_id' => $request->gelombang_id,
                 'kuota' => $jurusanAktif->kuota,
-                'jumlah_pendaftar' => $jumlahPendaftar
+                'jumlah_diterima' => $jumlahDiterima
             ]);
 
-            if ($jumlahPendaftar >= $jurusanAktif->kuota) {
+            if ($jumlahDiterima >= $jurusanAktif->kuota) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Maaf, kuota untuk jurusan ini sudah penuh'
                 ], 400);
             }
 
-            // Update jurusan siswa dengan gelombang_id
+            // Generate nomor pendaftaran resmi sesuai jurusan dan gelombang
+            $noPendaftaran = DataSiswa::generateNoPendaftaranStatic(
+                $request->jurusan_id,
+                $request->gelombang_id,
+                $user->username
+            );
+
+            // Update jurusan siswa dengan gelombang_id dan no_pendaftaran resmi
             $dataSiswa->update([
                 'jurusan_id' => $request->jurusan_id,
-                'gelombang_id' => $request->gelombang_id
+                'gelombang_id' => $request->gelombang_id,
+                'no_pendaftaran' => $noPendaftaran
+            ]);
+
+            // Sinkronkan ke seluruh data pembayaran siswa
+            Pembayaran::where('user_id', $user->id)->update([
+                'no_pendaftaran' => $noPendaftaran
             ]);
 
             Log::info('Jurusan dipilih', [
@@ -454,6 +471,7 @@ class DashboardController extends Controller
                 'deskripsi' => 'Jurusan TJKT mempelajari instalasi, konfigurasi, pemeliharaan jaringan komputer.',
                 'kuota' => 40,
                 'kuota_tersedia' => 25,
+                'jumlah_diterima' => 15,
                 'jumlah_pendaftar' => 15,
                 'gelombang_id' => 1
             ],
@@ -464,6 +482,7 @@ class DashboardController extends Controller
                 'deskripsi' => 'Jurusan Perhotelan mempelajari pelayanan tamu dan manajemen hotel.',
                 'kuota' => 35,
                 'kuota_tersedia' => 20,
+                'jumlah_diterima' => 15,
                 'jumlah_pendaftar' => 15,
                 'gelombang_id' => 1
             ],
@@ -474,6 +493,7 @@ class DashboardController extends Controller
                 'deskripsi' => 'Jurusan Kuliner mempelajari teknik memasak dan manajemen dapur.',
                 'kuota' => 30,
                 'kuota_tersedia' => 10, 
+                'jumlah_diterima' => 20,
                 'jumlah_pendaftar' => 20,
                 'gelombang_id' => 1
             ]
@@ -507,14 +527,20 @@ class DashboardController extends Controller
             return 4;
         }
         
-        // Step 5: Review/Verifikasi Data
-        // Jika pembayaran PPDB sudah lunas, menunggu verifikasi berkas/pendaftar oleh admin
-        if ($dataSiswa->status_pendaftar != 'diterima') {
+        // Step 5: Cetak Kartu Ujian / Peserta (Baru)
+        // Jika pembayaran PPDB sudah lunas, namun belum konfirmasi cetak kartu
+        if (!$dataSiswa->is_card_printed) {
             return 5;
         }
+
+        // Step 6: Review / Verifikasi Berkas & Tes Seleksi
+        // Jika kartu sudah dicetak, menunggu verifikasi berkas/interview oleh panitia
+        if ($dataSiswa->status_pendaftar != 'diterima') {
+            return 6;
+        }
         
-        // Step 6: Selesai
-        return 6;
+        // Step 7: Selesai / Diterima
+        return 7;
     }
 
     /**
@@ -562,10 +588,13 @@ class DashboardController extends Controller
                 return ['Pembayaran PPDB', 'warning'];
                 
             case 5:
-                return ['Menunggu Verifikasi Data', 'info'];
-                
+                return ['Cetak Kartu Ujian', 'warning'];
+
             case 6:
-                return ['Selesai', 'success'];
+                return ['Verifikasi Berkas & Tes Seleksi', 'info'];
+                
+            case 7:
+                return ['Diterima', 'success'];
                 
             default:
                 return ['Menunggu', 'warning'];
@@ -589,12 +618,40 @@ class DashboardController extends Controller
                 ->with('error', 'Fitur cetak kartu belum diaktifkan oleh administrator.');
         }
 
-        // Cek status siswa (harus diterima / step 6)
-        if (!$dataSiswa || $dataSiswa->status_pendaftar !== 'diterima') {
+        // Syarat cetak kartu: Pembayaran PPDB harus sudah lunas
+        if (!$dataSiswa || !$dataSiswa->is_paid) {
             return redirect()->route('siswa.dashboard')
-                ->with('error', 'Anda belum dapat mencetak kartu peserta. Pastikan status pendaftaran Anda sudah Diterima.');
+                ->with('error', 'Anda belum dapat mencetak kartu peserta. Pastikan seluruh pembayaran PPDB Anda sudah diverifikasi dan lunas.');
         }
 
         return view('siswa.cetak-kartu', compact('user', 'dataSiswa', 'pengaturan'));
+    }
+
+    /**
+     * Konfirmasi siswa sudah mencetak kartu dan siap mengikuti tes seleksi
+     */
+    public function konfirmasiCetakKartu(Request $request)
+    {
+        $user = Auth::user();
+        $dataSiswa = $user->dataSiswa ?? null;
+
+        if (!$dataSiswa || !$dataSiswa->is_paid) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Pembayaran PPDB harus diverifikasi dan lunas.'], 400);
+            }
+            return redirect()->route('siswa.dashboard')
+                ->with('error', 'Pembayaran PPDB harus diverifikasi dan lunas sebelum melanjutkan.');
+        }
+
+        $dataSiswa->update([
+            'is_card_printed' => true
+        ]);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Konfirmasi berhasil.']);
+        }
+
+        return redirect()->route('siswa.dashboard')
+            ->with('success', 'Konfirmasi berhasil! Kartu peserta telah dicetak. Silakan hadir ke sekolah untuk verifikasi berkas dan tes wawancara.');
     }
 }

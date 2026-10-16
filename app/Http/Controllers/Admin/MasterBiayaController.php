@@ -11,8 +11,17 @@ class MasterBiayaController extends Controller
 {
     public function index()
     {
-        $data = MasterBiaya::with('gelombang')->paginate(10);
-        $gelombangs = GelombangPendaftaran::where('status', 'aktif')->get();
+        $data = MasterBiaya::with(['gelombang', 'gelombang.tahunAjaran'])->paginate(10);
+        $tahunAjaranAktif = \App\Models\TahunAjaran::where('status', 'aktif')->first();
+        $gelombangs = GelombangPendaftaran::with('tahunAjaran')
+            ->where('status', 'aktif')
+            ->when($tahunAjaranAktif, function($q) use ($tahunAjaranAktif) {
+                $q->where('tahun_ajaran_id', $tahunAjaranAktif->id);
+            })
+            ->get();
+        if ($gelombangs->isEmpty()) {
+            $gelombangs = GelombangPendaftaran::with('tahunAjaran')->where('status', 'aktif')->get();
+        }
 
         return view('admin.master-biaya.index', compact('data', 'gelombangs'));
     }

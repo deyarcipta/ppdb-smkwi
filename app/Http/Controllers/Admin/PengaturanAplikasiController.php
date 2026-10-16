@@ -16,7 +16,8 @@ class PengaturanAplikasiController extends Controller
     {
         $pengaturan = PengaturanAplikasi::getSettings();
         $waSessions = WhatsAppSession::all();
-        return view('admin.pengaturan-aplikasi.index', compact('pengaturan', 'waSessions'));
+        $tahunAjaran = \App\Models\TahunAjaran::orderBy('id', 'desc')->get();
+        return view('admin.pengaturan-aplikasi.index', compact('pengaturan', 'waSessions', 'tahunAjaran'));
     }
 
     public function update(Request $request)
@@ -24,6 +25,8 @@ class PengaturanAplikasiController extends Controller
         $request->validate([
             'nama_sekolah' => 'required|string|max:255',
             'nama_aplikasi' => 'required|string|max:255',
+            'tipe_aplikasi' => 'required|in:PPDB,SPMB',
+            'tahun_ajaran_id' => 'nullable|exists:tahun_ajaran,id',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'favicon' => 'nullable|image|mimes:ico,png|max:1024',
             'email' => 'nullable|email|max:255',
@@ -57,6 +60,13 @@ class PengaturanAplikasiController extends Controller
 
         $pengaturan = PengaturanAplikasi::getSettings();
         $data = $request->except(['logo', 'favicon', 'ttd_stempel', 'hero_bg']);
+
+        // Sinkronisasi status Tahun Ajaran jika dipilih
+        if ($request->filled('tahun_ajaran_id')) {
+            \App\Models\TahunAjaran::query()->update(['status' => 'nonaktif']);
+            \App\Models\TahunAjaran::where('id', $request->tahun_ajaran_id)->update(['status' => 'aktif']);
+            $data['tahun_ajaran_id'] = $request->tahun_ajaran_id;
+        }
 
         if ($request->has('wa_status')) {
             $data['wa_status'] = (int)$request->wa_status;
@@ -114,6 +124,22 @@ class PengaturanAplikasiController extends Controller
         }
 
         $pengaturan->update($data);
+
+        // Sinkronisasi prefix nomor pendaftaran di data_siswa dan pembayaran sesuai tipe aplikasi (SPMB / PPDB)
+        $newTipe = $request->tipe_aplikasi;
+        $otherTipe = ($newTipe === 'SPMB') ? 'PPDB' : 'SPMB';
+
+        \Illuminate\Support\Facades\DB::statement("
+            UPDATE data_siswa 
+            SET no_pendaftaran = CONCAT(?, SUBSTRING(no_pendaftaran, 5)) 
+            WHERE no_pendaftaran LIKE ?
+        ", [$newTipe, $otherTipe . '%']);
+
+        \Illuminate\Support\Facades\DB::statement("
+            UPDATE pembayaran 
+            SET no_pendaftaran = CONCAT(?, SUBSTRING(no_pendaftaran, 5)) 
+            WHERE no_pendaftaran LIKE ?
+        ", [$newTipe, $otherTipe . '%']);
 
         return redirect()->route('pengaturan-aplikasi.index')
             ->with('success', 'Pengaturan aplikasi berhasil diperbarui.');

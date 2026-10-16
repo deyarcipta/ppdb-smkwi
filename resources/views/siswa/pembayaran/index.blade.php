@@ -1,12 +1,16 @@
 @extends('siswa.layouts.app')
-@section('title', 'Pembayaran PPDB')
+@php
+    $pengaturanPembayaran = \App\Models\PengaturanAplikasi::first();
+    $tipeAplikasiPembayaran = $pengaturanPembayaran->tipe_aplikasi ?? 'PPDB';
+@endphp
+@section('title', 'Pembayaran ' . $tipeAplikasiPembayaran)
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid p-0">
     <!-- Header Card -->
     <div class="card gradient-card shadow-lg border-0 mb-4">
         <div class="card-body text-center text-white py-4">
-            <h2 class="mb-2 text-white"><i class="fas fa-credit-card me-2"></i>PEMBAYARAN PPDB</h2>
+            <h2 class="mb-2 text-white"><i class="fas fa-credit-card me-2"></i>PEMBAYARAN {{ $tipeAplikasiPembayaran }}</h2>
             <p class="mb-0 opacity-75">Kelola pembayaran dan lihat status verifikasi</p>
         </div>
     </div>

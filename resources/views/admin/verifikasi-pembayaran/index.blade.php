@@ -79,8 +79,8 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="60" class="text-center">#</th>
-                                    <th width="150">No Pendaftaran</th>
-                                    <th>Nama Siswa</th>
+                                    <th width="140" class="text-center">No Daftar</th>
+                                    <th width="280">Nama Siswa</th>
                                     <th width="150" class="text-center">Jenis</th>
                                     <th width="130" class="text-end">Jumlah</th>
                                     <th width="120" class="text-center">Tanggal Bayar</th>
@@ -94,15 +94,12 @@
                                     <td class="text-center">
                                         <span class="text-muted">{{ $data->firstItem() + $key }}</span>
                                     </td>
-                                    <td>
-                                        <strong class="text-primary">{{ $item->no_pendaftaran }}</strong>
+                                    <td class="text-center">
+                                        <span class="fw-medium">{{ $item->user->username ?? '-' }}</span>
                                     </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0">{{ $item->nama_siswa }}</h6>
-                                            </div>
-                                        </div>
+                                    <td style="min-width: 260px;">
+                                        <div class="fw-bold text-dark">{{ $item->nama_siswa }}</div>
+                                        <small class="text-primary fw-semibold d-block">{{ $item->dataSiswa->no_pendaftaran ?? $item->no_pendaftaran }}</small>
                                     </td>
                                     <td class="text-center">
                                         <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2">
@@ -445,8 +442,8 @@
 .card {
     border-radius: 0.5rem !important;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-    margin-left: 0.75rem;
-    margin-right: 0.75rem;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 /* Remove side margins from rows */
@@ -574,8 +571,9 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .card {
-        margin-left: 0.5rem;
-        margin-right: 0.5rem;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
     }
     
     .page-title-box {

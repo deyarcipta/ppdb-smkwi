@@ -2,6 +2,9 @@
     $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::first();
     $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
     $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB';
+    $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+    $tahunAjaranAktif = $tahunAjaranAktif ?? ($pengaturan ? $pengaturan->tahunAjaranAktif : \App\Models\TahunAjaran::where('status', 'aktif')->first());
+    $namaTahunAjaran = $tahunAjaranAktif ? $tahunAjaranAktif->nama : (date('Y') . '/' . (date('Y') + 1));
 
     $heroBg = !empty($pengaturan->hero_bg) && file_exists(public_path($pengaturan->hero_bg)) 
         ? asset($pengaturan->hero_bg) 
@@ -214,10 +217,10 @@
 <section class="hero-ppdb">
   <div class="container hero-content">
     <div class="hero-text">
-      <h1>PPDB TA {{ date('Y') }}-{{ date('Y')+1 }}<br><span class="school-name">{{ strtoupper($namaSekolah) }}</span></h1>
-      <p>Ayo! segera daftarkan dirimu ke {{ $namaSekolah }} dengan cara klik <strong>PENDAFTARAN PPDB</strong> dibawah ini!<br>
+      <h1>{{ $tipeAplikasi }} TA {{ $namaTahunAjaran }}<br><span class="school-name">{{ strtoupper($namaSekolah) }}</span></h1>
+      <p>Ayo! segera daftarkan dirimu ke {{ $namaSekolah }} dengan cara klik <strong>PENDAFTARAN {{ $tipeAplikasi }}</strong> dibawah ini!<br>
       <span class="motto">Kreatif, Unggul dan Berakhlak Mulia.</span></p>
-      <a href="{{ route('frontend.pendaftaran') }}" class="btn-ppdb">PENDAFTARAN PPDB</a>
+      <a href="{{ route('frontend.pendaftaran') }}" class="btn-ppdb">PENDAFTARAN {{ $tipeAplikasi }}</a>
     </div>
   </div>
 </section>
@@ -319,7 +322,7 @@
 <section id="informasi" class="pd-top-80 pd-bottom-80 bg-light">
   <div class="container">
     <div class="section-title text-center mb-5">
-      <h2>Informasi PPDB</h2>
+      <h2>Informasi {{ $tipeAplikasi }}</h2>
       <h1>Jadwal & Persyaratan</h1>
       <hr class="mx-auto">
     </div>

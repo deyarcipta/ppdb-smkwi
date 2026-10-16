@@ -98,12 +98,12 @@
 
                     <!-- Table Section -->
                     <div class="table-responsive">
-                        <table class="table table-sm table-bordered table-hover align-middle">
+                        <table class="table table-bordered table-hover align-middle">
                             <thead class="table-light text-center">
                                 <tr>
                                     <th width="40">#</th>
-                                    <th width="120">No Pendaftaran</th>
-                                    <th width="200">Nama Siswa</th>
+                                    <th width="140" class="text-center">No Daftar</th>
+                                    <th width="280">Nama Siswa</th>
                                     <th width="100">Jumlah Cicilan</th>
                                     <th width="150">Total Pembayaran</th>
                                     <th width="120">Action</th>
@@ -117,16 +117,13 @@
                                     @endphp
                                     <tr>
                                         <td class="text-center">{{ $siswa->firstItem() + $index }}</td>
-                                        <td class="">
-                                            <strong class="text-primary">{{ $item->datasiswa->no_pendaftaran ?? '-' }}</strong>
+                                        <td class="text-center">
+                                            <span class="fw-medium">{{ $item->username ?? '-' }}</span>
                                         </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="flex-grow-1">
-                                                    <h6 class="mb-0">{{ $item->datasiswa->nama_lengkap ?? 'N/A' }}</h6>
-                                                    <small class="text-muted">{{ $item->datasiswa->no_hp }}</small>
-                                                </div>
-                                            </div>
+                                        <td style="min-width: 260px;">
+                                            <div class="fw-bold text-dark">{{ $item->datasiswa->nama_lengkap ?? 'N/A' }}</div>
+                                            <small class="text-primary fw-semibold d-block">{{ $item->datasiswa->no_pendaftaran ?? '-' }}</small>
+                                            <small class="text-muted">{{ $item->datasiswa->no_hp }}</small>
                                         </td>
                                         <td class="text-center">
                                             <span class="badge bg-info text-white">
@@ -232,34 +229,39 @@
     font-size: 12px;
 }
 
+.table th {
+    font-weight: 700;
+    background-color: #e9ecef;
+    border-bottom: 2px solid #dee2e6;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.table td {
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9375rem;
+}
+
 .table-sm th,
 .table-sm td {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.875rem;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9375rem;
 }
 
 .btn-sm.p-1 {
-    padding: 0.25rem 0.4rem;
+    padding: 0.3rem 0.5rem;
 }
 
 .table-responsive {
     overflow-x: auto;
 }
 
-.table td {
-    white-space: normal;
-    word-wrap: break-word;
-}
-
-.table th {
-    font-weight: 600;
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #e4e6e8;
-}
-
 .badge {
-    font-size: 0.7rem;
-    padding: 0.35em 0.65em;
+    font-size: 0.78rem;
+    padding: 0.4em 0.75em;
 }
 
 .filter-section {

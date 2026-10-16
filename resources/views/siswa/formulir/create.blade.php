@@ -1,14 +1,97 @@
 @extends('siswa.layouts.app')
+@php
+    $pengaturanForm = \App\Models\PengaturanAplikasi::first();
+    $tipeAplikasi = $pengaturanForm->tipe_aplikasi ?? 'PPDB';
+    $tahunAjaranAktif = $pengaturanForm ? $pengaturanForm->tahunAjaranAktif : null;
+@endphp
 @section('title', 'Formulir Pendaftaran Siswa')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid p-0">
     <!-- Header Card -->
     <div class="card gradient-card shadow-lg border-0 mb-4">
         <div class="card-body text-center text-white py-4">
-            <h2 class="mb-2"><i class="fas fa-file-alt me-2"></i>FORMULIR PENDAFTARAN PPDB</h2>
+            <h2 class="mb-2"><i class="fas fa-file-alt me-2"></i>FORMULIR PENDAFTARAN {{ $tipeAplikasi }}</h2>
             <p class="mb-0 opacity-75">Lengkapi data diri Anda dengan benar dan teliti</p>
         </div>
+    </div>
+
+    <div id="appConfig"
+         data-nama-aplikasi="{{ $pengaturanForm->nama_aplikasi ?? 'PPDB SMK WI' }}"
+         data-nama-sekolah="{{ $pengaturanForm->nama_sekolah ?? '-' }}"
+         data-logo-sekolah="{{ $pengaturanForm->logo ? asset($pengaturanForm->logo) : asset('sneat/img/logowi.png') }}"
+         data-alamat-sekolah="{{ $pengaturanForm->alamat ?? '-' }}"
+         data-telepon-sekolah="{{ $pengaturanForm->telepon ?? '-' }}"
+         data-email-sekolah="{{ $pengaturanForm->email ?? '-' }}">
+    </div>
+
+    <div id="formulirPrintData" class="d-none"
+         data-nama="{{ $existingData->nama_lengkap ?? '-' }}"
+         data-no-pendaftaran="{{ $existingData->no_pendaftaran ?? (auth()->user()->username ?? '-') }}"
+         data-foto-siswa="{{ $existingData->foto_siswa ?? '' }}"
+         data-nisn="{{ $existingData->nisn ?? '-' }}"
+         data-nik="{{ $existingData->nik ?? '-' }}"
+         data-no-kk="{{ $existingData->no_kk ?? '-' }}"
+         data-tempat-lahir="{{ $existingData->tempat_lahir ?? '-' }}"
+         data-tanggal-lahir="{{ $existingData->tanggal_lahir ? \Carbon\Carbon::parse($existingData->tanggal_lahir)->format('d-m-Y') : '-' }}"
+         data-jenis-kelamin="{{ $existingData->jenis_kelamin ?? '-' }}"
+         data-agama="{{ $existingData->agama ?? '-' }}"
+         data-asal-sekolah="{{ $existingData->asal_sekolah ?? '-' }}"
+         data-jenjang-sekolah="{{ $existingData->jenjang_sekolah_asal ?? '-' }}"
+         data-status-sekolah="{{ $existingData->status_sekolah_asal ?? '-' }}"
+         data-kota-sekolah="{{ $existingData->kota_sekolah_asal ?? '-' }}"
+         data-alamat="{{ $existingData->alamat ?? '-' }}"
+         data-rt="{{ $existingData->rt ?? '-' }}"
+         data-rw="{{ $existingData->rw ?? '-' }}"
+         data-desa="{{ $existingData->desa ?? '-' }}"
+         data-kecamatan="{{ $existingData->kecamatan ?? '-' }}"
+         data-kota="{{ $existingData->kota ?? '-' }}"
+         data-provinsi="{{ $existingData->provinsi ?? '-' }}"
+         data-kode-pos="{{ $existingData->kode_pos ?? '-' }}"
+         data-tinggi-badan="{{ $existingData->tinggi_badan ?? '-' }}"
+         data-berat-badan="{{ $existingData->berat_badan ?? '-' }}"
+         data-anak-ke="{{ $existingData->anak_ke ?? '-' }}"
+         data-jumlah-saudara="{{ $existingData->jumlah_saudara ?? '-' }}"
+         data-status-dalam-keluarga="{{ $existingData->status_dalam_keluarga ?? '-' }}"
+         data-tinggal-bersama="{{ $existingData->tinggal_bersama ?? '-' }}"
+         data-jarak-kesekolah="{{ $existingData->jarak_kesekolah ?? '-' }}"
+         data-waktu-tempuh="{{ $existingData->waktu_tempuh ?? '-' }}"
+         data-transportasi="{{ $existingData->transportasi ?? '-' }}"
+         data-ukuran-baju="{{ $existingData->ukuran_baju ?? '-' }}"
+         data-hobi="{{ $existingData->hobi ?? '-' }}"
+         data-cita-cita="{{ $existingData->cita_cita ?? '-' }}"
+         data-tahun-lulus="{{ $existingData->tahun_lulus ?? '-' }}"
+         data-no-kip="{{ $existingData->no_kip ?? '-' }}"
+         data-referensi="{{ $existingData->referensi ?? '-' }}"
+         data-ket-referensi="{{ $existingData->ket_referensi ?? '-' }}"
+         data-nik-ayah="{{ $existingData->nik_ayah ?? '-' }}"
+         data-nama-ayah="{{ $existingData->nama_ayah ?? '-' }}"
+         data-tempat-lahir-ayah="{{ $existingData->tempat_lahir_ayah ?? '-' }}"
+         data-tanggal-lahir-ayah="{{ $existingData->tanggal_lahir_ayah ? \Carbon\Carbon::parse($existingData->tanggal_lahir_ayah)->format('d-m-Y') : '-' }}"
+         data-pendidikan-ayah="{{ $existingData->pendidikan_ayah ?? '-' }}"
+         data-pekerjaan-ayah="{{ $existingData->pekerjaan_ayah ?? '-' }}"
+         data-penghasilan-ayah="{{ $existingData->penghasilan_ayah ?? '-' }}"
+         data-no-hp-ayah="{{ $existingData->no_hp_ayah ?? '-' }}"
+         data-nik-ibu="{{ $existingData->nik_ibu ?? '-' }}"
+         data-nama-ibu="{{ $existingData->nama_ibu ?? '-' }}"
+         data-tempat-lahir-ibu="{{ $existingData->tempat_lahir_ibu ?? '-' }}"
+         data-tanggal-lahir-ibu="{{ $existingData->tanggal_lahir_ibu ? \Carbon\Carbon::parse($existingData->tanggal_lahir_ibu)->format('d-m-Y') : '-' }}"
+         data-pendidikan-ibu="{{ $existingData->pendidikan_ibu ?? '-' }}"
+         data-pekerjaan-ibu="{{ $existingData->pekerjaan_ibu ?? '-' }}"
+         data-penghasilan-ibu="{{ $existingData->penghasilan_ibu ?? '-' }}"
+         data-no-hp-ibu="{{ $existingData->no_hp_ibu ?? '-' }}"
+         data-nik-wali="{{ $existingData->nik_wali ?? '-' }}"
+         data-nama-wali="{{ $existingData->nama_wali ?? '-' }}"
+         data-tempat-lahir-wali="{{ $existingData->tempat_lahir_wali ?? '-' }}"
+         data-tanggal-lahir-wali="{{ $existingData->tanggal_lahir_wali ? \Carbon\Carbon::parse($existingData->tanggal_lahir_wali)->format('d-m-Y') : '-' }}"
+         data-pendidikan-wali="{{ $existingData->pendidikan_wali ?? '-' }}"
+         data-pekerjaan-wali="{{ $existingData->pekerjaan_wali ?? '-' }}"
+         data-penghasilan-wali="{{ $existingData->penghasilan_wali ?? '-' }}"
+         data-no-hp-wali="{{ $existingData->no_hp_wali ?? '-' }}"
+         data-gelombang="{{ $existingData->gelombang->nama_gelombang ?? '-' }}"
+         data-jurusan="{{ $existingData->jurusan->nama_jurusan ?? '-' }}"
+         data-email="{{ auth()->user()->email ?? '-' }}"
+         data-tanggal-daftar="{{ $existingData->created_at ? $existingData->created_at->format('d-m-Y H:i') : (auth()->user()->created_at ? auth()->user()->created_at->format('d-m-Y H:i') : '-') }}">
     </div>
 
     <div class="row">
@@ -33,7 +116,7 @@
                     </div>
 
                     <h5 class="mb-1" style="color: whitesmoke"> {{ $existingData->nama_lengkap ?? '-' }}</h5>
-                    <p class="mb-2">PPDB Tahun {{ $existingData->gelombang->tahunAjaran->nama ?? '-' }}</p>
+                    <p class="mb-2">{{ $tipeAplikasi }} Tahun {{ $existingData->gelombang->tahunAjaran->nama ?? ($tahunAjaranAktif->nama ?? '-') }}</p>
                     @if($progress['total'] == 100)
                         <div class="status-badge status-completed bg-success text-white">
                             <i class="fas fa-check-circle me-1"></i> Lengkap
@@ -110,9 +193,12 @@
                             <p class="card-text small">
                                 Pastikan semua data yang Anda isi sudah benar sebelum mengirim formulir.
                             </p>
-                            <div class="d-grid">
-                                <button class="btn btn-outline-primary btn-sm">
-                                    Unduh Panduan
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-file-download me-1"></i> Unduh Panduan
+                                </button>
+                                <button type="button" onclick="printFormulirSiswaForm()" class="btn btn-primary btn-sm" title="Cetak Formulir Pendaftaran">
+                                    <i class="fas fa-print me-1"></i> Cetak Formulir
                                 </button>
                             </div>
                         </div>
@@ -299,12 +385,60 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label for="asal_sekolah" class="form-label fw-semibold">
-                                            <i class="fas fa-school me-2 text-primary"></i>Asal Sekolah
+                                            <i class="fas fa-school me-2 text-primary"></i>Asal Sekolah <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control form-control-lg @error('asal_sekolah') is-invalid @enderror" id="asal_sekolah" name="asal_sekolah" 
                                                value="{{ $existingData->asal_sekolah ?? old('asal_sekolah') }}" 
-                                               placeholder="Nama sekolah asal">
+                                               placeholder="Contoh: SMP Negeri 1 Jakarta" required>
                                         @error('asal_sekolah')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="jenjang_sekolah_asal" class="form-label fw-semibold">
+                                            <i class="fas fa-graduation-cap me-2 text-primary"></i>Jenjang Sekolah <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select form-select-lg @error('jenjang_sekolah_asal') is-invalid @enderror" id="jenjang_sekolah_asal" name="jenjang_sekolah_asal" required>
+                                            <option value="">-- Pilih Jenjang --</option>
+                                            <option value="SMP" {{ ($existingData->jenjang_sekolah_asal ?? old('jenjang_sekolah_asal')) == 'SMP' ? 'selected' : '' }}>SMP</option>
+                                            <option value="MTs" {{ ($existingData->jenjang_sekolah_asal ?? old('jenjang_sekolah_asal')) == 'MTs' ? 'selected' : '' }}>MTs</option>
+                                            <option value="PKBM" {{ ($existingData->jenjang_sekolah_asal ?? old('jenjang_sekolah_asal')) == 'PKBM' ? 'selected' : '' }}>PKBM</option>
+                                            <option value="Lainnya" {{ ($existingData->jenjang_sekolah_asal ?? old('jenjang_sekolah_asal')) == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                                        </select>
+                                        @error('jenjang_sekolah_asal')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="status_sekolah_asal" class="form-label fw-semibold">
+                                            <i class="fas fa-landmark me-2 text-primary"></i>Status Sekolah <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select form-select-lg @error('status_sekolah_asal') is-invalid @enderror" id="status_sekolah_asal" name="status_sekolah_asal" required>
+                                            <option value="">-- Pilih Status --</option>
+                                            <option value="Negeri" {{ ($existingData->status_sekolah_asal ?? old('status_sekolah_asal')) == 'Negeri' ? 'selected' : '' }}>Negeri</option>
+                                            <option value="Swasta" {{ ($existingData->status_sekolah_asal ?? old('status_sekolah_asal')) == 'Swasta' ? 'selected' : '' }}>Swasta</option>
+                                        </select>
+                                        @error('status_sekolah_asal')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="kota_sekolah_asal" class="form-label fw-semibold">
+                                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>Kota Asal Sekolah <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control form-control-lg @error('kota_sekolah_asal') is-invalid @enderror" id="kota_sekolah_asal" name="kota_sekolah_asal" 
+                                               value="{{ $existingData->kota_sekolah_asal ?? old('kota_sekolah_asal') }}" 
+                                               placeholder="Contoh: Jakarta Selatan" required>
+                                        @error('kota_sekolah_asal')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -1608,6 +1742,10 @@ document.getElementById('foto_siswa').addEventListener('change', function () {
     .then(res => {
         if (res.success) {
             preview.src = res.foto_url + '?v=' + new Date().getTime();
+            const printEl = document.getElementById('formulirPrintData');
+            if (printEl) {
+                printEl.dataset.fotoSiswa = res.foto_url;
+            }
 
             Swal.fire({
                 icon: 'success',
@@ -1632,5 +1770,99 @@ document.getElementById('foto_siswa').addEventListener('change', function () {
         });
     });
 });
+</script>
+<script src="{{ asset('sneat/js/printFormulir.js') }}?v={{ time() }}"></script>
+<script>
+function printFormulirSiswaForm() {
+    const printEl = document.getElementById('formulirPrintData');
+    if (!printEl) return;
+
+    const formMap = {
+        nama_lengkap: 'nama',
+        nisn: 'nisn',
+        nik: 'nik',
+        no_kk: 'noKk',
+        tempat_lahir: 'tempatLahir',
+        tanggal_lahir: 'tanggalLahir',
+        jenis_kelamin: 'jenisKelamin',
+        agama: 'agama',
+        asal_sekolah: 'asalSekolah',
+        jenjang_sekolah_asal: 'jenjangSekolah',
+        status_sekolah_asal: 'statusSekolah',
+        kota_sekolah_asal: 'kotaSekolah',
+        alamat: 'alamat',
+        rt: 'rt',
+        rw: 'rw',
+        desa: 'desa',
+        kecamatan: 'kecamatan',
+        kota: 'kota',
+        provinsi: 'provinsi',
+        kode_pos: 'kodePos',
+        tinggi_badan: 'tinggiBadan',
+        berat_badan: 'beratBadan',
+        anak_ke: 'anakKe',
+        jumlah_saudara: 'jumlahSaudara',
+        status_dalam_keluarga: 'statusDalamKeluarga',
+        tinggal_bersama: 'tinggalBersama',
+        jarak_kesekolah: 'jarakKesekolah',
+        waktu_tempuh: 'waktuTempuh',
+        transportasi: 'transportasi',
+        ukuran_baju: 'ukuranBaju',
+        hobi: 'hobi',
+        cita_cita: 'citaCita',
+        tahun_lulus: 'tahunLulus',
+        no_kip: 'noKip',
+        referensi: 'referensi',
+        ket_referensi: 'ketReferensi',
+        nik_ayah: 'nikAyah',
+        nama_ayah: 'namaAyah',
+        tempat_lahir_ayah: 'tempatLahirAyah',
+        tanggal_lahir_ayah: 'tanggalLahirAyah',
+        pendidikan_ayah: 'pendidikanAyah',
+        pekerjaan_ayah: 'pekerjaanAyah',
+        penghasilan_ayah: 'penghasilanAyah',
+        no_hp_ayah: 'noHpAyah',
+        nik_ibu: 'nikIbu',
+        nama_ibu: 'namaIbu',
+        tempat_lahir_ibu: 'tempatLahirIbu',
+        tanggal_lahir_ibu: 'tanggalLahirIbu',
+        pendidikan_ibu: 'pendidikanIbu',
+        pekerjaan_ibu: 'pekerjaanIbu',
+        penghasilan_ibu: 'penghasilanIbu',
+        no_hp_ibu: 'noHpIbu',
+        nik_wali: 'nikWali',
+        nama_wali: 'namaWali',
+        tempat_lahir_wali: 'tempatLahirWali',
+        tanggal_lahir_wali: 'tanggalLahirWali',
+        pendidikan_wali: 'pendidikanWali',
+        pekerjaan_wali: 'pekerjaanWali',
+        penghasilan_wali: 'penghasilanWali',
+        no_hp_wali: 'noHpWali'
+    };
+
+    for (const [inputName, dataKey] of Object.entries(formMap)) {
+        const input = document.querySelector(`[name="${inputName}"]`);
+        if (input && input.value && input.value.trim() !== '') {
+            printEl.dataset[dataKey] = input.value;
+        }
+    }
+
+    const jurusanEl = document.querySelector('[name="jurusan_id"]');
+    if (jurusanEl && jurusanEl.selectedOptions && jurusanEl.selectedOptions[0]) {
+        printEl.dataset.jurusan = jurusanEl.selectedOptions[0].text;
+    }
+    const gelombangEl = document.querySelector('[name="gelombang_id"]');
+    if (gelombangEl && gelombangEl.selectedOptions && gelombangEl.selectedOptions[0]) {
+        printEl.dataset.gelombang = gelombangEl.selectedOptions[0].text;
+    }
+
+    // Sinkronkan foto jika sudah ada di preview foto
+    const previewFoto = document.getElementById('previewFoto');
+    if (previewFoto && previewFoto.src && !previewFoto.classList.contains('d-none')) {
+        printEl.dataset.fotoSiswa = previewFoto.src;
+    }
+
+    doPrintFormulir('formulirPrintData');
+}
 </script>
 @endsection

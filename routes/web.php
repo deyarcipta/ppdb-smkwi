@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\TestimoniAlumniController as TestimoniAlumniAdmin
 use App\Http\Controllers\Admin\FaqController as FaqAdminController;
 use App\Http\Controllers\Admin\PengumumanController as PengumumanAdminController; 
 use App\Http\Controllers\Admin\WhatsappAdminController as WhatsappAdminController;
+use App\Http\Controllers\Admin\WhatsappBlastController as WhatsappBlastController;
 use App\Http\Controllers\Admin\UserManagementController as UserManagementAdminController;
 use App\Http\Controllers\Admin\PengaturanAplikasiController as PengaturanAplikasiAdminController;
 use App\Http\Controllers\Admin\DataCetakKartuController as DataCetakKartuAdminController;
@@ -108,13 +109,15 @@ Route::prefix('panel')->group(function () {
             Route::get('kuota-jurusan/{id}/nonaktifkan', [KuotaJurusanAdminController::class, 'nonaktifkan'])
                 ->name('kuota-jurusan.nonaktifkan');
 
-            // Kuota Template Pesan
-            Route::resource('template-pesan', TemplatePesanAdminController::class)
-                ->except(['show', 'create', 'edit']);
-            Route::get('template-pesan/{id}/aktifkan', [TemplatePesanAdminController::class, 'aktifkan'])
-                ->name('template-pesan.aktifkan');
-            Route::get('template-pesan/{id}/nonaktifkan', [TemplatePesanAdminController::class, 'nonaktifkan'])
-                ->name('template-pesan.nonaktifkan');
+            // Template Pesan (Khusus Superadmin)
+            Route::middleware('role:superadmin')->group(function () {
+                Route::resource('template-pesan', TemplatePesanAdminController::class)
+                    ->except(['show', 'create', 'edit']);
+                Route::get('template-pesan/{id}/aktifkan', [TemplatePesanAdminController::class, 'aktifkan'])
+                    ->name('template-pesan.aktifkan');
+                Route::get('template-pesan/{id}/nonaktifkan', [TemplatePesanAdminController::class, 'nonaktifkan'])
+                    ->name('template-pesan.nonaktifkan');
+            });
 
             // Data SMP
             Route::get('data-smp/export-excel', [DataSmpAdminController::class, 'exportExcel'])->name('data-smp.export-excel');
@@ -235,6 +238,11 @@ Route::prefix('panel')->group(function () {
             Route::get('whatsapp-sessions/{id}/status', [WhatsappAdminController::class, 'getWhatsAppSessionStatus'])->name('whatsapp-sessions.status');
             Route::post('whatsapp-sessions/{id}/start', [WhatsappAdminController::class, 'startWhatsAppSessionSpec'])->name('whatsapp-sessions.start');
 
+            // WhatsApp Blast / Broadcast Routes
+            Route::get('/admin/whatsapp/blast', [WhatsappBlastController::class, 'index'])->name('whatsapp.blast.index');
+            Route::post('/admin/whatsapp/blast/preview', [WhatsappBlastController::class, 'preview'])->name('whatsapp.blast.preview');
+            Route::post('/admin/whatsapp/blast/send', [WhatsappBlastController::class, 'send'])->name('whatsapp.blast.send');
+
 
             //Info Persyaratan Pendaftaran
             Route::resource('persyaratan-pendaftaran', PersyaratanPendaftaranAdminController::class)
@@ -308,6 +316,7 @@ Route::prefix('siswa')->group(function () {
     Route::middleware(['auth:siswa'])->group(function () {
         Route::get('/dashboard', [DashboardSiswaController::class, 'index'])->name('siswa.dashboard');
         Route::get('/cetak-kartu', [DashboardSiswaController::class, 'cetakKartu'])->name('siswa.cetak-kartu');
+        Route::post('/konfirmasi-cetak-kartu', [DashboardSiswaController::class, 'konfirmasiCetakKartu'])->name('siswa.konfirmasi-cetak-kartu');
 
         Route::put('/password/update', [SiswaAuthController::class, 'updatePassword'])
             ->name('siswa.password.update');

@@ -7,6 +7,7 @@
     $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::first();
     $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
     $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB';
+    $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
 @endphp
 <!-- Header Welcome -->
 <div class="row">
@@ -148,7 +149,7 @@
 </div>
 @endif
 
-<!-- Progress Pendaftaran (6 Step) -->
+<!-- Progress Pendaftaran (7 Step) -->
 <div class="row mb-4">
   <div class="col-12">
     <div class="card">
@@ -195,34 +196,46 @@
           
           <div class="progress-connector {{ $currentStep >= 4 ? 'active' : '' }}"></div>
           
-          <!-- Step 4: Pembayaran PPDB (DIPINDAH KE POSISI INI) -->
+          <!-- Step 4: Pembayaran PPDB -->
           <div class="progress-step {{ $currentStep >= 4 ? 'active' : '' }} {{ $currentStep == 4 ? 'current' : '' }}">
             <div class="step-circle">
               <span class="step-number">4</span>
               <i class='bx bx-check step-icon'></i>
             </div>
             <div class="step-label">PAYMENT</div>
-            <div class="step-title">Pembayaran PPDB</div>
+            <div class="step-title">Pembayaran {{ $tipeAplikasi }}</div>
           </div>
           
           <div class="progress-connector {{ $currentStep >= 5 ? 'active' : '' }}"></div>
           
-          <!-- Step 5: Review/Verifikasi Data (DIPINDAH KE POSISI INI) -->
+          <!-- Step 5: Cetak Kartu Ujian (Baru) -->
           <div class="progress-step {{ $currentStep >= 5 ? 'active' : '' }} {{ $currentStep == 5 ? 'current' : '' }}">
             <div class="step-circle">
               <span class="step-number">5</span>
               <i class='bx bx-check step-icon'></i>
             </div>
-            <div class="step-label">REVIEW</div>
-            <div class="step-title">Verifikasi Data</div>
+            <div class="step-label">CARD</div>
+            <div class="step-title">Cetak Kartu Ujian</div>
           </div>
           
           <div class="progress-connector {{ $currentStep >= 6 ? 'active' : '' }}"></div>
           
-          <!-- Step 6: Selesai -->
+          <!-- Step 6: Review/Verifikasi Data & Seleksi -->
           <div class="progress-step {{ $currentStep >= 6 ? 'active' : '' }} {{ $currentStep == 6 ? 'current' : '' }}">
             <div class="step-circle">
               <span class="step-number">6</span>
+              <i class='bx bx-check step-icon'></i>
+            </div>
+            <div class="step-label">REVIEW</div>
+            <div class="step-title">Verifikasi & Seleksi</div>
+          </div>
+          
+          <div class="progress-connector {{ $currentStep >= 7 ? 'active' : '' }}"></div>
+          
+          <!-- Step 7: Selesai -->
+          <div class="progress-step {{ $currentStep >= 7 ? 'active' : '' }} {{ $currentStep == 7 ? 'current' : '' }}">
+            <div class="step-circle">
+              <span class="step-number">7</span>
               <i class='bx bx-check step-icon'></i>
             </div>
             <div class="step-label">SUCCESS</div>
@@ -298,7 +311,7 @@
                 $kontakWa = '62' . substr($kontakWa, 1);
             }
           @endphp
-          <a href="https://wa.me/{{ $kontakWa }}?text=Halo%20Panitia%20PPDB,%20saya%20sudah%20mengunggah%20bukti%20pembayaran%20formulir%20atas%20nama%20{{ urlencode($dataSiswa->nama_lengkap ?? $user->username) }}.%20Mohon%20bantuannya%20untuk%20verifikasi.%20Terima%20kasih." target="_blank" class="btn btn-outline-success w-100 w-sm-auto">
+          <a href="https://wa.me/{{ $kontakWa }}?text=Halo%20Panitia%20{{ $tipeAplikasi }},%20saya%20sudah%20mengunggah%20bukti%20pembayaran%20formulir%20atas%20nama%20{{ urlencode($dataSiswa->nama_lengkap ?? $user->username) }}.%20Mohon%20bantuannya%20untuk%20verifikasi.%20Terima%20kasih." target="_blank" class="btn btn-outline-success w-100 w-sm-auto">
             <i class='bx bxl-whatsapp me-1'></i>Hubungi Panitia
           </a>
         </div>
@@ -410,9 +423,9 @@
           <div class="bg-light-success rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
             <i class='bx bx-credit-card bx-lg text-success'></i>
           </div>
-          <h3 class="text-success fw-bold mb-3">Pembayaran Biaya PPDB</h3>
+          <h3 class="text-success fw-bold mb-3">Pembayaran Biaya {{ $tipeAplikasi }}</h3>
           <p class="text-muted mb-0">
-            Formulir pendaftaran Anda telah lengkap. Silakan lakukan pembayaran biaya PPDB untuk melanjutkan proses verifikasi.
+            Formulir pendaftaran Anda telah lengkap. Silakan lakukan pembayaran biaya {{ $tipeAplikasi }} untuk melanjutkan proses verifikasi.
           </p>
         </div>
 
@@ -470,7 +483,7 @@
                 <p class="fw-semibold mb-0 text-dark">{{ $dataSiswa->jurusan->nama_jurusan ?? '-' }}</p>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label text-muted small mb-1">Biaya PPDB</label>
+                <label class="form-label text-muted small mb-1">Biaya {{ $tipeAplikasi }}</label>
                 <p class="fw-semibold mb-0 text-dark">Rp {{ number_format($totalBiaya, 0, ',', '.') }}</p>
               </div>
               <div class="col-12">
@@ -580,38 +593,108 @@
 </div>
 
 @elseif($currentStep == 5)
-<!-- Step 5: REVIEW - Verifikasi Data (DIPINDAH KE POSISI INI) -->
+<!-- Step 5: CARD - Cetak Kartu Ujian & Berkas Persyaratan (Baru) -->
 <div class="row">
   <div class="col-12">
-    <div class="card">
+    <div class="card shadow-sm border-0">
       <div class="card-body text-center py-5">
         <div class="mb-4">
-          <i class='bx bx-check-circle bx-lg text-warning'></i>
+          <div class="avatar avatar-xl bg-label-primary mx-auto rounded-circle d-flex align-items-center justify-content-center p-3" style="width: 76px; height: 76px;">
+            <i class='bx bx-id-card bx-lg text-primary'></i>
+          </div>
         </div>
-        <h4 class="text-warning">Verifikasi Data Pendaftaran</h4>
-        <p class="text-muted mb-4">
-          Pembayaran PPDB Anda telah berhasil. Data pendaftaran Anda sedang dalam proses verifikasi oleh admin. 
-          Silakan tunggu konfirmasi untuk menyelesaikan proses pendaftaran.
+        <h4 class="text-primary fw-bold mb-2">Cetak Kartu Ujian & Ceklis Berkas Persyaratan</h4>
+        <p class="text-muted mb-4 mx-auto" style="max-width: 600px;">
+          Pembayaran {{ $tipeAplikasi }} Anda telah <strong>Lunas dan Terverifikasi</strong>. 
+          Silakan unduh atau cetak Kartu Tanda Peserta & Lembar Ceklis Berkas di bawah ini. Dokumen ini <strong>wajib dibawa fisik</strong> saat hadir ke sekolah untuk verifikasi berkas dan tes wawancara/seleksi.
         </p>
         
-        <div class="alert alert-info mx-auto" style="max-width: 400px;">
-          <h6>Status Verifikasi:</h6>
-          <p class="mb-1"><strong>Jurusan:</strong> {{ $dataSiswa->jurusan->nama_jurusan ?? 'Belum dipilih' }}</p>
-          <p class="mb-1"><strong>Pembayaran:</strong> <span class="badge bg-success">Terverifikasi</span></p>
-          <p class="mb-0"><strong>Status Data:</strong> <span class="badge bg-info">Dalam Review</span></p>
+        <div class="card bg-light border mx-auto text-start mb-4 shadow-none w-100" style="max-width: 480px;">
+          <div class="card-body p-3">
+            <h6 class="fw-bold mb-2 text-dark"><i class='bx bx-user me-1'></i>Data Peserta:</h6>
+            <table class="table table-borderless table-sm mb-0 w-100" style="font-size: 0.86rem;">
+              <tbody>
+                <tr>
+                  <td class="text-muted pe-1 py-1 text-nowrap align-middle" style="width: 110px;">No. Pendaftaran</td>
+                  <td class="text-muted px-1 py-1 align-middle text-center" style="width: 10px;">:</td>
+                  <td class="fw-bold text-dark py-1 align-middle text-break">{{ $dataSiswa->no_pendaftaran }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted pe-1 py-1 text-nowrap align-middle">Nama Lengkap</td>
+                  <td class="text-muted px-1 py-1 align-middle text-center">:</td>
+                  <td class="fw-bold text-dark py-1 align-middle">{{ $dataSiswa->nama_lengkap }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted pe-1 py-1 text-nowrap align-middle">Kompetensi</td>
+                  <td class="text-muted px-1 py-1 align-middle text-center">:</td>
+                  <td class="fw-bold text-dark py-1 align-middle">{{ $dataSiswa->jurusan->nama_jurusan ?? '-' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted pe-1 py-1 text-nowrap align-middle">Pembayaran</td>
+                  <td class="text-muted px-1 py-1 align-middle text-center">:</td>
+                  <td class="py-1 align-middle"><span class="badge bg-success">Lunas & Terverifikasi</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        
-        <div class="spinner-border text-warning" role="status">
-          <span class="visually-hidden">Loading...</span>
+
+        <div class="d-flex flex-column align-items-center gap-2 w-100">
+          <!-- Tombol Tunggal Cetak Kartu dengan Modal Pengingat -->
+          <button type="button" onclick="confirmCetakKartu('{{ route('siswa.cetak-kartu') }}', {{ !$dataSiswa->is_card_printed ? '1' : '0' }})" class="btn btn-primary btn-lg px-4 py-3 fw-semibold shadow-sm w-100 w-sm-auto" style="max-width: 380px;">
+            <i class='bx bx-printer me-2'></i>Cetak / Download Kartu Sekarang
+          </button>
+
+          <p class="text-muted small mb-0 mt-2 text-center">
+            <i class='bx bx-info-circle me-1'></i>Setelah mencetak kartu, Anda dapat mencetak ulang kapan saja melalui menu di sidebar dashboard.
+          </p>
         </div>
-        <p class="mt-3 small text-muted">Proses verifikasi membutuhkan waktu 1-2 hari kerja</p>
       </div>
     </div>
   </div>
 </div>
 
 @elseif($currentStep == 6)
-<!-- Step 6: SUCCESS - Selesai -->
+<!-- Step 6: REVIEW - Verifikasi Berkas Fisik & Tes Seleksi -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <div class="mb-4">
+          <div class="avatar avatar-xl bg-label-warning mx-auto rounded-circle d-flex align-items-center justify-content-center p-3" style="width: 76px; height: 76px;">
+            <i class='bx bx-time-five bx-lg text-warning'></i>
+          </div>
+        </div>
+        <h4 class="text-warning fw-bold mb-2">Tahap Verifikasi Berkas & Tes Seleksi</h4>
+        <p class="text-muted mb-4 mx-auto" style="max-width: 600px;">
+          Kartu peserta Anda telah berhasil dicetak. Silakan hadir ke sekolah sesuai jadwal dengan membawa <strong>Kartu Peserta</strong> dan <strong>Dokumen Persyaratan Fisik</strong> untuk mengikuti tes wawancara dan verifikasi berkas oleh panitia.
+        </p>
+        
+        <div class="alert alert-info mx-auto text-start mb-4" style="max-width: 440px;">
+          <h6 class="fw-bold mb-2">Status Proses Saat Ini:</h6>
+          <p class="mb-1"><strong>Jurusan:</strong> {{ $dataSiswa->jurusan->nama_jurusan ?? 'Belum dipilih' }}</p>
+          <p class="mb-1"><strong>Pembayaran:</strong> <span class="badge bg-success">Lunas</span></p>
+          <p class="mb-1"><strong>Kartu Peserta:</strong> <span class="badge bg-success">Sudah Dicetak</span></p>
+          <p class="mb-0"><strong>Status Seleksi:</strong> <span class="badge bg-warning text-dark">Dalam Verifikasi & Penilaian</span></p>
+        </div>
+        
+        <div class="d-flex justify-content-center gap-2 mb-3">
+          <button type="button" onclick="confirmCetakKartu('{{ route('siswa.cetak-kartu') }}', 0)" class="btn btn-outline-primary">
+            <i class='bx bx-printer me-1'></i>Cetak Ulang Kartu Peserta
+          </button>
+        </div>
+        
+        <div class="spinner-border text-warning" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3 small text-muted">Panitia sedang memproses verifikasi berkas dan penilaian tes seleksi Anda</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+@elseif($currentStep == 7)
+<!-- Step 7: SUCCESS - Selesai & Diterima -->
 <div class="row">
   <div class="col-12">
     <div class="card">
@@ -621,7 +704,7 @@
         </div>
         <h4 class="text-success">Pendaftaran Berhasil!</h4>
         <p class="text-muted mb-4">
-          Selamat! Anda telah menyelesaikan seluruh proses pendaftaran {{ $namaAplikasi }} {{ $namaSekolah }}.
+          Selamat! Anda telah menyelesaikan seluruh proses pendaftaran {{ $namaAplikasi }} dan dinyatakan <strong>DITERIMA</strong>.
         </p>
         
         <div class="alert alert-success mx-auto" style="max-width: 500px;">
@@ -633,7 +716,7 @@
             </div>
             <div class="col-12 col-sm-6">
               <p class="mb-1 text-break"><strong>No. Pendaftaran:</strong> {{ $dataSiswa->no_pendaftaran }}</p>
-              <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">Terverifikasi</span></p>
+              <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">Diterima</span></p>
             </div>
           </div>
         </div>
@@ -645,9 +728,9 @@
           </button>
           
           @if($pengaturan_aplikasi && $pengaturan_aplikasi->enable_cetak_kartu)
-            <a href="{{ route('siswa.cetak-kartu') }}" target="_blank" class="btn btn-outline-warning w-100 w-sm-auto">
+            <button type="button" onclick="confirmCetakKartu('{{ route('siswa.cetak-kartu') }}', 0)" class="btn btn-outline-warning w-100 w-sm-auto">
               <i class='bx bx-printer me-1'></i>Cetak Kartu
-            </a>
+            </button>
           @endif
           
           <a href="{{ route('siswa.pengumuman.index') }}" class="btn btn-outline-success w-100 w-sm-auto">
@@ -668,7 +751,7 @@
 <div id="appConfig"
      data-nama-aplikasi="{{ $pengaturan->nama_aplikasi ?? 'PPDB SMK WI' }}"
      data-nama-sekolah="{{ $pengaturan->nama_sekolah ?? '-' }}"
-     data-logo-sekolah="{{ $pengaturan->logo ? Storage::url($pengaturan->logo) : asset('sneat/img/logowi.png') }}"
+     data-logo-sekolah="{{ $pengaturan->logo ? asset($pengaturan->logo) : asset('sneat/img/logowi.png') }}"
      data-alamat-sekolah="{{ $pengaturan->alamat ?? '-' }}"
      data-telepon-sekolah="{{ $pengaturan->telepon ?? '-' }}"
      data-email-sekolah="{{ $pengaturan->email ?? '-' }}">
@@ -686,8 +769,10 @@
      data-tanggal-lahir="{{ $dataSiswa->tanggal_lahir ? \Carbon\Carbon::parse($dataSiswa->tanggal_lahir)->format('d-m-Y') : '-' }}"
      data-jenis-kelamin="{{ $dataSiswa->jenis_kelamin ?? '-' }}"
      data-agama="{{ $dataSiswa->agama ?? '-' }}"
-     data-no-hp="{{ $dataSiswa->no_hp ?? '-' }}"
      data-asal-sekolah="{{ $dataSiswa->asal_sekolah ?? '-' }}"
+     data-jenjang-sekolah="{{ $dataSiswa->jenjang_sekolah_asal ?? '-' }}"
+     data-status-sekolah="{{ $dataSiswa->status_sekolah_asal ?? '-' }}"
+     data-kota-sekolah="{{ $dataSiswa->kota_sekolah_asal ?? '-' }}"
      data-alamat="{{ $dataSiswa->alamat ?? '-' }}"
      data-rt="{{ $dataSiswa->rt ?? '-' }}"
      data-rw="{{ $dataSiswa->rw ?? '-' }}"
@@ -920,6 +1005,18 @@
                                 <div class="row mb-2">
                                     <div class="col-sm-4"><strong>Asal Sekolah:</strong></div>
                                     <div class="col-sm-8">{{ $dataSiswa->asal_sekolah ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Jenjang:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->jenjang_sekolah_asal ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Status Sekolah:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->status_sekolah_asal ?? '-' }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Kota Sekolah:</strong></div>
+                                    <div class="col-sm-8">{{ $dataSiswa->kota_sekolah_asal ?? '-' }}</div>
                                 </div>
                             </div>
                         </div>
@@ -1195,7 +1292,7 @@
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <div class="row mb-2">
-                                    <div class="col-sm-6"><strong>Total Biaya PPDB:</strong></div>
+                                    <div class="col-sm-6"><strong>Total Biaya {{ $tipeAplikasi }}:</strong></div>
                                     <div class="col-sm-6">Rp {{ number_format($totalBiayaPPDB, 0, ',', '.') }}</div>
                                 </div>
                                 <div class="row mb-2">
@@ -1407,31 +1504,44 @@
 
 /* RESPONSIVE BREAKPOINTS - Hanya untuk mobile/tablet */
 
-/* Tablet Landscape dan kecil (768px - 992px) */
-@media (max-width: 992px) {
+/* RESPONSIVE BREAKPOINTS - Untuk Tablet dan Mobile */
+
+/* Laptop / Desktop Menengah (993px - 1200px) */
+@media (max-width: 1200px) and (min-width: 993px) {
   .progress-step {
-    min-width: 90px;
+    min-width: 80px;
+    padding: 0 4px;
   }
   
   .step-circle {
-    width: 55px;
-    height: 55px;
+    width: 48px;
+    height: 48px;
   }
   
   .step-number {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
   
   .step-icon {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
   }
   
   .step-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
-  
-/* Tablet Portrait & Mobile (kurang dari 768px) */
-@media (max-width: 768px) {
+
+  .step-title {
+    font-size: 0.65rem;
+  }
+
+  .progress-connector {
+    margin: 0 0.25rem;
+    top: 24px;
+  }
+}
+
+/* Tablet Landscape dan Tablet Portrait (769px - 992px) */
+@media (max-width: 992px) {
   .progress-modern {
     display: flex;
     overflow-x: auto;
@@ -1443,11 +1553,63 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
   }
+
+  .progress-step {
+    flex: 0 0 85px;
+    width: 85px;
+    min-width: 85px;
+    padding: 0 4px;
+  }
+  
+  .step-circle {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 0.4rem;
+  }
+  
+  .step-number {
+    font-size: 0.95rem;
+  }
+  
+  .step-icon {
+    font-size: 1.2rem;
+  }
+  
+  .step-label {
+    font-size: 0.65rem;
+  }
+
+  .step-title {
+    font-size: 0.65rem;
+  }
+
+  .progress-connector {
+    flex: 0 0 24px;
+    width: 24px;
+    min-width: 24px;
+    margin: 0 4px;
+    top: 24px;
+  }
+}
+
+/* Mobile (kurang dari 768px) */
+@media (max-width: 768px) {
+  .progress-modern {
+    display: flex;
+    overflow-x: auto;
+    white-space: normal;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-bottom: 10px;
+    margin: 1rem 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
   
   .progress-step {
-    flex: 0 0 75px;
-    width: 75px;
-    min-width: 75px;
+    flex: 0 0 74px;
+    width: 74px;
+    min-width: 74px;
     padding: 0 2px;
   }
   
@@ -1466,13 +1628,13 @@
   }
   
   .step-label {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     letter-spacing: 0.2px;
     margin-bottom: 0.15rem;
   }
   
   .step-title {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     line-height: 1.15;
   }
   
@@ -1503,7 +1665,9 @@
 /* Very Small Mobile (kurang dari 360px) */
 @media (max-width: 360px) {
   .progress-step {
-    width: 65px;
+    flex: 0 0 66px;
+    width: 66px;
+    min-width: 66px;
   }
   
   .step-circle {
@@ -1512,11 +1676,11 @@
   }
   
   .step-label {
-    font-size: 0.5rem;
+    font-size: 0.52rem;
   }
   
   .step-title {
-    font-size: 0.5rem;
+    font-size: 0.52rem;
   }
 }
 
@@ -1548,7 +1712,7 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ asset('sneat/js/printFormulir.js') }}"></script>
+<script src="{{ asset('sneat/js/printFormulir.js') }}?v={{ time() }}"></script>
 <script>
 // Fungsi untuk print formulir
 window.printFormulir = function(id) {
@@ -1712,8 +1876,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
         jurusans.forEach(jurusan => {
-            const kuotaTersedia = jurusan.kuota_tersedia !== undefined ? jurusan.kuota_tersedia : (jurusan.kuota - jurusan.jumlah_pendaftar);
-            const kuotaPersen = jurusan.kuota > 0 ? (jurusan.jumlah_pendaftar / jurusan.kuota) * 100 : 0;
+            const jumlahDiterima = jurusan.jumlah_diterima !== undefined ? jurusan.jumlah_diterima : (jurusan.jumlah_pendaftar || 0);
+            const kuotaTersedia = jurusan.kuota_tersedia !== undefined ? jurusan.kuota_tersedia : Math.max(0, jurusan.kuota - jumlahDiterima);
+            const kuotaPersen = jurusan.kuota > 0 ? (jumlahDiterima / jurusan.kuota) * 100 : 0;
             const isKuotaTersedia = kuotaTersedia > 0;
             
             // Tampilkan info gelombang jika ada
@@ -1751,7 +1916,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </small>
                                 <div class="mt-1">
                                     <small class="text-muted">
-                                        ${jurusan.jumlah_pendaftar} pendaftar
+                                        ${jumlahDiterima} diterima
                                     </small>
                                 </div>
                             </div>

@@ -7,9 +7,11 @@
       $pengaturan = \App\Models\PengaturanAplikasi::first();
       $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
       $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB SMK WI';
+      $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+      $tahunAjaranAktif = $pengaturan ? $pengaturan->tahunAjaranAktif : \App\Models\TahunAjaran::where('status', 'aktif')->first();
   @endphp
   <link rel="icon" href="{{ asset($logo) }}" type="image/png">
-  <title>@yield('title', 'Dashboard Admin') - {{ $namaAplikasi }}</title>
+  <title>@yield('title', 'Portal Siswa') - {{ $namaAplikasi }}{{ $tahunAjaranAktif ? ' (T.A '.$tahunAjaranAktif->nama.')' : '' }}</title>
 
   <!-- Sneat CSS -->
   <link rel="stylesheet" href="{{ asset('sneat/vendor/css/core.css') }}">
@@ -52,6 +54,56 @@
       border-radius: 0.75rem;
     }
 
+    @media (min-width: 1200px) {
+      .content-wrapper > .container-xxl {
+        padding-left: 1.625rem !important;
+        padding-right: 1.625rem !important;
+        padding-inline: 1.625rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+    }
+
+    /* Pastikan seluruh sub-container di semua halaman dinetralkan agar lebar kartu sama dengan navbar */
+    .content-wrapper .container,
+    .content-wrapper .container-fluid,
+    .content-wrapper .container-sm,
+    .content-wrapper .container-md,
+    .content-wrapper .container-lg,
+    .content-wrapper .container-xl,
+    .content-wrapper .main-content,
+    .container-xxl .container-xxl,
+    .container-xxl .container-fluid {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      padding-inline: 0 !important;
+      padding-inline-start: 0 !important;
+      padding-inline-end: 0 !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      margin-inline: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .content-wrapper .card,
+    .container-xxl .card,
+    .card-full-width {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      margin-inline: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .container-p-y .container-p-y {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+
     /* Footer agar rapi di bawah */
     footer.footer {
       padding: 0.5rem 0;
@@ -92,14 +144,64 @@
         width: 100% !important;
         max-width: 100% !important;
       }
+      .layout-navbar {
+        position: sticky !important;
+        top: 0.5rem !important;
+        z-index: 1040 !important;
+        width: calc(100% - 1.5rem) !important;
+        inline-size: calc(100% - 1.5rem) !important;
+        max-width: calc(100% - 1.5rem) !important;
+        max-inline-size: calc(100% - 1.5rem) !important;
+        margin: 0.65rem auto 0.75rem auto !important;
+        margin-inline: auto !important;
+        border-radius: 0.5rem !important;
+        padding: 0.5rem 1rem !important;
+        box-sizing: border-box !important;
+        background-color: #ffffff !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+      }
+      .content-wrapper > .container-xxl,
       .container-p-y,
       .container-xxl.container-p-y {
         padding-left: 0.75rem !important;
         padding-right: 0.75rem !important;
-        padding-top: 0.75rem !important;
+        padding-inline: 0.75rem !important;
+        padding-top: 0 !important;
+        padding-bottom: 1.5rem !important;
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
+      }
+
+      .container-fluid,
+      .container-fluid.p-0,
+      .container-xxl .container-xxl,
+      .container-xxl .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .content-wrapper .card,
+      .container-xxl .card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .content-wrapper .row {
+        margin-left: -0.375rem !important;
+        margin-right: -0.375rem !important;
+      }
+      .content-wrapper .row > [class*="col-"] {
+        padding-left: 0.375rem !important;
+        padding-right: 0.375rem !important;
       }
       .table-responsive {
         -webkit-overflow-scrolling: touch;
@@ -286,6 +388,53 @@
           document.getElementById('logout-form').submit();
         }
       });
+    }
+
+    // Modal Pengingat & Konfirmasi Kesiapan Tes saat Pertama Kali Cetak Kartu
+    function confirmCetakKartu(url, isFirstTime) {
+      if (isFirstTime == '1' || isFirstTime === 1 || isFirstTime === true) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Kesiapan Tes & Verifikasi Berkas',
+          html: `
+            <div class="text-start" style="font-size: 0.95rem; line-height: 1.6;">
+              <p class="mb-2">Anda akan mengunduh / mencetak <strong>Kartu Tanda Peserta & Lembar Ceklis Berkas</strong>.</p>
+              <div class="alert alert-warning py-2 px-3 my-3 small border-0 text-start" style="background-color: #fff3cd; color: #664d03; border-radius: 6px;">
+                <i class='bx bx-info-circle me-1'></i> <strong>Perhatian:</strong> Dokumen fisik ini <u>wajib dicetak dan dibawa</u> saat Anda hadir ke sekolah untuk mengikuti <strong>Tes Wawancara / Seleksi</strong> serta <strong>Verifikasi Berkas Fisik</strong>.
+              </div>
+              <p class="mb-0 text-muted small">Pastikan Anda siap hadir sesuai jadwal tes sekolah. Lanjutkan untuk mencetak kartu sekarang?</p>
+            </div>
+          `,
+          showCancelButton: true,
+          confirmButtonText: '<i class="bx bx-printer me-1"></i> Ya, Saya Siap & Cetak Kartu',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#696cff',
+          cancelButtonColor: '#8592a3',
+          reverseButtons: true,
+          focusConfirm: true,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Buka tab baru halaman cetak kartu
+            window.open(url, '_blank');
+
+            // Kirim konfirmasi ke server via fetch
+            fetch('{{ route("siswa.konfirmasi-cetak-kartu") }}', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+              }
+            }).then(() => {
+              window.location.reload();
+            }).catch(() => {
+              window.location.reload();
+            });
+          }
+        });
+      } else {
+        // Jika sudah pernah cetak sebelumnya, langsung buka cetak kartu
+        window.open(url, '_blank');
+      }
     }
 
     // Toggle sidebar mobile mandiri & terisolasi

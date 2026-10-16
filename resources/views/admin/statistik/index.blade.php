@@ -252,8 +252,8 @@
 
 .table-sm th,
 .table-sm td {
-    font-size: 0.875rem !important;
-    padding: 0.4rem 0.5rem !important;
+    font-size: 0.9375rem !important;
+    padding: 0.65rem 0.75rem !important;
 }
 
 #referensiChart,

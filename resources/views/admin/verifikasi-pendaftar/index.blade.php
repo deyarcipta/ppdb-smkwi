@@ -150,7 +150,12 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold text-primary">Asal Sekolah</label>
-                        <p class="border-bottom pb-2">{{ $item->dataSiswa->asal_sekolah ?? '-' }}</p>
+                        <p class="border-bottom pb-2">
+                            {{ $item->dataSiswa->asal_sekolah ?? '-' }}
+                            @if(!empty($item->dataSiswa->jenjang_sekolah_asal) || !empty($item->dataSiswa->status_sekolah_asal) || !empty($item->dataSiswa->kota_sekolah_asal))
+                                <br><small class="text-muted">{{ implode(' • ', array_filter([$item->dataSiswa->jenjang_sekolah_asal, $item->dataSiswa->status_sekolah_asal, $item->dataSiswa->kota_sekolah_asal])) }}</small>
+                            @endif
+                        </p>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold text-primary">No HP</label>

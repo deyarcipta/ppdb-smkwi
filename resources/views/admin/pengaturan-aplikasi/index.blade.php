@@ -1,6 +1,91 @@
 @extends('admin.layouts.app')
 @section('title', 'Pengaturan Aplikasi')
 
+@push('styles')
+<style>
+  .custom-type-option {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.85rem 1rem;
+    border: 1px solid #e7e7e8;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    user-select: none;
+    height: 100%;
+    margin-bottom: 0;
+  }
+
+  .custom-type-option:hover {
+    border-color: #c9ced6;
+    background-color: #fafbfc;
+  }
+
+  .custom-type-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    margin: 0;
+  }
+
+  /* Kotak checkbox kustom persis seperti gambar yang dikirim user */
+  .custom-checkbox-indicator {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border-radius: 5px;
+    border: 1.5px solid #d0d5dd;
+    background: linear-gradient(180deg, #f9fafb 0%, #eaedf1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    margin-right: 12px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  .custom-checkbox-indicator .check-icon {
+    width: 13px;
+    height: 13px;
+    display: none;
+    color: #ffffff;
+  }
+
+  /* Status terpilih (Checked) */
+  .custom-type-input:checked + .custom-checkbox-indicator {
+    background: #007bff;
+    border-color: #007bff;
+    box-shadow: 0 1px 4px rgba(0, 123, 255, 0.35);
+  }
+
+  .custom-type-input:checked + .custom-checkbox-indicator .check-icon {
+    display: block;
+  }
+
+  .custom-type-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .custom-type-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #384551;
+    line-height: 1.3;
+  }
+
+  .custom-type-subtitle {
+    font-size: 0.8rem;
+    color: #8592a3;
+    line-height: 1.35;
+    margin-top: 2px;
+  }
+</style>
+@endpush
+
 @section('content')
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
@@ -32,13 +117,71 @@
             </div>
             <div class="card-body">
               <div class="mb-3 mt-3">
-                <label>Nama Sekolah</label>
+                <label class="form-label fw-bold">Nama Sekolah</label>
                 <input type="text" name="nama_sekolah" class="form-control" value="{{ $pengaturan->nama_sekolah }}" required>
               </div>
 
+              <!-- Pilihan Tipe / Istilah Aplikasi -->
               <div class="mb-3">
-                <label>Nama Aplikasi</label>
-                <input type="text" name="nama_aplikasi" class="form-control" value="{{ $pengaturan->nama_aplikasi }}" required>
+                <label class="form-label fw-bold d-block mb-2">Penamaan Tipe Sistem (PPDB / SPMB)</label>
+                <div class="row g-2">
+                  <div class="col-sm-6">
+                    <label class="custom-type-option" for="tipe_ppdb">
+                      <input name="tipe_aplikasi" class="custom-type-input" type="radio" value="PPDB" id="tipe_ppdb" {{ ($pengaturan->tipe_aplikasi ?? 'PPDB') === 'PPDB' ? 'checked' : '' }} required>
+                      <span class="custom-checkbox-indicator">
+                        <svg class="check-icon" viewBox="0 0 16 16" fill="currentColor">
+                          <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                        </svg>
+                      </span>
+                      <div class="custom-type-text">
+                        <span class="custom-type-title">PPDB</span>
+                        <span class="custom-type-subtitle">Penerimaan Peserta Didik Baru</span>
+                      </div>
+                    </label>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="custom-type-option" for="tipe_spmb">
+                      <input name="tipe_aplikasi" class="custom-type-input" type="radio" value="SPMB" id="tipe_spmb" {{ ($pengaturan->tipe_aplikasi ?? 'PPDB') === 'SPMB' ? 'checked' : '' }} required>
+                      <span class="custom-checkbox-indicator">
+                        <svg class="check-icon" viewBox="0 0 16 16" fill="currentColor">
+                          <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                        </svg>
+                      </span>
+                      <div class="custom-type-text">
+                        <span class="custom-type-title">SPMB</span>
+                        <span class="custom-type-subtitle">Sistem Penerimaan Murid Baru</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+                <small class="text-muted mt-2 d-block"><i class="bx bx-info-circle me-1"></i>Otomatis menyinkronkan seluruh istilah (Landing page, Formulir, Siswa, Admin, Kartu, & WhatsApp).</small>
+              </div>
+
+              <!-- Tahun Ajaran Aktif -->
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label class="form-label fw-bold mb-0">Tahun Ajaran Aktif</label>
+                  <a href="{{ route('tahun-ajaran.index') }}" class="small text-primary text-decoration-none" target="_blank">
+                    <i class="bx bx-link-external me-1"></i>Kelola Tahun Ajaran
+                  </a>
+                </div>
+                <select name="tahun_ajaran_id" class="form-select">
+                  <option value="">-- Pilih Tahun Ajaran Aktif --</option>
+                  @foreach($tahunAjaran as $ta)
+                    <option value="{{ $ta->id }}" {{ ($pengaturan->tahun_ajaran_id == $ta->id || ($pengaturan->tahun_ajaran_id == null && $ta->status == 'aktif')) ? 'selected' : '' }}>
+                      {{ $ta->nama }} {{ $ta->status == 'aktif' ? '(Sedang Aktif)' : '' }}
+                    </option>
+                  @endforeach
+                </select>
+                <small class="text-muted d-block mt-1">
+                  <i class="bx bx-sync me-1"></i>Menyinkronkan periode penerimaan, formulir, gelombang aktif, dan nomor pendaftaran ke tahun ajaran yang dipilih.
+                </small>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Nama Aplikasi Lengkap</label>
+                <input type="text" name="nama_aplikasi" class="form-control" value="{{ $pengaturan->nama_aplikasi }}" required placeholder="Contoh: SPMB SMK YASPIA atau PPDB SMK WI">
+                <small class="text-muted">Nama brand aplikasi yang ditampilkan pada navigasi header, sidebar, judul tab, dan footer.</small>
               </div>
 
               <div class="mb-3">

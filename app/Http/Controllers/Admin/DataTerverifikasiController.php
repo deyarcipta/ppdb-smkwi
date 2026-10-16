@@ -28,15 +28,25 @@ class DataTerverifikasiController extends Controller
         $this->whatsappService = $whatsappService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil hanya akun siswa yang sudah aktif
-        $data = UserSiswa::with(['dataSiswa', 'pembayaran' => function($query) {
-            $query->orderBy('created_at', 'desc');
+        $tahunAjaranList = \App\Models\TahunAjaran::orderBy('id', 'desc')->get();
+        $tahunAjaranAktif = \App\Models\TahunAjaran::where('status', 'aktif')->first();
+        $selectedTahunAjaranId = $request->get('tahun_ajaran_id');
+
+        // Query akun siswa yang aktif, dengan filter tahun ajaran jika dipilih
+        $query = UserSiswa::with(['dataSiswa', 'dataSiswa.gelombang.tahunAjaran', 'dataSiswa.jurusan', 'pembayaran' => function($q) {
+            $q->orderBy('created_at', 'desc');
         }])
-            ->where('status_akun', 'aktif')
-            ->orderBy('id', 'desc')
-            ->paginate(10);
+        ->where('status_akun', 'aktif');
+
+        if ($selectedTahunAjaranId) {
+            $query->whereHas('dataSiswa.gelombang', function($q) use ($selectedTahunAjaranId) {
+                $q->where('tahun_ajaran_id', $selectedTahunAjaranId);
+            });
+        }
+
+        $data = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
 
         // Ambil total biaya dari master biaya (dan per gelombang)
         $totalBiaya = MasterBiaya::where('status', 1)->sum('total_biaya');
@@ -47,13 +57,25 @@ class DataTerverifikasiController extends Controller
                 return $items->sum('total_biaya');
             });
 
-        // Ambil gelombang dan jurusan aktif untuk modal tambah
-        $gelombangs = GelombangPendaftaran::where('status', 'aktif')->get();
+        // Ambil gelombang aktif yang tersinkron dengan Tahun Ajaran aktif
+        $gelombangs = GelombangPendaftaran::with('tahunAjaran')
+            ->where('status', 'aktif')
+            ->when($tahunAjaranAktif, function($q) use ($tahunAjaranAktif) {
+                $q->where('tahun_ajaran_id', $tahunAjaranAktif->id);
+            })
+            ->get();
+        if ($gelombangs->isEmpty()) {
+            $gelombangs = GelombangPendaftaran::where('status', 'aktif')->get();
+        }
+
         $jurusans = Jurusan::where('status', 1)->get();
         $dataSmp = DataSmp::all();
         $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
 
-        return view('admin.data-terverifikasi.index', compact('data', 'totalBiaya', 'totalBiayaPerGelombang', 'gelombangs', 'jurusans', 'dataSmp', 'pengaturan'));
+        return view('admin.data-terverifikasi.index', compact(
+            'data', 'totalBiaya', 'totalBiayaPerGelombang', 'gelombangs', 'jurusans', 
+            'dataSmp', 'pengaturan', 'tahunAjaranList', 'selectedTahunAjaranId'
+        ));
     }
 
     public function update(Request $request)
@@ -172,6 +194,7 @@ public function kirimUlang($id)
         $tahunAjaran = optional($gelombang?->tahunAjaran)->nama
             ?? ($gelombang->nama_gelombang ?? '-');
 
+        $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
         $placeholders = [
             '{nama}'         => $dataSiswa->nama_lengkap ?? '-',
             '{username}'     => $user->username ?? '-',
@@ -181,8 +204,10 @@ public function kirimUlang($id)
 
             '{rekening}'     => $info->nomor_rekening ?? '-',
             '{an}'           => $info->atas_nama ?? '-',
-            '{no_admin}'     => '0852-1815-0720',
-            '{url_sistem}'   => 'https://ppdb.smkwisataindonesia.sch.id/siswa',
+            '{no_admin}'     => $pengaturan->no_hp ?? '0852-1815-0720',
+            '{url_sistem}'   => url('/siswa'),
+            '{tipe_aplikasi}' => $pengaturan->tipe_aplikasi ?? 'PPDB',
+            '{nama_aplikasi}' => $pengaturan->nama_aplikasi ?? 'PPDB',
         ];
 
         $message = strtr($template->isi_pesan, $placeholders);
@@ -240,6 +265,8 @@ public function kirimUlang($id)
         $nextYear = $currentYear + 1;
         $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
         $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+        $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+        $tahunAjaran = $dataSiswa->tahunAjaran?->nama ?? $dataSiswa->gelombang?->tahunAjaran?->nama ?? $pengaturan->tahunAjaranAktif?->nama ?? "{$currentYear}/{$nextYear}";
 
         return [
             '{nama}' => $dataSiswa->nama_panggilan ?? explode(' ', $dataSiswa->nama_lengkap)[0] ?? $dataSiswa->nama_lengkap,
@@ -247,15 +274,17 @@ public function kirimUlang($id)
             '{no_pendaftaran}' => $dataSiswa->no_pendaftaran ?? '-',
             '{jurusan}' => $dataSiswa->jurusan->nama_jurusan ?? '-',
             '{gelombang}' => $dataSiswa->gelombang->nama_gelombang ?? 'Gelombang 1',
-            '{tahun_ajaran}' => "{$currentYear}/{$nextYear}",
+            '{tahun_ajaran}' => $tahunAjaran,
             '{batas_daftar_ulang}' => "31 Juli {$currentYear}",
             '{periode_daftar_ulang}' => "15 - 31 Juli {$currentYear}",
             '{tanggal_mpls}' => "1 Agustus {$currentYear}",
             '{tanggal_awal_semester}' => "5 Agustus {$currentYear}",
             '{alamat_sekolah}' => $pengaturan->alamat ?? "Jl. Pendidikan No. 123, Jakarta",
             '{no_admin}' => $pengaturan->no_hp ?? '0852-1815-0720',
-            '{email_sekolah}' => $pengaturan->email ?? "ppdb@smkwisataindonesia.sch.id",
+            '{email_sekolah}' => $pengaturan->email ?? "info@smkwi.sch.id",
             '{url_sistem}' => url('/siswa'),
+            '{tipe_aplikasi}' => $tipeAplikasi,
+            '{nama_aplikasi}' => $pengaturan->nama_aplikasi ?? $tipeAplikasi,
             
             // Tambahan placeholder untuk fleksibilitas
             '{sekolah}' => $namaSekolah,
@@ -328,8 +357,8 @@ public function kirimUlang($id)
                 $smp = DataSmp::create(['nama_smp' => $namaSmpClean]);
             }
 
-            // Generate nomor pendaftaran otomatis
-            $noPendaftaran = $this->generateNoPendaftaran($request->jurusan_id, $request->gelombang_id, $username);
+            // Generate nomor pendaftaran resmi otomatis
+            $noPendaftaran = DataSiswa::generateNoPendaftaranStatic($request->jurusan_id, $request->gelombang_id, $username);
 
             // 2. Simpan ke tabel data_siswa
             $dataSiswa = DataSiswa::create([
@@ -372,8 +401,10 @@ public function kirimUlang($id)
 
     private function generateUsername()
     {
+        $pengaturan = \App\Models\PengaturanAplikasi::first();
+        $tipe = $pengaturan->tipe_aplikasi ?? 'PPDB';
         $tahun = date('Y');
-        $prefix = "PPDB{$tahun}";
+        $prefix = "{$tipe}{$tahun}";
         
         $lastUser = UserSiswa::where('username', 'like', $prefix . '%')
             ->orderBy('username', 'desc')
@@ -405,11 +436,15 @@ public function kirimUlang($id)
 
             $lastThreeDigits = substr($username, -3);
 
-            $noPendaftaran = "PPDB/{$kodeJurusan}/{$tahunAjaran}/{$angkaGelombang}/{$lastThreeDigits}";
+            $pengaturan = \App\Models\PengaturanAplikasi::first();
+            $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+            $tahunAjaranClean = str_replace('/', '-', $tahunAjaran);
+            $noPendaftaran = "{$tipeAplikasi}/{$kodeJurusan}/{$tahunAjaranClean}/{$angkaGelombang}/{$lastThreeDigits}";
             return $noPendaftaran;
         } catch (\Exception $e) {
             Log::error('Error generating no_pendaftaran: ' . $e->getMessage());
-            return "PPDB/UMUM/" . date('Y') . "/I/001";
+            $tipeFallback = \App\Models\PengaturanAplikasi::first()->tipe_aplikasi ?? 'PPDB';
+            return "{$tipeFallback}/UMUM/" . date('Y') . "/I/001";
         }
     }
 
@@ -448,6 +483,7 @@ public function kirimUlang($id)
 
             $tahunAjaran = $gelombang->tahunAjaran->nama ?? $gelombang->nama;
             $info = InfoPembayaran::first();
+            $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
 
             $placeholders = [
                 '{nama}' => $namaLengkap,
@@ -457,8 +493,10 @@ public function kirimUlang($id)
                 '{gelombang}' => $gelombang->nama_gelombang,
                 '{rekening}' => $info->nomor_rekening ?? '-',
                 '{an}' => $info->atas_nama ?? '-',
-                '{no_admin}' => '0852-1815-0720',
-                '{url_sistem}' => 'https://ppdb.smkwisataindonesia.sch.id/siswa',
+                '{no_admin}' => $pengaturan->no_hp ?? '0852-1815-0720',
+                '{url_sistem}' => url('/siswa'),
+                '{tipe_aplikasi}' => $pengaturan->tipe_aplikasi ?? 'PPDB',
+                '{nama_aplikasi}' => $pengaturan->nama_aplikasi ?? 'PPDB',
             ];
 
             $message = strtr($template->isi_pesan, $placeholders);

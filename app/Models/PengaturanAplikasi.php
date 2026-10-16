@@ -14,6 +14,8 @@ class PengaturanAplikasi extends Model
     protected $fillable = [
         'nama_sekolah',
         'nama_aplikasi',
+        'tipe_aplikasi',
+        'tahun_ajaran_id',
         'logo',
         'favicon',
         'email',
@@ -53,6 +55,43 @@ class PengaturanAplikasi extends Model
         'enable_whatsapp' => 'boolean',
         'wa_load_balancing' => 'boolean',
     ];
+
+    /**
+     * Relasi ke Tahun Ajaran aktif yang dikonfigurasikan
+     */
+    public function tahunAjaran()
+    {
+        return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran_id');
+    }
+
+    /**
+     * Helper untuk mendapatkan tipe aplikasi (default: PPDB)
+     */
+    public function getTipeAplikasiAttribute($value)
+    {
+        return $value ?: 'PPDB';
+    }
+
+    /**
+     * Helper untuk mendapatkan nama panjang tipe aplikasi
+     */
+    public function getNamaPanjangAplikasiAttribute()
+    {
+        return ($this->tipe_aplikasi === 'SPMB') 
+            ? 'Sistem Penerimaan Murid Baru' 
+            : 'Penerimaan Peserta Didik Baru';
+    }
+
+    /**
+     * Helper untuk mendapatkan model Tahun Ajaran aktif yang tersinkron
+     */
+    public function getTahunAjaranAktifAttribute()
+    {
+        if ($this->tahun_ajaran_id && $this->tahunAjaran) {
+            return $this->tahunAjaran;
+        }
+        return TahunAjaran::where('status', 'aktif')->first();
+    }
 
     /**
      * Get application settings

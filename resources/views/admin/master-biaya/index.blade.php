@@ -2,11 +2,15 @@
 @section('title', 'Master Biaya')
 
 @section('content')
+@php
+    $pengaturanBiaya = \App\Models\PengaturanAplikasi::first();
+    $tipeAplikasiBiaya = $pengaturanBiaya->tipe_aplikasi ?? 'PPDB';
+@endphp
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
     <div>
       <h5 class="mb-1"><i class="bx bx-wallet me-2 text-primary"></i>Master Biaya</h5>
-      <small class="text-muted">Kelola tarif rincian komponen biaya pendaftaran PPDB.</small>
+      <small class="text-muted">Kelola tarif rincian komponen biaya pendaftaran {{ $tipeAplikasiBiaya }}.</small>
     </div>
     <button class="btn btn-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#addBiayaModal">
       <i class="bx bx-plus me-1"></i>Tambah Biaya
@@ -38,7 +42,7 @@
             <td>{{ $row->gelombang->nama_gelombang ?? '-' }}</td>
             <td>
               <span class="badge bg-info text-dark">
-                {{ ucfirst($row->jenis_biaya) }}
+                {{ $row->jenis_biaya === 'ppdb' ? $tipeAplikasiBiaya : ucfirst($row->jenis_biaya) }}
               </span>
             </td>
             <td>{{ $row->nama_biaya }}</td>
@@ -112,13 +116,13 @@
           <select name="jenis_biaya" class="form-select" required>
             <option value="">-- Pilih Jenis Biaya --</option>
             <option value="formulir">Formulir</option>
-            <option value="ppdb">PPDB</option>
+            <option value="ppdb">{{ $tipeAplikasiBiaya }}</option>
           </select>
         </div>
 
         <div class="mb-3">
           <label>Nama Biaya</label>
-          <input type="text" name="nama_biaya" class="form-control" placeholder="Contoh: Biaya PPDB" required>
+          <input type="text" name="nama_biaya" class="form-control" placeholder="Contoh: Biaya {{ $tipeAplikasiBiaya }}" required>
         </div>
 
         <div class="mb-3">
@@ -171,7 +175,7 @@
           <label>Jenis Biaya</label>
           <select name="jenis_biaya" class="form-select" required>
             <option value="formulir" {{ $row->jenis_biaya == 'formulir' ? 'selected' : '' }}>Formulir</option>
-            <option value="ppdb" {{ $row->jenis_biaya == 'ppdb' ? 'selected' : '' }}>PPDB</option>
+            <option value="ppdb" {{ $row->jenis_biaya == 'ppdb' ? 'selected' : '' }}>{{ $tipeAplikasiBiaya }}</option>
           </select>
         </div>
 

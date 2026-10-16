@@ -7,7 +7,27 @@
   </div>
 
   <div class="navbar-nav-right d-flex align-items-center w-100" id="navbar-collapse">
-    <!-- Bagian Kiri (opsional, misal pencarian) -->
+    @php
+      $pengaturanNav = \App\Models\PengaturanAplikasi::first();
+      $tipeAplikasiNav = $pengaturanNav->tipe_aplikasi ?? 'PPDB';
+      $taNav = $pengaturanNav ? $pengaturanNav->tahunAjaranAktif : \App\Models\TahunAjaran::where('status', 'aktif')->first();
+    @endphp
+    <!-- Bagian Kiri: Status Tahun Ajaran & Tipe Sistem -->
+    <div class="navbar-nav align-items-center d-none d-md-flex gap-2">
+      <a href="{{ route('tahun-ajaran.index') }}" class="text-decoration-none" title="Klik untuk mengelola Tahun Ajaran">
+        <span class="badge bg-label-primary py-2 px-3 d-flex align-items-center">
+          <i class="bx bx-calendar me-1"></i>
+          <span>T.A: <strong>{{ $taNav->nama ?? 'Belum Diatur' }}</strong></span>
+        </span>
+      </a>
+      <a href="{{ route('pengaturan-aplikasi.index') }}" class="text-decoration-none d-flex align-items-center" title="Klik untuk mengubah Pengaturan">
+        <span class="badge bg-label-info py-2 px-3 d-flex align-items-center">
+          <i class="bx bx-check-shield me-1"></i>
+          <span>Sistem: <strong>{{ $tipeAplikasiNav }}</strong></span>
+        </span>
+      </a>
+    </div>
+
     <ul class="navbar-nav flex-row align-items-center ms-auto">
       <!-- Dropdown User -->
       <li class="nav-item navbar-dropdown dropdown-user dropdown">

@@ -81,21 +81,23 @@ class VerifikasiPendaftarController extends Controller
                 return ['success' => false, 'error' => 'Template pesan tidak ditemukan'];
             }
 
-            // Buat variabel pengganti (placeholder)
-            $currentYear = date('Y');
-            $nextYear = $currentYear + 1;
             $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
             $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+            $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+            $tahunAjaranAktif = $pengaturan->tahunAjaranAktif;
+            $tahunAjaranNama = $tahunAjaranAktif ? $tahunAjaranAktif->nama : (date('Y') . '/' . (date('Y') + 1));
 
             $placeholders = [
                 '{nama}' => $namaLengkap,
                 '{username}' => $username,
                 '{password}' => 'password123',
-                '{tahun_ajaran}' => "{$currentYear}/{$nextYear}",
+                '{tahun_ajaran}' => $tahunAjaranNama,
                 '{rekening}' => '1234567890',
                 '{an}' => $namaSekolah,
                 '{no_admin}' => $pengaturan->no_hp ?? '0852-1815-0720',
                 '{url_sistem}' => url('/siswa'),
+                '{tipe_aplikasi}' => $tipeAplikasi,
+                '{nama_aplikasi}' => $pengaturan->nama_aplikasi ?? $tipeAplikasi,
             ];
 
             // Ganti placeholder dalam isi pesan

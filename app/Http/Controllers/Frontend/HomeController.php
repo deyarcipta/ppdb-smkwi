@@ -21,12 +21,16 @@ class HomeController extends Controller
     {
         // Pengaturan Aplikasi
         $pengaturan = PengaturanAplikasi::first();
+        $tahunAjaranAktif = $pengaturan ? $pengaturan->tahunAjaranAktif : \App\Models\TahunAjaran::where('status', 'aktif')->first();
 
         // Ambil data jurusan aktif
         $jurusans = Jurusan::aktif()->orderBy('nama_jurusan')->get();
 
-        // Ambil data gelombang aktif
+        // Ambil data gelombang aktif yang tersinkron dengan Tahun Ajaran aktif
         $gelombangAktif = GelombangPendaftaran::with('tahunAjaran')
+            ->when($tahunAjaranAktif, function($q) use ($tahunAjaranAktif) {
+                $q->where('tahun_ajaran_id', $tahunAjaranAktif->id);
+            })
             ->aktif()
             ->orderBy('tanggal_mulai', 'asc')
             ->get();
@@ -69,6 +73,7 @@ class HomeController extends Controller
 
         return view('frontend.home', compact(
             'pengaturan',
+            'tahunAjaranAktif',
             'jurusans',
             'alurPendaftaran',
             'gelombangAktif', 

@@ -33,7 +33,12 @@
           <tr class="text-center">
             <td>{{ $loop->iteration }}</td>
             <td>{{ $row->nama_gelombang }}</td>
-            <td>{{ $row->tahunAjaran->nama ?? '-' }}</td>
+            <td>
+              {{ $row->tahunAjaran->nama ?? '-' }}
+              @if(optional($row->tahunAjaran)->status == 'aktif')
+                <span class="badge bg-label-success ms-1" style="font-size: 0.7rem;">Aktif</span>
+              @endif
+            </td>
             <td>{{ $row->tanggal_mulai ? \Carbon\Carbon::parse($row->tanggal_mulai)->format('d M Y') : '-' }}</td>
             <td>{{ $row->tanggal_selesai ? \Carbon\Carbon::parse($row->tanggal_selesai)->format('d M Y') : '-' }}</td>
             <td>
@@ -99,7 +104,7 @@
           <select name="tahun_ajaran_id" class="form-select" required>
             <option value="">-- Pilih Tahun Ajaran --</option>
             @foreach($tahunAjaran as $ta)
-              <option value="{{ $ta->id }}">{{ $ta->nama }}</option>
+              <option value="{{ $ta->id }}" {{ $ta->status == 'aktif' ? 'selected' : '' }}>{{ $ta->nama }} {{ $ta->status == 'aktif' ? '(Aktif)' : '' }}</option>
             @endforeach
           </select>
         </div>
@@ -142,7 +147,7 @@
             <option value="">-- Pilih Tahun Ajaran --</option>
             @foreach($tahunAjaran as $ta)
               <option value="{{ $ta->id }}" {{ $row->tahun_ajaran_id == $ta->id ? 'selected' : '' }}>
-                {{ $ta->nama }}
+                {{ $ta->nama }} {{ $ta->status == 'aktif' ? '(Aktif)' : '' }}
               </option>
             @endforeach
           </select>

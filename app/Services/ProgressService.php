@@ -24,7 +24,7 @@ class ProgressService
         // ======== KATEGORI DATA DIRI ========
         $dataDiriFields = [
             'nisn', 'nik', 'no_kk', 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir',
-            'jenis_kelamin', 'no_hp', 'asal_sekolah', 'agama', 'ukuran_baju', 'hobi',
+            'jenis_kelamin', 'no_hp', 'asal_sekolah', 'jenjang_sekolah_asal', 'status_sekolah_asal', 'kota_sekolah_asal', 'agama', 'ukuran_baju', 'hobi',
             'cita_cita', 'anak_ke', 'jumlah_saudara', 'tinggi_badan', 'berat_badan',
             'status_dalam_keluarga', 'tinggal_bersama', 'jarak_kesekolah', 'waktu_tempuh',
             'transportasi', 'no_kip', 'referensi', 'ket_referensi',

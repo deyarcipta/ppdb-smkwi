@@ -74,6 +74,24 @@ class Pembayaran extends Model
     }
 
     /**
+     * Pastikan nomor pendaftaran selalu mengikuti pengaturan tipe_aplikasi (SPMB atau PPDB)
+     */
+    public function getNoPendaftaranAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        static $currentTipe = null;
+        if ($currentTipe === null) {
+            $pengaturan = \App\Models\PengaturanAplikasi::first();
+            $currentTipe = $pengaturan->tipe_aplikasi ?? 'PPDB';
+        }
+
+        return preg_replace('/^(PPDB|SPMB)/i', $currentTipe, $value);
+    }
+
+    /**
      * Accessor untuk status_label
      * Mengubah nilai status dari database menjadi label yang lebih readable
      */

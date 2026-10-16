@@ -183,6 +183,8 @@
               <tr><td><code>{an}</code></td><td>Atas nama pemilik rekening</td></tr>
               <tr><td><code>{no_admin}</code></td><td>Nomor kontak panitia/admin</td></tr>
               <tr><td><code>{url_sistem}</code></td><td>Tautan URL portal login siswa</td></tr>
+              <tr><td><code>{tipe_aplikasi}</code></td><td>Tipe aplikasi pendaftaran (contoh: <code>PPDB</code> / <code>SPMB</code>)</td></tr>
+              <tr><td><code>{nama_aplikasi}</code></td><td>Nama aplikasi resmi sekolah</td></tr>
             </tbody>
           </table>
         </div>
@@ -199,9 +201,14 @@
               <tr><td><code>{status_judul}</code></td><td>Status judul ("TELAH DIVERIFIKASI")</td></tr>
               <tr><td><code>{status_badge}</code></td><td>Ikon checklist hijau (✅)</td></tr>
               <tr><td><code>{status_detail}</code></td><td>Rincian status ("LUNAS & TERVERIFIKASI")</td></tr>
+              <tr><td><code>{pesan_verifikasi}</code></td><td>Pesan konfirmasi verifikasi pembayaran formulir</td></tr>
               <tr><td><code>{tahap_selanjutnya}</code></td><td>Instruksi tahap selanjutnya (lengkapi berkas/pembayaran)</td></tr>
+              <tr><td><code>{pesan_penutup}</code></td><td>Pesan penutup motivasi/arahan pendaftaran</td></tr>
+              <tr><td><code>{tahun_ajaran}</code></td><td>Tahun ajaran aktif (contoh: <code>2026/2027</code>)</td></tr>
               <tr><td><code>{no_admin}</code></td><td>Nomor kontak panitia/admin</td></tr>
               <tr><td><code>{url_sistem}</code></td><td>Tautan login portal siswa</td></tr>
+              <tr><td><code>{tipe_aplikasi}</code></td><td>Tipe aplikasi pendaftaran (contoh: <code>PPDB</code> / <code>SPMB</code>)</td></tr>
+              <tr><td><code>{nama_aplikasi}</code></td><td>Nama aplikasi resmi sekolah</td></tr>
             </tbody>
           </table>
         </div>
@@ -215,13 +222,20 @@
               <tr><td><code>{no_pendaftaran}</code></td><td>Nomor pendaftaran resmi siswa</td></tr>
               <tr><td><code>{jurusan}</code></td><td>Nama jurusan yang dipilih</td></tr>
               <tr><td><code>{jumlah}</code></td><td>Nominal transaksi yang baru diverifikasi (Rp)</td></tr>
+              <tr><td><code>{status_judul}</code></td><td>Status judul ("TELAH LUNAS" atau "TELAH DIVERIFIKASI")</td></tr>
+              <tr><td><code>{status_badge}</code></td><td>Ikon checklist hijau (✅)</td></tr>
+              <tr><td><code>{status_detail}</code></td><td>"LUNAS & TERVERIFIKASI" atau "TERVERIFIKASI (Belum Lunas)"</td></tr>
+              <tr><td><code>{pesan_verifikasi}</code></td><td>Ucapan selamat & status verifikasi pembayaran ("Selamat! Pembayaran PPDB ... telah *BERHASIL DIVERIFIKASI*" atau "*DILUNASI SEPENUHNYA*")</td></tr>
               <tr><td><code>{total_biaya}</code></td><td>Total seluruh tagihan biaya PPDB gelombang tersebut</td></tr>
               <tr><td><code>{total_dibayar}</code></td><td>Total akumulasi pembayaran yang sudah diverifikasi</td></tr>
               <tr><td><code>{sisa_pembayaran}</code></td><td>Sisa kekurangan tagihan yang belum dibayar</td></tr>
-              <tr><td><code>{status_detail}</code></td><td>"LUNAS & TERVERIFIKASI" atau "TERVERIFIKASI (Belum Lunas)"</td></tr>
-              <tr><td><code>{tahap_selanjutnya}</code></td><td>Instruksi lanjutan sesuai status lunas/belum</td></tr>
+              <tr><td><code>{tahap_selanjutnya}</code></td><td>Instruksi lanjutan sesuai status lunas atau cicilan</td></tr>
+              <tr><td><code>{pesan_penutup}</code></td><td>Pesan penutup arahan/motivasi pelunasan</td></tr>
+              <tr><td><code>{tahun_ajaran}</code></td><td>Tahun ajaran aktif (contoh: <code>2026/2027</code>)</td></tr>
               <tr><td><code>{no_admin}</code></td><td>Nomor kontak panitia/admin</td></tr>
               <tr><td><code>{url_sistem}</code></td><td>Tautan login portal siswa</td></tr>
+              <tr><td><code>{tipe_aplikasi}</code></td><td>Tipe aplikasi pendaftaran (contoh: <code>PPDB</code> / <code>SPMB</code>)</td></tr>
+              <tr><td><code>{nama_aplikasi}</code></td><td>Nama aplikasi resmi sekolah</td></tr>
             </tbody>
           </table>
         </div>
@@ -238,6 +252,7 @@
               <tr><td><code>{gelombang}</code></td><td>Nama gelombang pendaftaran</td></tr>
               <tr><td><code>{tahun_ajaran}</code></td><td>Tahun ajaran (contoh: <code>2026/2027</code>)</td></tr>
               <tr><td><code>{batas_daftar_ulang}</code></td><td>Jadwal batas akhir daftar ulang</td></tr>
+              <tr><td><code>{periode_daftar_ulang}</code></td><td>Rentang tanggal jadwal daftar ulang</td></tr>
               <tr><td><code>{tanggal_mpls}</code></td><td>Tanggal pelaksanaan kegiatan MPLS</td></tr>
               <tr><td><code>{tanggal_awal_semester}</code></td><td>Tanggal masuk sekolah hari pertama</td></tr>
               <tr><td><code>{sekolah}</code></td><td>Nama resmi sekolah</td></tr>
@@ -247,6 +262,8 @@
               <tr><td><code>{no_admin}</code></td><td>Nomor WhatsApp panitia/admin</td></tr>
               <tr><td><code>{website}</code></td><td>Website utama sekolah</td></tr>
               <tr><td><code>{url_sistem}</code></td><td>Tautan portal pengumuman siswa</td></tr>
+              <tr><td><code>{tipe_aplikasi}</code></td><td>Tipe aplikasi pendaftaran (contoh: <code>PPDB</code> / <code>SPMB</code>)</td></tr>
+              <tr><td><code>{nama_aplikasi}</code></td><td>Nama aplikasi resmi sekolah</td></tr>
             </tbody>
           </table>
         </div>

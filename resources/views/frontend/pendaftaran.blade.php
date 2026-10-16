@@ -2,6 +2,9 @@
     $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::getSettings();
     $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
     $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB';
+    $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+    $tahunAjaranAktif = $pengaturan ? $pengaturan->tahunAjaranAktif : \App\Models\TahunAjaran::where('status', 'aktif')->first();
+    $namaTahunAjaran = $tahunAjaranAktif ? $tahunAjaranAktif->nama : (date('Y') . '/' . (date('Y') + 1));
     $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
     if (!file_exists(public_path($logo))) {
         $logo = 'sneat/img/logowi.png';
@@ -373,17 +376,6 @@
             padding: 1.5rem;
         }
 
-        #asal_sekolah_lain_container {
-            display: none;
-            margin-top: 10px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         @media (max-width: 576px) {
             body { padding: 15px; }
             .form-container {
@@ -441,39 +433,6 @@
                     <label for="nama_lengkap" class="form-label required">Nama</label>
                     <input type="text" class="form-control" id="nama_lengkap" name="nama_lengkap" placeholder="Masukkan Nama Lengkap" required>
                     <div class="invalid-feedback" id="nama-lengkap-error"></div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-12 mb-3">
-                    <label for="asal_sekolah" class="form-label required">Asal Sekolah</label>
-                    
-                    <select class="form-select" id="asal_sekolah" name="asal_sekolah" required>
-                        <option value=""></option>
-                        
-                        @foreach($dataSmp as $smp)
-                            <option value="{{ $smp->nama_smp }}"
-                                {{ old('asal_sekolah') == $smp->nama_smp ? 'selected' : '' }}>
-                                {{ $smp->nama_smp }}
-                            </option>
-                        @endforeach
-                        
-                        <option value="SMP Lainnya" {{ old('asal_sekolah') == 'SMP Lainnya' ? 'selected' : '' }}>
-                            SMP Lainnya
-                        </option>
-                    </select>
-                    
-                    <div class="invalid-feedback" id="asal-sekolah-error"></div>
-                    
-                    <!-- SMP LAINNYA -->
-                    <div id="asal_sekolah_lain_container" class="mt-3" style="display: none;">
-                        <label for="asal_sekolah_lain" class="form-label required">Nama SMP Lainnya</label>
-                        <input type="text" class="form-control" id="asal_sekolah_lain"
-                            name="asal_sekolah_lain" 
-                            placeholder="Masukkan Nama SMP Anda"
-                            value="{{ old('asal_sekolah_lain') }}">
-                        <div class="invalid-feedback" id="asal-sekolah-lain-error"></div>
-                    </div>
                 </div>
             </div>
             
@@ -585,65 +544,6 @@
 <script src="{{ asset('sneat/js/bootstrap.bundle.min.js') }}"></script>
 
 <script>
-    $(document).ready(function () {
-        // Inisialisasi Select2
-        $('#asal_sekolah').select2({
-            theme: 'bootstrap-5',
-            placeholder: "--Pilih Asal Sekolah--",
-            allowClear: true,
-            width: '100%'
-        });
-        
-        // Fungsi untuk toggle tampilan SMP Lainnya
-        function toggleSmpLainnya(value) {
-            console.log('toggleSmpLainnya dipanggil dengan value:', value);
-            
-            if (value === 'SMP Lainnya') {
-                console.log('Menampilkan SMP Lainnya');
-                $('#asal_sekolah_lain_container').slideDown();
-                $('#asal_sekolah_lain').prop('required', true);
-            } else {
-                console.log('Menyembunyikan SMP Lainnya');
-                $('#asal_sekolah_lain_container').slideUp();
-                $('#asal_sekolah_lain')
-                    .prop('required', false)
-                    .val('')
-                    .removeClass('is-valid is-invalid');
-                
-                $('#asal-sekolah-lain-error').text('');
-            }
-        }
-        
-        // Event handler untuk ketika item dipilih di Select2
-        $('#asal_sekolah').on('select2:select', function (e) {
-            console.log('Select2 item dipilih:', e.params.data.id);
-            toggleSmpLainnya(e.params.data.id);
-        });
-        
-        // Event handler untuk ketika Select2 di-clear
-        $('#asal_sekolah').on('select2:clear', function () {
-            console.log('Select2 di-clear');
-            toggleSmpLainnya('');
-        });
-        
-        // Event handler untuk perubahan biasa (fallback)
-        $('#asal_sekolah').on('change', function () {
-            console.log('Change event:', $(this).val());
-            toggleSmpLainnya($(this).val());
-        });
-        
-        // Inisialisasi awal berdasarkan nilai yang sudah ada
-        const initialValue = $('#asal_sekolah').val();
-        console.log('Nilai awal asal_sekolah:', initialValue);
-        toggleSmpLainnya(initialValue);
-        
-        // Jika ada old value dari form submission sebelumnya
-        @if(old('asal_sekolah') == 'SMP Lainnya')
-            console.log('Old value detected: SMP Lainnya');
-            toggleSmpLainnya('SMP Lainnya');
-        @endif
-    });
-    
     document.getElementById('pendaftaranForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -658,42 +558,8 @@
         // Reset semua state validasi sebelum submit
         resetValidationStates();
         
-        // Validasi custom untuk SMP Lainnya
-        const asalSekolah = $('#asal_sekolah').val(); // Gunakan jQuery untuk konsistensi
-        const asalSekolahLain = document.getElementById('asal_sekolah_lain').value;
-        const asalSekolahLainInput = document.getElementById('asal_sekolah_lain');
-        const asalSekolahLainError = document.getElementById('asal-sekolah-lain-error');
-        
-        console.log('Validasi SMP Lainnya:', {
-            asalSekolah: asalSekolah,
-            asalSekolahLain: asalSekolahLain,
-            isSmpLainnya: asalSekolah === 'SMP Lainnya'
-        });
-        
-        if (asalSekolah === 'SMP Lainnya' && !asalSekolahLain.trim()) {
-            asalSekolahLainInput.classList.add('is-invalid');
-            asalSekolahLainError.textContent = 'Harap masukkan nama SMP Anda';
-            asalSekolahLainError.className = 'invalid-feedback';
-            
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-            
-            // Scroll ke error
-            $('#asal_sekolah_lain_container').slideDown(); // Pastikan container terlihat
-            $('html, body').animate({
-                scrollTop: $('#asal_sekolah_lain_container').offset().top - 100
-            }, 500);
-            return;
-        }
-        
         // Collect form data
         const formData = new FormData(this);
-        
-        // Jika memilih SMP Lainnya, gunakan nilai dari input manual
-        if (asalSekolah === 'SMP Lainnya') {
-            formData.set('asal_sekolah', asalSekolahLain);
-            console.log('Menggunakan SMP Lainnya:', asalSekolahLain);
-        }
         
         const getCsrf = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || document.querySelector('input[name="_token"]')?.value || '';
 
@@ -755,7 +621,7 @@
                         if (cleanPhone.startsWith('0')) {
                             cleanPhone = '62' + cleanPhone.substring(1);
                         }
-                        const waUrl = 'https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent('Halo Panitia PPDB, saya baru saja mendaftar dengan Username: ' + data.data.username);
+                        const waUrl = 'https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent('Halo Panitia {{ $tipeAplikasi }}, saya baru saja mendaftar dengan Username: ' + data.data.username);
 
                         additionalInfo.innerHTML = `
                             <div class="alert alert-info text-start mb-0">
@@ -783,12 +649,6 @@
                 document.getElementById('pendaftaranForm').reset();
                 resetValidationStates();
                 
-                // Reset Select2
-                $('#asal_sekolah').val(null).trigger('change');
-                
-                // Sembunyikan input SMP Lainnya setelah reset
-                $('#asal_sekolah_lain_container').slideUp();
-                
             } else {
                 // Error case
                 if (data.errors) {
@@ -809,11 +669,6 @@
                     // Tampilkan alert umum untuk error gelombang/tahun ajaran
                     if (data.errors.gelombang) {
                         showAlert('error', 'Pendaftaran Gagal!', data.errors.gelombang[0]);
-                    }
-                    
-                    // Handle khusus untuk asal_sekolah_lain
-                    if (data.errors.asal_sekolah_lain && $('#asal_sekolah').val() === 'SMP Lainnya') {
-                        $('#asal_sekolah_lain_container').slideDown();
                     }
                 } else {
                     // General error

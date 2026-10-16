@@ -42,13 +42,26 @@ class TahunAjaranController extends Controller
     {
         TahunAjaran::query()->update(['status' => 'nonaktif']);
         TahunAjaran::findOrFail($id)->update(['status' => 'aktif']);
-        return back()->with('success', 'Tahun ajaran berhasil diaktifkan');
+
+        // Sinkronkan ke pengaturan aplikasi
+        $pengaturan = \App\Models\PengaturanAplikasi::first();
+        if ($pengaturan) {
+            $pengaturan->update(['tahun_ajaran_id' => $id]);
+        }
+
+        return back()->with('success', 'Tahun ajaran berhasil diaktifkan dan disinkronkan ke seluruh sistem');
     }
 
     public function nonaktifkan($id)
     {
         $tahun = TahunAjaran::findOrFail($id);
         $tahun->update(['status' => 'nonaktif']);
+
+        // Sinkronkan ke pengaturan aplikasi jika tahun ajaran ini yang aktif
+        $pengaturan = \App\Models\PengaturanAplikasi::first();
+        if ($pengaturan && $pengaturan->tahun_ajaran_id == $id) {
+            $pengaturan->update(['tahun_ajaran_id' => null]);
+        }
 
         return redirect()->route('tahun-ajaran.index')->with('success', 'Tahun ajaran dinonaktifkan.');
     }

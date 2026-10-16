@@ -13,6 +13,8 @@
       $pengaturan = \App\Models\PengaturanAplikasi::first();
       $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
       $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB';
+      $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+      $noHpPanitia = $pengaturan->no_hp ?? $pengaturan->no_hp_admin ?? null;
       $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
       $warnaUtama = $pengaturan->warna_utama ?? '#667eea';
       $warnaHeader = $pengaturan->warna_header ?? '#764ba2';
@@ -204,9 +206,21 @@
                         <div class="text-center mt-4">
                             <p class="text-muted mb-2 small">Butuh bantuan?</p>
                             <div class="d-flex justify-content-center">
-                                <a href="#" class="text-decoration-none small">
-                                    <i class="bx bx-phone me-1"></i>Hubungi Panitia PPDB
-                                </a>
+                                @if($noHpPanitia)
+                                    @php
+                                        $cleanPhone = preg_replace('/[^0-9]/', '', $noHpPanitia);
+                                        if (str_starts_with($cleanPhone, '0')) {
+                                            $cleanPhone = '62' . substr($cleanPhone, 1);
+                                        }
+                                    @endphp
+                                    <a href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode('Halo Panitia ' . $tipeAplikasi . ', saya butuh bantuan terkait login ke portal siswa.') }}" target="_blank" class="text-decoration-none small text-success fw-semibold">
+                                        <i class="bx bxl-whatsapp me-1"></i>Hubungi Panitia {{ $tipeAplikasi }}
+                                    </a>
+                                @else
+                                    <span class="text-muted small">
+                                        <i class="bx bx-phone me-1"></i>Hubungi Panitia {{ $tipeAplikasi }}
+                                    </span>
+                                @endif
                             </div>
                         </div>
                     </div>

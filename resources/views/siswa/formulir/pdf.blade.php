@@ -5,22 +5,22 @@
     <title>Formulir Pendaftaran - {{ $pendaftar->dataSiswa->nama_lengkap ?? $pendaftar->username }}</title>
 <style>
     @page {
-        size: A4;
-        margin: 1.7cm 1.7cm;
+        size: 215mm 330mm;
+        margin: 1cm 1.5cm;
     }
 
     body {
         font-family: "Times New Roman", serif;
-        font-size: 10.2pt;
+        font-size: 9.5pt;
         color: #000;
         margin: 0;
         padding: 0;
-        text-align: justify;
+        line-height: 1.25;
         background: #fff;
     }
 
     .container {
-        width: 17.2cm;
+        width: 100%;
         margin: 0 auto;
     }
 
@@ -129,12 +129,33 @@
     @php
         $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::first();
     @endphp
-    <div class="header">
-      <div class="header-text">
-          <h1>{{ strtoupper($pengaturan->nama_sekolah ?? 'SMK WISATA INDONESIA') }}</h1>
-          <h2>{{ $pengaturan->alamat ?? 'Jl. Raya Lenteng Agung I, Jakarta Selatan' }} – Telp. {{ $pengaturan->telepon ?? '-' }}</h2>
-      </div>
-  </div>
+    <table style="width: 100%; border: none; margin-bottom: 4px;">
+        <tr style="border: none;">
+            @php
+                $logoPath = null;
+                if (!empty($pengaturan->logo)) {
+                    $cleanLogo = ltrim(preg_replace('/^storage\//', '', $pengaturan->logo), '/');
+                    if (file_exists(public_path('storage/' . $cleanLogo))) {
+                        $logoPath = public_path('storage/' . $cleanLogo);
+                    } elseif (file_exists(public_path($pengaturan->logo))) {
+                        $logoPath = public_path($pengaturan->logo);
+                    }
+                }
+                if (!$logoPath && file_exists(public_path('sneat/img/logowi.png'))) {
+                    $logoPath = public_path('sneat/img/logowi.png');
+                }
+            @endphp
+            @if($logoPath)
+            <td style="width: 75px; border: none; vertical-align: middle; padding: 0;">
+                <img src="{{ $logoPath }}" style="width: 65px; height: 65px; object-fit: contain;">
+            </td>
+            @endif
+            <td style="border: none; vertical-align: middle; text-align: left; padding-left: 8px;">
+                <h1 style="font-size: 14pt; font-weight: bold; margin: 0; line-height: 1.2;">{{ strtoupper($pengaturan->nama_sekolah ?? 'SMK WISATA INDONESIA') }}</h1>
+                <h2 style="font-size: 9pt; font-weight: normal; margin: 2px 0 0 0;">{{ $pengaturan->alamat ?? 'Jl. Raya Lenteng Agung I, Jakarta Selatan' }} – Telp. {{ $pengaturan->telepon ?? '-' }}</h2>
+            </td>
+        </tr>
+    </table>
 
   <div class="divider"></div>
 
@@ -195,7 +216,15 @@
         </tr>
         <tr>
             <td><b>Asal Sekolah</b></td><td>{{ $pendaftar->dataSiswa->asal_sekolah ?? '-' }}</td>
+            <td><b>Jenjang Sekolah</b></td><td>{{ $pendaftar->dataSiswa->jenjang_sekolah_asal ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td><b>Status Sekolah</b></td><td>{{ $pendaftar->dataSiswa->status_sekolah_asal ?? '-' }}</td>
+            <td><b>Kota Asal Sekolah</b></td><td>{{ $pendaftar->dataSiswa->kota_sekolah_asal ?? '-' }}</td>
+        </tr>
+        <tr>
             <td><b>Tinggi Badan (cm)</b></td><td>{{ $pendaftar->dataSiswa->tinggi_badan ?? '-' }}</td>
+            <td><b>Berat Badan (kg)</b></td><td>{{ $pendaftar->dataSiswa->berat_badan ?? '-' }}</td>
         </tr>
         <tr>
             <td><b>Alamat Siswa</b></td>
@@ -203,7 +232,7 @@
         </tr>
         <tr>
             <td><b>RT / RW</b></td><td>{{ $pendaftar->dataSiswa->rt ?? '-' }}/{{ $pendaftar->dataSiswa->rw ?? '-' }}</td>
-            <td><b>Berat Badan (kg)</b></td><td>{{ $pendaftar->dataSiswa->berat_badan ?? '-' }}</td>
+            <td><b>Status Dalam Keluarga</b></td><td>{{ $pendaftar->dataSiswa->status_dalam_keluarga ?? '-' }}</td>
         </tr>
         <tr>
             <td><b>Kelurahan</b></td><td>{{ $pendaftar->dataSiswa->desa ?? '-' }}</td>
@@ -282,6 +311,35 @@
             <td>{{ $pendaftar->dataSiswa->no_hp_wali ?? '-' }}</td>
         </tr>
         </tbody>
+    </table>
+
+    <div class="section-title" style="margin-top: 3px;">PERNYATAAN DAN PERSETUJUAN</div>
+    <table style="margin-top: 2px;">
+        <tr>
+            <td style="padding: 3px 6px; font-size: 7.8pt; text-align: justify;">
+                <p style="margin: 0 0 3px 0; line-height: 1.2;">
+                    Dengan mengisi formulir ini, saya menyatakan bahwa semua data yang saya berikan adalah benar dan dapat dipertanggungjawabkan. Saya bersedia mematuhi semua peraturan dan tata tertib yang berlaku di {{ $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia' }}.
+                </p>
+                <table style="width: 100%; border: none; margin: 2px 0 0 0;">
+                    <tr style="border: none;">
+                        <td style="width: 50%; border: none; text-align: center; padding: 0;">
+                            <div style="height: 32px;"></div>
+                            <div style="border-top: 1px solid #000; width: 65%; margin: 0 auto; padding-top: 2px; font-size: 7.8pt;">
+                                <strong>.........................</strong><br>
+                                <em>(Orang Tua/Wali)</em>
+                            </div>
+                        </td>
+                        <td style="width: 50%; border: none; text-align: center; padding: 0;">
+                            <div style="height: 32px;"></div>
+                            <div style="border-top: 1px solid #000; width: 65%; margin: 0 auto; padding-top: 2px; font-size: 7.8pt;">
+                                <strong>{{ $pendaftar->dataSiswa->nama_lengkap ?? $pendaftar->username }}</strong><br>
+                                <em>(Siswa/Peserta Didik)</em>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
     </table>
 
     <div class="footer">

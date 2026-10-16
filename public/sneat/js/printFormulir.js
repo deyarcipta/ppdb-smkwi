@@ -6,113 +6,152 @@
  */
 
 window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
-    const modalId = typeof id === "number" ? `${modalPrefix}${id}` : id;
-    const modal = document.getElementById(modalId);
-    const configEl = document.getElementById("appConfig");
+    // Cari elemen modal secara fleksibel (baik id angka, string, atau sudah prefix)
+    let modal = null;
+    if (typeof id === "object" && id !== null && id.nodeType) {
+        modal = id;
+    } else {
+        const idStr = String(id);
+        modal =
+            document.getElementById(idStr) ||
+            document.getElementById(`${modalPrefix}${idStr}`) ||
+            document.getElementById(`detailModal${idStr}`) ||
+            document.getElementById(`formulirModal${idStr}`);
+    }
 
     if (!modal) {
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Modal tidak ditemukan",
-            confirmButtonColor: "#dc3545",
-        });
+        console.error("Modal formulir tidak ditemukan untuk id:", id);
+        if (typeof Swal !== "undefined") {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Data formulir tidak ditemukan",
+                confirmButtonColor: "#dc3545",
+            });
+        } else {
+            alert("Data formulir tidak ditemukan");
+        }
         return;
     }
+
+    const configEl = document.getElementById("appConfig");
+    let logoRaw = configEl?.dataset?.logoSekolah || "/sneat/img/logowi.png";
+    if (logoRaw) {
+        logoRaw = logoRaw.replace(/\/storage\/storage\//g, "/storage/");
+        logoRaw = logoRaw.replace(/^storage\/storage\//g, "storage/");
+    }
+    let finalLogoUrl = logoRaw;
+    if (logoRaw && !logoRaw.startsWith("http://") && !logoRaw.startsWith("https://") && !logoRaw.startsWith("data:") && !logoRaw.startsWith("/")) {
+        finalLogoUrl = "/" + logoRaw;
+    }
+
     const APP_CONFIG = {
-        namasekolah: configEl.dataset.namaSekolah,
-        namaaplikasi: configEl.dataset.namaAplikasi,
-        alamatsekolah: configEl.dataset.alamatSekolah,
-        teleponsekolah: configEl.dataset.teleponSekolah,
-        emailsekolah: configEl.dataset.emailSekolah,
+        namasekolah: configEl?.dataset?.namaSekolah || "SMK WISATA INDONESIA",
+        namaaplikasi: configEl?.dataset?.namaAplikasi || "PPDB",
+        logosekolah: finalLogoUrl,
+        alamatsekolah:
+            configEl?.dataset?.alamatSekolah || "Jl. Raya Lenteng Agung No. 15, Jakarta Selatan",
+        teleponsekolah: configEl?.dataset?.teleponSekolah || "(021) 7888-1234",
+        emailsekolah:
+            configEl?.dataset?.emailSekolah || "info@smkwisataindonesia.sch.id",
     };
 
     // Ambil data dari data attributes
-    const namaLengkap = modal.getAttribute("data-nama");
-    const noPendaftaran = modal.getAttribute("data-no-pendaftaran");
-    const fotoSiswa = modal.getAttribute("data-foto-siswa");
-    const nisn = modal.getAttribute("data-nisn");
-    const nik = modal.getAttribute("data-nik");
-    const noKk = modal.getAttribute("data-no-kk");
-    const tempatLahir = modal.getAttribute("data-tempat-lahir");
-    const tanggalLahir = modal.getAttribute("data-tanggal-lahir");
-    const jenisKelamin = modal.getAttribute("data-jenis-kelamin");
-    const agama = modal.getAttribute("data-agama");
-    const noHp = modal.getAttribute("data-no-hp");
-    const asalSekolah = modal.getAttribute("data-asal-sekolah");
-    const alamat = modal.getAttribute("data-alamat");
-    const rt = modal.getAttribute("data-rt");
-    const rw = modal.getAttribute("data-rw");
-    const desa = modal.getAttribute("data-desa");
-    const kecamatan = modal.getAttribute("data-kecamatan");
-    const kota = modal.getAttribute("data-kota");
-    const provinsi = modal.getAttribute("data-provinsi");
-    const kodePos = modal.getAttribute("data-kode-pos");
-    const tinggiBadan = modal.getAttribute("data-tinggi-badan");
-    const beratBadan = modal.getAttribute("data-berat-badan");
-    const anakKe = modal.getAttribute("data-anak-ke");
-    const jumlahSaudara = modal.getAttribute("data-jumlah-saudara");
-    const statusDalamKeluarga = modal.getAttribute(
-        "data-status-dalam-keluarga"
-    );
-    const tinggalBersama = modal.getAttribute("data-tinggal-bersama");
-    const jarakKesekolah = modal.getAttribute("data-jarak-kesekolah");
-    const waktuTempuh = modal.getAttribute("data-waktu-tempuh");
-    const transportasi = modal.getAttribute("data-transportasi");
-    const ukuranBaju = modal.getAttribute("data-ukuran-baju");
-    const hobi = modal.getAttribute("data-hobi");
-    const citaCita = modal.getAttribute("data-cita-cita");
-    const tahunLulus = modal.getAttribute("data-tahun-lulus");
-    const noKip = modal.getAttribute("data-no-kip");
-    const referensi = modal.getAttribute("data-referensi");
-    const ketReferensi = modal.getAttribute("data-ket-referensi");
+    const namaLengkap = modal.getAttribute("data-nama") || "-";
+    const noPendaftaran = modal.getAttribute("data-no-pendaftaran") || "-";
+    const fotoSiswa = modal.getAttribute("data-foto-siswa") || "";
+
+    // Parse URL foto siswa dengan aman (mencegah duplikasi /storage//storage/)
+    let finalFotoUrl = "";
+    if (fotoSiswa && fotoSiswa !== "-" && fotoSiswa !== "null" && fotoSiswa !== "undefined" && String(fotoSiswa).trim() !== "") {
+        const trimmed = String(fotoSiswa).trim();
+        if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:") || trimmed.startsWith("blob:")) {
+            finalFotoUrl = trimmed;
+        } else if (trimmed.startsWith("/storage/")) {
+            finalFotoUrl = trimmed;
+        } else if (trimmed.startsWith("storage/")) {
+            finalFotoUrl = "/" + trimmed;
+        } else if (trimmed.startsWith("/")) {
+            finalFotoUrl = trimmed;
+        } else {
+            finalFotoUrl = "/storage/" + trimmed;
+        }
+    }
+    const nisn = modal.getAttribute("data-nisn") || "-";
+    const nik = modal.getAttribute("data-nik") || "-";
+    const noKk = modal.getAttribute("data-no-kk") || "-";
+    const tempatLahir = modal.getAttribute("data-tempat-lahir") || "-";
+    const tanggalLahir = modal.getAttribute("data-tanggal-lahir") || "-";
+    const jenisKelamin = modal.getAttribute("data-jenis-kelamin") || "-";
+    const agama = modal.getAttribute("data-agama") || "-";
+    const noHp = modal.getAttribute("data-no-hp") || "-";
+    const asalSekolah = modal.getAttribute("data-asal-sekolah") || "-";
+    const jenjangSekolah = modal.getAttribute("data-jenjang-sekolah") || "-";
+    const statusSekolah = modal.getAttribute("data-status-sekolah") || "-";
+    const kotaSekolah = modal.getAttribute("data-kota-sekolah") || "-";
+    const alamat = modal.getAttribute("data-alamat") || "-";
+    const rt = modal.getAttribute("data-rt") || "-";
+    const rw = modal.getAttribute("data-rw") || "-";
+    const desa = modal.getAttribute("data-desa") || "-";
+    const kecamatan = modal.getAttribute("data-kecamatan") || "-";
+    const kota = modal.getAttribute("data-kota") || "-";
+    const provinsi = modal.getAttribute("data-provinsi") || "-";
+    const kodePos = modal.getAttribute("data-kode-pos") || "-";
+    const tinggiBadan = modal.getAttribute("data-tinggi-badan") || "-";
+    const beratBadan = modal.getAttribute("data-berat-badan") || "-";
+    const anakKe = modal.getAttribute("data-anak-ke") || "-";
+    const jumlahSaudara = modal.getAttribute("data-jumlah-saudara") || "-";
+    const statusDalamKeluarga =
+        modal.getAttribute("data-status-dalam-keluarga") || "-";
+    const tinggalBersama = modal.getAttribute("data-tinggal-bersama") || "-";
+    const jarakKesekolah = modal.getAttribute("data-jarak-kesekolah") || "-";
+    const waktuTempuh = modal.getAttribute("data-waktu-tempuh") || "-";
+    const transportasi = modal.getAttribute("data-transportasi") || "-";
+    const ukuranBaju = modal.getAttribute("data-ukuran-baju") || "-";
+    const hobi = modal.getAttribute("data-hobi") || "-";
+    const citaCita = modal.getAttribute("data-cita-cita") || "-";
+    const tahunLulus = modal.getAttribute("data-tahun-lulus") || "-";
+    const noKip = modal.getAttribute("data-no-kip") || "-";
+    const referensi = modal.getAttribute("data-referensi") || "-";
+    const ketReferensi = modal.getAttribute("data-ket-referensi") || "-";
 
     // Data Ayah
-    const nikAyah = modal.getAttribute("data-nik-ayah");
-    const namaAyah = modal.getAttribute("data-nama-ayah");
-    const tempatLahirAyah = modal.getAttribute("data-tempat-lahir-ayah");
-    const tanggalLahirAyah = modal.getAttribute("data-tanggal-lahir-ayah");
-    const pendidikanAyah = modal.getAttribute("data-pendidikan-ayah");
-    const pekerjaanAyah = modal.getAttribute("data-pekerjaan-ayah");
-    const penghasilanAyah = modal.getAttribute("data-penghasilan-ayah");
-    const noHpAyah = modal.getAttribute("data-no-hp-ayah");
+    const nikAyah = modal.getAttribute("data-nik-ayah") || "-";
+    const namaAyah = modal.getAttribute("data-nama-ayah") || "-";
+    const tempatLahirAyah = modal.getAttribute("data-tempat-lahir-ayah") || "-";
+    const tanggalLahirAyah =
+        modal.getAttribute("data-tanggal-lahir-ayah") || "-";
+    const pendidikanAyah = modal.getAttribute("data-pendidikan-ayah") || "-";
+    const pekerjaanAyah = modal.getAttribute("data-pekerjaan-ayah") || "-";
+    const penghasilanAyah = modal.getAttribute("data-penghasilan-ayah") || "-";
+    const noHpAyah = modal.getAttribute("data-no-hp-ayah") || "-";
 
     // Data Ibu
-    const nikIbu = modal.getAttribute("data-nik-ibu");
-    const namaIbu = modal.getAttribute("data-nama-ibu");
-    const tempatLahirIbu = modal.getAttribute("data-tempat-lahir-ibu");
-    const tanggalLahirIbu = modal.getAttribute("data-tanggal-lahir-ibu");
-    const pendidikanIbu = modal.getAttribute("data-pendidikan-ibu");
-    const pekerjaanIbu = modal.getAttribute("data-pekerjaan-ibu");
-    const penghasilanIbu = modal.getAttribute("data-penghasilan-ibu");
-    const noHpIbu = modal.getAttribute("data-no-hp-ibu");
+    const nikIbu = modal.getAttribute("data-nik-ibu") || "-";
+    const namaIbu = modal.getAttribute("data-nama-ibu") || "-";
+    const tempatLahirIbu = modal.getAttribute("data-tempat-lahir-ibu") || "-";
+    const tanggalLahirIbu = modal.getAttribute("data-tanggal-lahir-ibu") || "-";
+    const pendidikanIbu = modal.getAttribute("data-pendidikan-ibu") || "-";
+    const pekerjaanIbu = modal.getAttribute("data-pekerjaan-ibu") || "-";
+    const penghasilanIbu = modal.getAttribute("data-penghasilan-ibu") || "-";
+    const noHpIbu = modal.getAttribute("data-no-hp-ibu") || "-";
 
     // Data Wali
-    const nikWali = modal.getAttribute("data-nik-wali");
-    const namaWali = modal.getAttribute("data-nama-wali");
-    const tempatLahirWali = modal.getAttribute("data-tempat-lahir-wali");
-    const tanggalLahirWali = modal.getAttribute("data-tanggal-lahir-wali");
-    const pendidikanWali = modal.getAttribute("data-pendidikan-wali");
-    const pekerjaanWali = modal.getAttribute("data-pekerjaan-wali");
-    const penghasilanWali = modal.getAttribute("data-penghasilan-wali");
-    const noHpWali = modal.getAttribute("data-no-hp-wali");
+    const nikWali = modal.getAttribute("data-nik-wali") || "-";
+    const namaWali = modal.getAttribute("data-nama-wali") || "-";
+    const tempatLahirWali = modal.getAttribute("data-tempat-lahir-wali") || "-";
+    const tanggalLahirWali =
+        modal.getAttribute("data-tanggal-lahir-wali") || "-";
+    const pendidikanWali = modal.getAttribute("data-pendidikan-wali") || "-";
+    const pekerjaanWali = modal.getAttribute("data-pekerjaan-wali") || "-";
+    const penghasilanWali = modal.getAttribute("data-penghasilan-wali") || "-";
+    const noHpWali = modal.getAttribute("data-no-hp-wali") || "-";
 
     // Data Pendaftaran
-    const gelombang = modal.getAttribute("data-gelombang");
-    const jurusan = modal.getAttribute("data-jurusan");
-    const email = modal.getAttribute("data-email");
-    const tanggalDaftar = modal.getAttribute("data-tanggal-daftar");
-
-    // Buat iframe untuk print
-    const printFrame = document.createElement("iframe");
-    printFrame.style.position = "fixed";
-    printFrame.style.right = "0";
-    printFrame.style.bottom = "0";
-    printFrame.style.width = "0";
-    printFrame.style.height = "0";
-    printFrame.style.border = "0";
-    printFrame.style.visibility = "hidden";
-    document.body.appendChild(printFrame);
+    const gelombang = modal.getAttribute("data-gelombang") || "-";
+    const jurusan = modal.getAttribute("data-jurusan") || "-";
+    const email = modal.getAttribute("data-email") || "-";
+    const tanggalDaftar = modal.getAttribute("data-tanggal-daftar") || "-";
 
     // Buat konten print dengan data yang diambil dari data attributes
     const printContent = `
@@ -122,8 +161,8 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
             <title>Formulir Pendaftaran - ${namaLengkap}</title>
             <style>
                 @page {
-                    size: A4;
-                    margin: 1.1cm 1.5cm;
+                    size: 215mm 330mm; /* Kertas F4 / Folio */
+                    margin: 1cm 1.5cm;
                 }
 
                 body {
@@ -148,13 +187,9 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                     max-width: 100% !important;
                 }
 
-                * {
-                    page-break-inside: avoid !important;
-                }
-
                 .container {
                     width: 100%;
-                    max-width: 17cm; /* Sesuaikan dengan lebar A4 */
+                    max-width: 17.5cm;
                     margin: 0 auto;
                     padding: 0;
                     box-sizing: border-box;
@@ -244,10 +279,8 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                 }
 
                 .photo-cell {
-                    /* width: 113px; */ 
-                    /* height: 151px; */ 
-                    width: 75px; /* Kurangi ukuran */
-                    height: 113px; /* Kurangi ukuran */
+                    width: 75px;
+                    height: 113px;
                     text-align: center;
                     font-size: 8.5pt;
                     vertical-align: middle;
@@ -270,11 +303,16 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                 }
 
                 @media print {
+                    @page {
+                        size: 215mm 330mm; /* Kertas F4 / Folio */
+                        margin: 1cm 1.5cm;
+                    }
                     body {
-                        font-size: 10.2pt;
+                        font-size: 9.5pt !important;
                     }
                     .container {
-                        width: 17.2cm;
+                        width: 100% !important;
+                        max-width: 18.5cm !important;
                     }
                 }
             </style>
@@ -282,11 +320,16 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
         <body>
             <div class="container">
                 <div class="header">
+                    ${
+                        APP_CONFIG.logosekolah
+                            ? `<img src="${APP_CONFIG.logosekolah}" alt="Logo Sekolah" class="header-logo" onerror="this.onerror=null;this.src='/sneat/img/logowi.png';">`
+                            : ""
+                    }
                     <div class="header-text">
                         <h1>${APP_CONFIG.namasekolah}</h1>
                         <h2>${APP_CONFIG.alamatsekolah} – Telp. ${
-        APP_CONFIG.teleponsekolah
-    }</h2>
+                            APP_CONFIG.teleponsekolah
+                        }</h2>
                     </div>
                 </div>
 
@@ -318,9 +361,9 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                     <tr>
                         <td class="photo-cell" rowspan="4">
                             ${
-                                fotoSiswa
-                                    ? `<img src="/storage/${fotoSiswa}" 
-                                    style="width:80px;height:120px;object-fit:cover;border:1px solid #000;">`
+                                finalFotoUrl
+                                    ? `<img src="${finalFotoUrl}" 
+                                    style="width:65px;height:85px;object-fit:cover;border:1px solid #000;display:block;margin:0 auto;" onerror="this.onerror=null;this.parentElement.innerHTML='FOTO<br>2x3';">`
                                     : `FOTO<br>2x3`
                             }
                         </td>
@@ -366,7 +409,15 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                     </tr>
                     <tr>
                         <td><b>Asal Sekolah</b></td><td>${asalSekolah}</td>
+                        <td><b>Jenjang Sekolah</b></td><td>${jenjangSekolah}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Status Sekolah</b></td><td>${statusSekolah}</td>
+                        <td><b>Kota Asal Sekolah</b></td><td>${kotaSekolah}</td>
+                    </tr>
+                    <tr>
                         <td><b>Tinggi Badan (cm)</b></td><td>${tinggiBadan}</td>
+                        <td><b>Berat Badan (kg)</b></td><td>${beratBadan}</td>
                     </tr>
                     <tr>
                         <td><b>Alamat Siswa</b></td>
@@ -374,27 +425,27 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                     </tr>
                     <tr>
                         <td><b>RT / RW</b></td><td>${rt}/${rw}</td>
-                        <td><b>Berat Badan (kg)</b></td><td>${beratBadan}</td>
-                    </tr>
-                    <tr>
                         <td><b>Kelurahan</b></td><td>${desa}</td>
-                        <td><b>Status Dalam Keluarga</b></td><td>${statusDalamKeluarga}</td>
                     </tr>
                     <tr>
                         <td><b>Kecamatan</b></td><td>${kecamatan}</td>
-                        <td><b>Tinggal Bersama</b></td><td>${tinggalBersama}</td>
-                    </tr>
-                    <tr>
                         <td><b>Kota / Kabupaten</b></td><td>${kota}</td>
-                        <td><b>Jarak ke Sekolah (km)</b></td><td>${jarakKesekolah}</td>
                     </tr>
                     <tr>
                         <td><b>Provinsi</b></td><td>${provinsi}</td>
+                        <td><b>Kode Pos</b></td><td>${kodePos}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Status Dalam Keluarga</b></td><td>${statusDalamKeluarga}</td>
+                        <td><b>Tinggal Bersama</b></td><td>${tinggalBersama}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Jarak ke Sekolah (km)</b></td><td>${jarakKesekolah}</td>
                         <td><b>Waktu Tempuh (menit)</b></td><td>${waktuTempuh}</td>
                     </tr>
                     <tr>
-                        <td><b>Kode Pos</b></td><td>${kodePos}</td>
                         <td><b>Transportasi</b></td><td>${transportasi}</td>
+                        <td><b>Tahun Lulus</b></td><td>${tahunLulus}</td>
                     </tr>
                 </table>
 
@@ -474,44 +525,34 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
                         <td>${noHpWali}</td>
                     </tr>
                     </tbody>
-                </table>
-
-                <!-- PERNYATAAN DAN TANDA TANGAN -->
-                <div class="section-title mt-2">PERNYATAAN DAN PERSETUJUAN</div>
-                <table class="no-break">
+                </table>                <!-- PERNYATAAN DAN TANDA TANGAN -->
+                <div class="section-title">PERNYATAAN DAN PERSETUJUAN</div>
+                <table style="margin-top: 4px;">
                     <tr>
-                        <td style="text-align: justify; padding: 8px;">
-                            <p style="margin: 0 0 5px 0;">
+                        <td style="text-align: justify; padding: 6px 8px;">
+                            <p style="margin: 0 0 6px 0; font-size: 8.5pt; line-height: 1.3;">
                                 Dengan mengisi formulir ini, saya menyatakan bahwa semua data yang saya berikan adalah benar dan dapat dipertanggungjawabkan. Saya bersedia mematuhi semua peraturan dan tata tertib yang berlaku di SMK Wisata Indonesia.
                             </p>
                             
                             <!-- TANDA TANGAN -->
-                            <div style="margin-top: 20px; position: relative;">
-                                <!-- ORANG TUA -->
-                                <div style="position: absolute; left: 0; width: 45%; text-align: center;">
-                                    <div style="margin-top: 40px;">
-                                        <div style="border-top: 1px solid #000; width: 80%; margin: 0 auto; padding-top: 5px;">
-                                            <strong>.........................</strong>
-                                            <br>
+                            <table style="width: 100%; border: none; margin: 4px 0 0 0;">
+                                <tr style="border: none;">
+                                    <td style="width: 50%; border: none; text-align: center; padding: 0;">
+                                        <div style="height: 48px;"></div>
+                                        <div style="border-top: 1px solid #000; width: 65%; margin: 0 auto; padding-top: 3px; font-size: 8.5pt;">
+                                            <strong>.........................</strong><br>
                                             <em>(Orang Tua/Wali)</em>
                                         </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- SISWA -->
-                                <div style="position: absolute; right: 0; width: 45%; text-align: center;">
-                                    <div style="margin-top: 40px;">
-                                        <div style="border-top: 1px solid #000; width: 80%; margin: 0 auto; padding-top: 5px;">
-                                            <strong>${namaLengkap}</strong>
-                                            <br>
+                                    </td>
+                                    <td style="width: 50%; border: none; text-align: center; padding: 0;">
+                                        <div style="height: 48px;"></div>
+                                        <div style="border-top: 1px solid #000; width: 65%; margin: 0 auto; padding-top: 3px; font-size: 8.5pt;">
+                                            <strong>${namaLengkap}</strong><br>
                                             <em>(Siswa/Peserta Didik)</em>
                                         </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- CLEARFIX -->
-                                <div style="clear: both; height: 75px;"></div>
-                            </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 </table>
@@ -524,22 +565,77 @@ window.doPrintFormulir = function (id, modalPrefix = "formulirModal") {
         </html>
     `;
 
-    // Tulis konten ke iframe
-    printFrame.contentDocument.write(printContent);
-    printFrame.contentDocument.close();
+    // Hapus iframe print lama jika ada
+    let oldFrame = document.getElementById("universalPrintFrame");
+    if (oldFrame) {
+        oldFrame.remove();
+    }
 
-    // Print ketika iframe siap
-    printFrame.onload = function () {
-        setTimeout(() => {
+    // Buat iframe baru dengan posisi off-screen dan ukuran nyata (bukan visibility: hidden / 0x0)
+    const printFrame = document.createElement("iframe");
+    printFrame.id = "universalPrintFrame";
+    printFrame.name = "universalPrintFrame";
+    printFrame.style.position = "fixed";
+    printFrame.style.left = "-9999px";
+    printFrame.style.top = "-9999px";
+    printFrame.style.width = "850px";
+    printFrame.style.height = "1200px";
+    printFrame.style.border = "none";
+    document.body.appendChild(printFrame);
+
+    const frameDoc =
+        printFrame.contentDocument || printFrame.contentWindow.document;
+    frameDoc.open();
+    frameDoc.write(printContent);
+    frameDoc.close();
+
+    // Jalankan dialog print setelah delay agar render CSS, font, dan gambar selesai
+    let printed = false;
+    const triggerPrint = function () {
+        if (printed) return;
+        printed = true;
+        try {
             printFrame.contentWindow.focus();
             printFrame.contentWindow.print();
-
-            // Hapus iframe setelah print
-            setTimeout(() => {
-                if (document.body.contains(printFrame)) {
-                    document.body.removeChild(printFrame);
-                }
-            }, 1000);
-        }, 500);
+        } catch (err) {
+            console.warn("Iframe print gagal, fallback ke window.open:", err);
+            const win = window.open("", "_blank");
+            if (win) {
+                win.document.open();
+                win.document.write(printContent);
+                win.document.close();
+                setTimeout(() => {
+                    win.focus();
+                    win.print();
+                }, 350);
+            }
+        }
     };
+
+    // Tunggu gambar (kop logo & foto siswa) selesai ter-load di dalam frame sebelum print dibuka
+    const imgs = frameDoc.querySelectorAll("img");
+    if (imgs.length === 0) {
+        setTimeout(triggerPrint, 250);
+    } else {
+        let loaded = 0;
+        const total = imgs.length;
+        const onImgDone = function () {
+            loaded++;
+            if (loaded >= total) {
+                setTimeout(triggerPrint, 150);
+            }
+        };
+
+        imgs.forEach((img) => {
+            if (img.complete) {
+                onImgDone();
+            } else {
+                img.addEventListener("load", onImgDone);
+                img.addEventListener("error", onImgDone);
+            }
+        });
+
+        // Pengaman jika koneksi atau gambar lambat
+        setTimeout(triggerPrint, 700);
+    }
 };

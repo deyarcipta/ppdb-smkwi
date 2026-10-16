@@ -6,6 +6,24 @@
   </div>
 
   <div class="navbar-nav-right d-flex align-items-center w-100" id="navbar-collapse">
+    @php
+      $pengaturanSiswaNav = \App\Models\PengaturanAplikasi::first();
+      $tipeAplikasiSiswaNav = $pengaturanSiswaNav->tipe_aplikasi ?? 'PPDB';
+      $taSiswaNav = Auth::guard('siswa')->user()?->dataSiswa?->tahunAjaran 
+          ?? Auth::guard('siswa')->user()?->dataSiswa?->gelombang?->tahunAjaran 
+          ?? ($pengaturanSiswaNav ? $pengaturanSiswaNav->tahunAjaranAktif : null);
+    @endphp
+    <div class="navbar-nav align-items-center d-none d-md-flex gap-2">
+      <span class="badge bg-label-primary py-2 px-3 d-flex align-items-center">
+        <i class="bx bx-calendar me-1"></i>
+        <span>T.A: <strong>{{ $taSiswaNav->nama ?? 'Belum Diatur' }}</strong></span>
+      </span>
+      <span class="badge bg-label-info py-2 px-3 d-flex align-items-center">
+        <i class="bx bx-check-shield me-1"></i>
+        <span>Sistem: <strong>{{ $tipeAplikasiSiswaNav }}</strong></span>
+      </span>
+    </div>
+
     <ul class="navbar-nav flex-row align-items-center ms-auto">
       <!-- Dropdown User -->
       <li class="nav-item navbar-dropdown dropdown-user dropdown">

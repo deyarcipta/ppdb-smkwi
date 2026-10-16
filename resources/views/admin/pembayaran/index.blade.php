@@ -92,8 +92,8 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="60" class="text-center">#</th>
-                                    <th width="150">No Pendaftaran</th>
-                                    <th>Nama Siswa</th>
+                                    <th width="140" class="text-center">No Daftar</th>
+                                    <th width="280">Nama Siswa</th>
                                     <th width="150" class="text-center">Jenis</th>
                                     <th width="130" class="text-end">Jumlah</th>
                                     <th width="120" class="text-center">Tanggal Bayar</th>
@@ -108,15 +108,12 @@
                                     <td class="text-center">
                                         <span class="text-muted">{{ $data->firstItem() + $key }}</span>
                                     </td>
-                                    <td>
-                                        <strong class="text-primary">{{ $item->no_pendaftaran }}</strong>
+                                    <td class="text-center">
+                                        <span class="fw-medium">{{ $item->user->username ?? $item->no_pendaftaran }}</span>
                                     </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0">{{ $item->nama_siswa }}</h6>
-                                            </div>
-                                        </div>
+                                    <td style="min-width: 260px;">
+                                        <div class="fw-bold text-dark">{{ $item->nama_siswa }}</div>
+                                        <small class="text-primary fw-semibold d-block">{{ $item->dataSiswa->no_pendaftaran ?? $item->no_pendaftaran }}</small>
                                     </td>
                                     <td class="text-center">
                                         <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2">

@@ -28,6 +28,9 @@ class DataSiswa extends Model
         'no_hp',
         'foto_siswa',
         'asal_sekolah',
+        'jenjang_sekolah_asal',
+        'status_sekolah_asal',
+        'kota_sekolah_asal',
         'id_smp',
         'agama',
         'ukuran_baju',
@@ -79,13 +82,15 @@ class DataSiswa extends Model
         'no_hp_wali',
         'is_form_completed',
         'is_verified',
-        'is_paid'
+        'is_paid',
+        'is_card_printed'
     ];
 
     protected $casts = [
         'is_form_completed' => 'boolean',
         'is_verified' => 'boolean',
         'is_paid' => 'boolean',
+        'is_card_printed' => 'boolean',
         'tanggal_lahir' => 'date',
         'tanggal_lahir_ayah' => 'date',
         'tanggal_lahir_ibu' => 'date',
@@ -134,7 +139,14 @@ class DataSiswa extends Model
 
     public function tahunAjaran()
     {
-        return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran_id');
+        return $this->hasOneThrough(
+            TahunAjaran::class,
+            GelombangPendaftaran::class,
+            'id', // Foreign key on gelombang_pendaftaran (matches gelombang_id)
+            'id', // Foreign key on tahun_ajaran
+            'gelombang_id', // Local key on data_siswa
+            'tahun_ajaran_id' // Local key on gelombang_pendaftaran
+        );
     }
 
     /**
@@ -260,6 +272,24 @@ class DataSiswa extends Model
     }
 
     /**
+     * Pastikan nomor pendaftaran selalu mengikuti pengaturan tipe_aplikasi (SPMB atau PPDB)
+     */
+    public function getNoPendaftaranAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        static $currentTipe = null;
+        if ($currentTipe === null) {
+            $pengaturan = \App\Models\PengaturanAplikasi::first();
+            $currentTipe = $pengaturan->tipe_aplikasi ?? 'PPDB';
+        }
+
+        return preg_replace('/^(PPDB|SPMB)/i', $currentTipe, $value);
+    }
+
+    /**
      * Cek apakah data siswa sudah lengkap
      */
     public function getIsDataLengkapAttribute()
@@ -280,7 +310,7 @@ class DataSiswa extends Model
     {
         $fields = [
             'nama_lengkap', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin',
-            'no_hp', 'asal_sekolah', 'agama', 'alamat', 'rt', 'rw',
+            'no_hp', 'asal_sekolah', 'jenjang_sekolah_asal', 'status_sekolah_asal', 'kota_sekolah_asal', 'agama', 'alamat', 'rt', 'rw',
             'desa', 'kecamatan', 'kota', 'provinsi', 'kode_pos',
             'anak_ke', 'jumlah_saudara', 'tinggi_badan', 'berat_badan', 'nik_ayah', 'nama_ayah', 'tanggal_lahir_ayah', 'pendidikan_ayah',
             'pekerjaan_ayah', 'penghasilan_ayah', 'no_hp_ayah',
@@ -297,5 +327,50 @@ class DataSiswa extends Model
         }
 
         return round(($filled / count($fields)) * 100);
+    }
+
+    /**
+     * Generate Nomor Pendaftaran Resmi (Format Panjang: TIPE/JURUSAN/TAHUN_AJARAN/GELOMBANG/NOMOR_URUT)
+     */
+    public static function generateNoPendaftaranStatic($jurusanId, $gelombangId, $username = null)
+    {
+        try {
+            $jurusan = Jurusan::find($jurusanId);
+            $kodeJurusan = $jurusan ? $jurusan->kode_jurusan : 'UMUM';
+
+            $gelombang = GelombangPendaftaran::with('tahunAjaran')->find($gelombangId);
+            $tahunAjaran = $gelombang?->tahunAjaran ? $gelombang->tahunAjaran->nama : date('Y');
+            $tahunAjaranClean = str_replace('/', '-', $tahunAjaran);
+
+            $namaGelombang = $gelombang ? $gelombang->nama_gelombang : 'Gelombang 1';
+            preg_match('/\d+/', $namaGelombang, $matches);
+            $angka = $matches[0] ?? 1;
+            $romawiMap = [1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V'];
+            $angkaGelombang = $romawiMap[$angka] ?? 'I';
+
+            $pengaturan = PengaturanAplikasi::first();
+            $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+
+            // Hitung nomor urut berikutnya berdasarkan jurusan dan gelombang
+            $count = self::where('gelombang_id', $gelombangId)
+                ->where('jurusan_id', $jurusanId)
+                ->whereNotNull('no_pendaftaran')
+                ->count();
+
+            $nomorUrut = str_pad($count + 1, 3, '0', STR_PAD_LEFT);
+            $candidate = "{$tipeAplikasi}/{$kodeJurusan}/{$tahunAjaranClean}/{$angkaGelombang}/{$nomorUrut}";
+
+            while (self::where('no_pendaftaran', $candidate)->exists()) {
+                $count++;
+                $nomorUrut = str_pad($count + 1, 3, '0', STR_PAD_LEFT);
+                $candidate = "{$tipeAplikasi}/{$kodeJurusan}/{$tahunAjaranClean}/{$angkaGelombang}/{$nomorUrut}";
+            }
+
+            return $candidate;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error generating no_pendaftaran: ' . $e->getMessage());
+            $tipeFallback = PengaturanAplikasi::first()->tipe_aplikasi ?? 'PPDB';
+            return "{$tipeFallback}/UMUM/" . date('Y') . "/I/001";
+        }
     }
 }
