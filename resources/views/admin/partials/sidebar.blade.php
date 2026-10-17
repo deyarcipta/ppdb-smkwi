@@ -68,6 +68,11 @@
             </a>
           </li>
           @endif
+          <li class="menu-item">
+            <a href="{{ route('data-cetak-kartu.surat-sehat-master') }}" target="_blank" class="menu-link">
+              <div>Surat Pernyataan Sehat</div>
+            </a>
+          </li>
         </ul>
       </li>
 

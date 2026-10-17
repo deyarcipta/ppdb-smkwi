@@ -46,6 +46,31 @@ class DataTerverifikasiController extends Controller
             });
         }
 
+        if ($request->filled('jurusan_id')) {
+            $query->whereHas('dataSiswa', function($q) use ($request) {
+                $q->where('jurusan_id', $request->jurusan_id);
+            });
+        }
+
+        if ($request->filled('gelombang_id')) {
+            $query->whereHas('dataSiswa', function($q) use ($request) {
+                $q->where('gelombang_id', $request->gelombang_id);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                  ->orWhereHas('dataSiswa', function($sq) use ($search) {
+                      $sq->where('nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('no_pendaftaran', 'like', "%{$search}%")
+                        ->orWhere('nisn', 'like', "%{$search}%")
+                        ->orWhere('asal_sekolah', 'like', "%{$search}%");
+                  });
+            });
+        }
+
         $data = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
 
         // Ambil total biaya dari master biaya (dan per gelombang)
@@ -68,13 +93,15 @@ class DataTerverifikasiController extends Controller
             $gelombangs = GelombangPendaftaran::where('status', 'aktif')->get();
         }
 
+        $gelombangList = GelombangPendaftaran::all();
+        $jurusanList = Jurusan::all();
         $jurusans = Jurusan::where('status', 1)->get();
         $dataSmp = DataSmp::all();
         $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
 
         return view('admin.data-terverifikasi.index', compact(
-            'data', 'totalBiaya', 'totalBiayaPerGelombang', 'gelombangs', 'jurusans', 
-            'dataSmp', 'pengaturan', 'tahunAjaranList', 'selectedTahunAjaranId'
+            'data', 'totalBiaya', 'totalBiayaPerGelombang', 'gelombangs', 'gelombangList', 
+            'jurusans', 'jurusanList', 'dataSmp', 'pengaturan', 'tahunAjaranList', 'selectedTahunAjaranId'
         ));
     }
 
@@ -137,6 +164,74 @@ class DataTerverifikasiController extends Controller
             
         } catch (\Exception $e) {
             Log::error('Update status error: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Bulk Action: Update Status Pendaftar (Contoh: Diterima Massal)
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'required|exists:users_siswa,id',
+            'status_pendaftar' => 'required|in:diterima,ditolak,pending'
+        ]);
+
+        $status = $request->status_pendaftar;
+        $count = 0;
+
+        DB::beginTransaction();
+        try {
+            $users = UserSiswa::with('dataSiswa')->whereIn('id', $request->user_ids)->get();
+
+            foreach ($users as $user) {
+                if ($user->dataSiswa) {
+                    $statusSebelumnya = $user->dataSiswa->status_pendaftar;
+                    $user->dataSiswa->update([
+                        'status_pendaftar' => $status
+                    ]);
+
+                    ActivityLog::logManual(
+                        "Bulk update: Memverifikasi status pendaftaran #{$user->dataSiswa->id} - {$user->dataSiswa->nama_lengkap} menjadi {$status}",
+                        'verify'
+                    );
+
+                    // Kirim pesan WhatsApp otomatis (antrean/queue work)
+                    if ($status === 'diterima' && $statusSebelumnya !== 'diterima' && !empty($user->dataSiswa->no_hp)) {
+                        $this->sendPenerimaanMessage(
+                            $user->dataSiswa->no_hp,
+                            $user->dataSiswa
+                        );
+                    }
+
+                    $count++;
+                }
+            }
+
+            DB::commit();
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Berhasil memproses {$count} siswa menjadi " . ucfirst($status) . "!"
+                ]);
+            }
+
+            return back()->with('success', "Berhasil memproses {$count} siswa menjadi " . ucfirst($status) . "!");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Bulk update status error: ' . $e->getMessage());
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                ], 500);
+            }
+
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }

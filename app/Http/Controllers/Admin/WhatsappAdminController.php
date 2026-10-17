@@ -181,7 +181,7 @@ class WhatsappAdminController extends Controller
             $waSessionName = (string) Str::uuid();
 
             $response = Http::withHeaders($headers)
-                ->timeout(10)
+                ->timeout(30)
                 ->post("{$baseUrl}/sessions", [
                     'name' => $waSessionName,
                 ]);
@@ -382,7 +382,7 @@ class WhatsappAdminController extends Controller
 
         try {
             $response = Http::withHeaders($headers)
-                ->timeout(10)
+                ->timeout(45)
                 ->post("{$baseUrl}/sessions/{$session->session_id}/start");
 
             if ($response->successful()) {

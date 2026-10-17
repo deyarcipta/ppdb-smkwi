@@ -46,6 +46,11 @@ class DashboardController extends Controller
 
         // Ambil aktivitas admin terbaru
         $aktivitasTerbaru = ActivityLog::terbaru(5)->get();
+
+        // Data siap cetak kartu ujian & pengaturan
+        $siapCetakKartu = DataSiswa::where('is_paid', true)->count();
+        $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
+
         return view('admin.dashboard', compact(
             'totalPendaftar',
             'pendingVerifikasi',
@@ -55,7 +60,9 @@ class DashboardController extends Controller
             'jurusanData',
             'pendaftarTerbaru',
             'pembayaranPending',
-            'aktivitasTerbaru'
+            'aktivitasTerbaru',
+            'siapCetakKartu',
+            'pengaturan'
         ));
     }
 }

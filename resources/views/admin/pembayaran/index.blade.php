@@ -3,88 +3,62 @@
 
 @section('content')
 <div class="container-fluid p-0">
-    <!-- Header Section -->
-    <div class="row mb-4 mx-0">
-        <div class="col-12 px-3">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between py-3">
-                <h4 class="mb-sm-0">Data Pembayaran</h4>
-                <div class="d-flex gap-4">
-                    <div class="text-muted">
-                        <small>Total Terverifikasi: <span class="badge bg-success">{{ $totalTerverifikasi }}</span></small>
+    <div class="card card-full-width">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+            <div>
+                <h5 class="mb-1"><i class="bx bx-credit-card me-2 text-primary"></i>Data Pembayaran</h5>
+                <small class="text-muted">Kelola rekapitulasi data pembayaran keuangan siswa yang terverifikasi.</small>
+            </div>
+
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <form method="GET" class="d-flex flex-wrap align-items-center gap-2">
+                    <select name="status" class="form-select form-select-sm" style="width: auto; min-width: 140px;" onchange="this.form.submit()">
+                        <option value="">Semua Status</option>
+                        @foreach($statuses as $key => $value)
+                            <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>
+                                {{ $value }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <select name="jenis_pembayaran" class="form-select form-select-sm" style="width: auto; min-width: 150px;" onchange="this.form.submit()">
+                        <option value="">Semua Jenis</option>
+                        @foreach($jenisPembayaran as $key => $value)
+                            <option value="{{ $key }}" {{ request('jenis_pembayaran') == $key ? 'selected' : '' }}>
+                                {{ $value }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <div class="input-group input-group-sm" style="width: 260px; min-width: 220px;">
+                        <input type="text" name="search" class="form-control" 
+                               placeholder="Cari no daftar / nama..." 
+                               value="{{ request('search') }}">
+                        <button type="submit" class="btn btn-primary"><i class="bx bx-search"></i></button>
                     </div>
-                    <div class="text-muted">
-                        <small>Total Ditolak: <span class="badge bg-danger">{{ $totalDitolak }}</span></small>
-                    </div>
-                    <div class="text-muted">
-                        <small>Total Nominal: <span class="badge bg-info text-white">Rp {{ number_format($totalAmount, 0, ',', '.') }}</span></small>
-                    </div>
+
+                    @if(request()->hasAny(['search', 'status', 'jenis_pembayaran']))
+                        <a href="{{ route('pembayaran.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset Filter">
+                            <i class="bx bx-refresh"></i>
+                        </a>
+                    @endif
+                </form>
+
+                <div class="d-flex align-items-center gap-2 ms-sm-1">
+                    <span class="badge bg-label-success px-2 py-2" title="Total Terverifikasi">
+                        <i class="bx bx-check-circle me-1"></i>Verif: <strong>{{ $totalTerverifikasi }}</strong>
+                    </span>
+                    <span class="badge bg-label-danger px-2 py-2" title="Total Ditolak">
+                        <i class="bx bx-x-circle me-1"></i>Tolak: <strong>{{ $totalDitolak }}</strong>
+                    </span>
+                    <span class="badge bg-label-info px-2 py-2" title="Total Nominal">
+                        <i class="bx bx-wallet me-1"></i>Rp {{ number_format($totalAmount, 0, ',', '.') }}
+                    </span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Main Card -->
-    <div class="row mx-0">
-        <div class="col-12 px-3">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
-                    <div>
-                        <h5 class="mb-1"><i class="bx bx-credit-card me-2 text-primary"></i>Data Pembayaran</h5>
-                        <small class="text-muted">Kelola rekapitulasi data pembayaran keuangan siswa yang terverifikasi.</small>
-                    </div>
-                </div>
-
-                <div class="card-body">
-                    <!-- Filter Section -->
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="filter-section p-3 bg-light rounded">
-                                <form method="GET" class="row g-3 align-items-end">
-                                    <div class="col-md-3">
-                                        <label class="form-label small fw-semibold text-muted">Status</label>
-                                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                                            <option value="">Semua Status</option>
-                                            @foreach($statuses as $key => $value)
-                                                <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>
-                                                    {{ $value }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label small fw-semibold text-muted">Jenis Pembayaran</label>
-                                        <select name="jenis_pembayaran" class="form-select form-select-sm" onchange="this.form.submit()">
-                                            <option value="">Semua Jenis</option>
-                                            @foreach($jenisPembayaran as $key => $value)
-                                                <option value="{{ $key }}" {{ request('jenis_pembayaran') == $key ? 'selected' : '' }}>
-                                                    {{ $value }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-semibold text-muted">Pencarian</label>
-                                        <div class="input-group input-group-sm">
-                                            <span class="input-group-text"><i class="bx bx-search"></i></span>
-                                            <input type="text" name="search" class="form-control" 
-                                                   placeholder="Cari no pendaftaran, nama siswa, atau metode..." 
-                                                   value="{{ request('search') }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="submit" class="btn btn-primary btn-sm w-100">
-                                            <i class="bx bx-filter me-1"></i> Filter
-                                        </button>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <a href="{{ route('pembayaran.index') }}" class="btn btn-outline-secondary btn-sm w-100">
-                                            <i class="bx bx-refresh me-1"></i> Reset
-                                        </a>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+        <div class="card-body">
 
                     <!-- Table Section -->
                     <div class="table-responsive">
@@ -362,8 +336,6 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
 @endsection
 
 @push('styles')

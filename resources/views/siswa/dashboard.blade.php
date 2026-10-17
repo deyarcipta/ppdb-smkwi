@@ -597,19 +597,19 @@
 <div class="row">
   <div class="col-12">
     <div class="card shadow-sm border-0">
-      <div class="card-body text-center py-5">
-        <div class="mb-4">
-          <div class="avatar avatar-xl bg-label-primary mx-auto rounded-circle d-flex align-items-center justify-content-center p-3" style="width: 76px; height: 76px;">
+      <div class="card-body text-center py-4">
+        <div class="mb-3">
+          <div class="avatar avatar-xl bg-label-primary mx-auto rounded-circle d-flex align-items-center justify-content-center p-3" style="width: 70px; height: 70px;">
             <i class='bx bx-id-card bx-lg text-primary'></i>
           </div>
         </div>
         <h4 class="text-primary fw-bold mb-2">Cetak Kartu Ujian & Ceklis Berkas Persyaratan</h4>
-        <p class="text-muted mb-4 mx-auto" style="max-width: 600px;">
+        <p class="text-muted mb-3 mx-auto" style="max-width: 600px;">
           Pembayaran {{ $tipeAplikasi }} Anda telah <strong>Lunas dan Terverifikasi</strong>. 
           Silakan unduh atau cetak Kartu Tanda Peserta & Lembar Ceklis Berkas di bawah ini. Dokumen ini <strong>wajib dibawa fisik</strong> saat hadir ke sekolah untuk verifikasi berkas dan tes wawancara/seleksi.
         </p>
         
-        <div class="card bg-light border mx-auto text-start mb-4 shadow-none w-100" style="max-width: 480px;">
+        <div class="card bg-light border mx-auto text-start mb-3 shadow-none w-100" style="max-width: 480px;">
           <div class="card-body p-3">
             <h6 class="fw-bold mb-2 text-dark"><i class='bx bx-user me-1'></i>Data Peserta:</h6>
             <table class="table table-borderless table-sm mb-0 w-100" style="font-size: 0.86rem;">
@@ -640,10 +640,20 @@
         </div>
 
         <div class="d-flex flex-column align-items-center gap-2 w-100">
-          <!-- Tombol Tunggal Cetak Kartu dengan Modal Pengingat -->
-          <button type="button" onclick="confirmCetakKartu('{{ route('siswa.cetak-kartu') }}', {{ !$dataSiswa->is_card_printed ? '1' : '0' }})" class="btn btn-primary btn-lg px-4 py-3 fw-semibold shadow-sm w-100 w-sm-auto" style="max-width: 380px;">
-            <i class='bx bx-printer me-2'></i>Cetak / Download Kartu Sekarang
-          </button>
+          <div class="d-flex flex-wrap justify-content-center gap-2 w-100">
+            <!-- 1. Tombol Cetak Kartu Ujian -->
+            <button type="button" onclick="confirmCetakKartu('{{ route('siswa.cetak-kartu') }}', {{ !$dataSiswa->is_card_printed ? '1' : '0' }})" class="btn btn-primary btn-lg px-4 py-3 fw-semibold shadow-sm w-100 w-sm-auto" style="max-width: 320px;">
+              <i class='bx bx-printer me-2'></i>Cetak Kartu Ujian
+            </button>
+            <!-- 2. Tombol Cetak Surat Pernyataan Sehat -->
+            <a href="{{ route('siswa.surat-pernyataan-sehat') }}" target="_blank" class="btn btn-outline-info btn-lg px-4 py-3 fw-semibold shadow-sm w-100 w-sm-auto" style="max-width: 320px;" title="Download Surat Pernyataan Sehat Langsung (PDF)">
+              <i class='bx bx-file-blank me-2'></i>Cetak Surat Pernyataan Sehat
+            </a>
+            <!-- 3. Tombol Cetak Formulir Pendaftaran -->
+            <a href="{{ route('siswa.download-formulir') }}" target="_blank" class="btn btn-outline-success btn-lg px-4 py-3 fw-semibold shadow-sm w-100 w-sm-auto" style="max-width: 320px;" title="Download Formulir Pendaftaran (PDF A4 1 Halaman)">
+              <i class='bx bx-file me-2'></i>Cetak Formulir
+            </a>
+          </div>
 
           <p class="text-muted small mb-0 mt-2 text-center">
             <i class='bx bx-info-circle me-1'></i>Setelah mencetak kartu, Anda dapat mencetak ulang kapan saja melalui menu di sidebar dashboard.
@@ -678,10 +688,16 @@
           <p class="mb-0"><strong>Status Seleksi:</strong> <span class="badge bg-warning text-dark">Dalam Verifikasi & Penilaian</span></p>
         </div>
         
-        <div class="d-flex justify-content-center gap-2 mb-3">
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
           <button type="button" onclick="confirmCetakKartu('{{ route('siswa.cetak-kartu') }}', 0)" class="btn btn-outline-primary">
-            <i class='bx bx-printer me-1'></i>Cetak Ulang Kartu Peserta
+            <i class='bx bx-printer me-1'></i>Cetak Kartu Ujian
           </button>
+          <a href="{{ route('siswa.surat-pernyataan-sehat') }}" target="_blank" class="btn btn-outline-info">
+            <i class='bx bx-file-blank me-1'></i>Cetak Surat Pernyataan Sehat
+          </a>
+          <a href="{{ route('siswa.download-formulir') }}" target="_blank" class="btn btn-outline-success">
+            <i class='bx bx-file me-1'></i>Cetak Formulir
+          </a>
         </div>
         
         <div class="spinner-border text-warning" role="status">
@@ -1363,9 +1379,9 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class='bx bx-x me-1'></i>Tutup
                 </button>
-                <button type="button" class="btn btn-primary" onclick="printFormulir({{ $siswaId }})">
+                <a href="{{ route('siswa.download-formulir') }}" target="_blank" class="btn btn-primary">
                     <i class='bx bx-printer me-1'></i>Print Formulir
-                </button>
+                </a>
                 {{-- <button type="button" class="btn btn-success" onclick="downloadFormulir()">
                     <i class='bx bx-download me-1'></i>Download PDF
                 </button> --}}
@@ -1716,7 +1732,7 @@
 <script>
 // Fungsi untuk print formulir
 window.printFormulir = function(id) {
-    doPrintFormulir(id, "detailModal");
+    window.open('{{ route("siswa.download-formulir") }}', '_blank');
 };
 document.addEventListener('DOMContentLoaded', function() {
     // JavaScript untuk upload bukti pembayaran

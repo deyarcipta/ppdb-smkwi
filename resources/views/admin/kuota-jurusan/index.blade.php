@@ -2,15 +2,38 @@
 @section('title', 'Kuota Per Jurusan')
 
 @section('content')
-<div class="card">
+<div class="card card-full-width">
   <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
     <div>
       <h5 class="mb-1"><i class="bx bx-pie-chart-alt-2 me-2 text-primary"></i>Kuota Per Jurusan</h5>
       <small class="text-muted">Kelola kapasitas tampung kuota pendaftar per jurusan per gelombang.</small>
     </div>
-    <button class="btn btn-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#addKuotaModal">
-      <i class="bx bx-plus me-1"></i>Tambah Kuota
-    </button>
+
+    <div class="d-flex align-items-center flex-wrap gap-2">
+      <form action="{{ route('kuota-jurusan.index') }}" method="GET" class="d-flex flex-wrap align-items-center gap-2">
+        <select name="jurusan_id" class="form-select form-select-sm" style="width: auto; min-width: 150px;" onchange="this.form.submit()">
+          <option value="">Semua Jurusan</option>
+          @foreach($jurusans as $j)
+            <option value="{{ $j->id }}" {{ request('jurusan_id') == $j->id ? 'selected' : '' }}>{{ $j->nama_jurusan }}</option>
+          @endforeach
+        </select>
+
+        <select name="gelombang_id" class="form-select form-select-sm" style="width: auto; min-width: 160px;" onchange="this.form.submit()">
+          <option value="">Semua Gelombang</option>
+          @foreach($gelombangs as $g)
+            <option value="{{ $g->id }}" {{ request('gelombang_id') == $g->id ? 'selected' : '' }}>{{ $g->nama_gelombang }}</option>
+          @endforeach
+        </select>
+
+        @if(request()->hasAny(['jurusan_id', 'gelombang_id']))
+          <a href="{{ route('kuota-jurusan.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset Filter"><i class="bx bx-refresh"></i></a>
+        @endif
+      </form>
+
+      <button class="btn btn-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#addKuotaModal">
+        <i class="bx bx-plus me-1"></i>Tambah Kuota
+      </button>
+    </div>
   </div>
 
 

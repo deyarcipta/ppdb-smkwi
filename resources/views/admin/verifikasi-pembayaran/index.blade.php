@@ -3,77 +3,47 @@
 
 @section('content')
 <div class="container-fluid p-0">
-    <!-- Header Section -->
-    <div class="row mb-4 mx-0">
-        <div class="col-12 px-3">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between py-3">
-                <h4 class="mb-sm-0">Verifikasi Pembayaran</h4>
-                <div class="d-flex gap-4">
-                    <div class="text-muted">
-                        <small>Total Menunggu: <span class="badge bg-warning text-dark">{{ $totalMenunggu }}</span></small>
+    <div class="card card-full-width">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+            <div>
+                <h5 class="mb-1"><i class="bx bx-check-shield me-2 text-primary"></i>Verifikasi Pembayaran</h5>
+                <small class="text-muted">Konfirmasi dan verifikasi bukti transfer pembayaran dari siswa pendaftar.</small>
+            </div>
+
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <form action="{{ route('verifikasi-pembayaran.index') }}" method="GET" class="d-flex flex-wrap align-items-center gap-2">
+                    <select name="jenis_pembayaran" class="form-select form-select-sm" style="width: auto; min-width: 150px;" onchange="this.form.submit()">
+                        <option value="">Semua Jenis</option>
+                        @foreach($jenisPembayaran as $key => $value)
+                            <option value="{{ $key }}" {{ request('jenis_pembayaran') == $key ? 'selected' : '' }}>
+                                {{ $value }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <div class="input-group input-group-sm" style="width: 280px; min-width: 250px;">
+                        <input type="text" name="search" class="form-control" placeholder="Cari No. Daftar / Nama Siswa..." value="{{ request('search') }}">
+                        <button type="submit" class="btn btn-primary"><i class="bx bx-search"></i></button>
                     </div>
-                    <div class="text-muted">
-                        <small>Total Nominal: <span class="badge bg-info text-white">Rp {{ number_format($totalAmount, 0, ',', '.') }}</span></small>
-                    </div>
+
+                    @if(request()->hasAny(['search', 'jenis_pembayaran']))
+                        <a href="{{ route('verifikasi-pembayaran.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset Filter"><i class="bx bx-refresh"></i></a>
+                    @endif
+                </form>
+
+                <div class="d-flex align-items-center gap-2 ms-sm-1">
+                    <span class="badge bg-label-warning px-3 py-2">
+                        <i class="bx bx-time me-1"></i>Menunggu: <strong>{{ $totalMenunggu }}</strong>
+                    </span>
+                    <span class="badge bg-label-info px-3 py-2">
+                        <i class="bx bx-wallet me-1"></i>Rp {{ number_format($totalAmount, 0, ',', '.') }}
+                    </span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Main Card - Full Width dengan Radius -->
-    <div class="row mx-0">
-        <div class="col-12 px-3">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
-                    <div>
-                        <h5 class="mb-1"><i class="bx bx-check-shield me-2 text-primary"></i>Verifikasi Pembayaran</h5>
-                        <small class="text-muted">Konfirmasi dan verifikasi bukti transfer pembayaran dari siswa pendaftar.</small>
-                    </div>
-                </div>
-
-
-                <div class="card-body">
-                    <!-- Filter Section -->
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="filter-section p-3 bg-light rounded">
-                                <form method="GET" class="row g-3 align-items-end">
-                                    <div class="col-md-3">
-                                        <label class="form-label small fw-semibold text-muted">Jenis Pembayaran</label>
-                                        <select name="jenis_pembayaran" class="form-select form-select-sm" onchange="this.form.submit()">
-                                            <option value="">Semua Jenis</option>
-                                            @foreach($jenisPembayaran as $key => $value)
-                                                <option value="{{ $key }}" {{ request('jenis_pembayaran') == $key ? 'selected' : '' }}>
-                                                    {{ $value }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-semibold text-muted">Pencarian</label>
-                                        <div class="input-group input-group-sm">
-                                            <span class="input-group-text"><i class="bx bx-search"></i></span>
-                                            <input type="text" name="search" class="form-control" 
-                                                   placeholder="Cari no pendaftaran atau nama siswa..." 
-                                                   value="{{ request('search') }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <button type="submit" class="btn btn-primary btn-sm w-100">
-                                            <i class="bx bx-filter me-1"></i> Filter
-                                        </button>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <a href="{{ route('verifikasi-pembayaran.index') }}" class="btn btn-outline-secondary btn-sm w-100">
-                                            <i class="bx bx-refresh me-1"></i> Reset
-                                        </a>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Table Section -->
+        <div class="card-body">
+            <!-- Table Section -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover table-striped mb-0">
                             <thead class="table-light">
@@ -173,8 +143,7 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
+
 
 @if(auth()->user()->role === 'superadmin')
 <!-- Delete Confirmation Modal -->

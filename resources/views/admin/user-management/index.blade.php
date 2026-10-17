@@ -2,15 +2,35 @@
 @section('title', 'Management User')
 
 @section('content')
-<div class="card">
+<div class="card card-full-width">
   <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
     <div>
       <h5 class="mb-1"><i class="bx bx-user-pin me-2 text-primary"></i>Manajemen User</h5>
       <small class="text-muted">Kelola akun pengguna admin, superadmin, dan hak akses petugas sistem.</small>
     </div>
-    <button class="btn btn-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#addUserModal">
-      <i class="bx bx-plus me-1"></i>Tambah User
-    </button>
+
+    <div class="d-flex align-items-center flex-wrap gap-2">
+      <form action="{{ route('user-management.index') }}" method="GET" class="d-flex flex-wrap align-items-center gap-2">
+        <select name="role" class="form-select form-select-sm" style="width: auto; min-width: 130px;" onchange="this.form.submit()">
+          <option value="">Semua Role</option>
+          <option value="superadmin" {{ request('role') == 'superadmin' ? 'selected' : '' }}>Super Admin</option>
+          <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+        </select>
+
+        <div class="input-group input-group-sm" style="width: 250px;">
+          <input type="text" name="search" class="form-control" placeholder="Cari Nama / Email..." value="{{ request('search') }}">
+          <button type="submit" class="btn btn-primary"><i class="bx bx-search"></i></button>
+        </div>
+
+        @if(request()->hasAny(['search', 'role']))
+          <a href="{{ route('user-management.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset Filter"><i class="bx bx-refresh"></i></a>
+        @endif
+      </form>
+
+      <button class="btn btn-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        <i class="bx bx-plus me-1"></i>Tambah User
+      </button>
+    </div>
   </div>
 
 

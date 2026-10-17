@@ -10,10 +10,20 @@ use Illuminate\Http\Request;
 
 class KuotaJurusanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Relasi ke jurusan dan gelombang pendaftaran
-        $data = KuotaJurusan::with(['jurusan', 'gelombang'])->paginate(10);
+        $query = KuotaJurusan::with(['jurusan', 'gelombang']);
+
+        if ($request->filled('jurusan_id')) {
+            $query->where('jurusan_id', $request->jurusan_id);
+        }
+
+        if ($request->filled('gelombang_id')) {
+            $query->where('gelombang_id', $request->gelombang_id);
+        }
+
+        $data = $query->paginate(10)->withQueryString();
         $jurusans = Jurusan::where('status', 1)->get();
         $gelombangs = GelombangPendaftaran::where('status', 'aktif')->get();
 

@@ -89,18 +89,41 @@
   </div>
 
   <div class="col-lg-4 col-md-12 mb-4">
-    <!-- Pembayaran Menunggu -->
-    <div class="card">
-      <div class="card-header">
-        <h5 class="card-title m-0">Pembayaran Menunggu</h5>
-      </div>
-      <div class="card-body text-center">
-        <div class="avatar avatar-lg bg-label-warning mb-3">
-          <i class="bx bx-money bx-sm"></i>
+    <div class="row g-3">
+      <!-- Pembayaran Menunggu -->
+      <div class="col-12 col-md-6 col-lg-12">
+        <div class="card">
+          <div class="card-header py-3">
+            <h5 class="card-title m-0 fs-6">Pembayaran Menunggu</h5>
+          </div>
+          <div class="card-body text-center py-3">
+            <div class="avatar avatar-md bg-label-warning mb-2 mx-auto">
+              <i class="bx bx-money bx-sm"></i>
+            </div>
+            <h4 class="mb-1">{{ $pembayaranPending }}</h4>
+            <p class="text-muted small mb-2">Pembayaran perlu diverifikasi</p>
+            <a href="{{ route('verifikasi-pembayaran.index') }}" class="btn btn-sm btn-outline-warning">Verifikasi Sekarang</a>
+          </div>
         </div>
-        <h4>{{ $pembayaranPending }}</h4>
-        <p class="text-muted">Pembayaran perlu diverifikasi</p>
-        <a href="{{ route('verifikasi-pembayaran.index') }}" class="btn btn-sm btn-outline-warning">Verifikasi Sekarang</a>
+      </div>
+
+      <!-- Cetak Kartu Ujian -->
+      <div class="col-12 col-md-6 col-lg-12">
+        <div class="card">
+          <div class="card-header py-3">
+            <h5 class="card-title m-0 fs-6">Cetak Kartu Ujian</h5>
+          </div>
+          <div class="card-body text-center py-3">
+            <div class="avatar avatar-md bg-label-primary mb-2 mx-auto">
+              <i class="bx bx-id-card bx-sm"></i>
+            </div>
+            <h4 class="mb-1">{{ $siapCetakKartu }}</h4>
+            <p class="text-muted small mb-2">Peserta lunas siap cetak kartu</p>
+            <a href="{{ route('data-cetak-kartu.index') }}" class="btn btn-sm btn-primary">
+              <i class="bx bx-printer me-1"></i>Cetak Kartu Ujian
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>

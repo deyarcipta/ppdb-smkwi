@@ -7,6 +7,7 @@ use App\Models\DataSiswa;
 use App\Models\UserSiswa;
 use App\Models\Jurusan;
 use App\Models\GelombangPendaftaran;
+use App\Models\Pembayaran;
 use App\Services\ProgressService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -372,6 +373,7 @@ class SiswaFormController extends Controller
 
             // Generate PDF
             $pdf = Pdf::loadView('siswa.formulir.pdf', $data);
+            $pdf->setPaper('a4', 'portrait');
             
             // Nama file PDF
             $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $siswa->dataSiswa->nama_lengkap ?? 'siswa');

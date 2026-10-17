@@ -5,8 +5,10 @@
   $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
   $ta = $pengaturan ? $pengaturan->tahunAjaranAktif : null;
 @endphp
-<footer class="footer">
-  <div class="container text-center text-muted" style="font-size: 0.85rem;">
-    © {{$currentYear}} <strong>{{$namaSekolah}}</strong> - Portal {{ $tipeAplikasi }}{{ $ta ? ' (T.A '.$ta->nama.')' : '' }}. created by <a href="https://wistek.xyz" target="_blank">Wistin Teknologi</a>  
+<footer class="content-footer footer bg-footer-theme py-3 text-center">
+  <div class="container-fluid">
+    <div class="footer-text" style="font-size: 0.85rem; color: #697a8d;">
+      © {{ $currentYear }} <strong style="color: #566a7f; font-weight: 700;">{{ mb_strtoupper($namaSekolah) }}</strong> - Portal {{ $tipeAplikasi }}{{ $ta ? ' (T.A '.$ta->nama.')' : '' }}. created by <a href="https://wistek.xyz" target="_blank" class="fw-bold" style="color: #696cff; text-decoration: none;">Wistin Teknologi</a>  
+    </div>
   </div>
 </footer>

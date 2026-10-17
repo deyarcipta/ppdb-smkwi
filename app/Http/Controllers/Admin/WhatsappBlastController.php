@@ -254,6 +254,7 @@ class WhatsappBlastController extends Controller
         ]);
 
         $pesanTemplate = $request->pesan;
+        $targetPenerima = $request->target_penerima;
         $sessionId = $request->session_id && $request->session_id !== 'auto' ? $request->session_id : null;
         
         $jenisBlast = $request->jenis_blast ?: null;

@@ -22,6 +22,12 @@ use PhpOffice\PhpSpreadsheet\Style\Style;
 class DataDitolakExport extends DefaultValueBinder implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths, WithDefaultStyles, WithCustomValueBinder, WithCustomStartCell, WithEvents
 {
     protected $dataCount = 0;
+    protected $request;
+
+    public function __construct($request = null)
+    {
+        $this->request = $request;
+    }
 
     public function bindValue(Cell $cell, $value)
     {
@@ -39,17 +45,40 @@ class DataDitolakExport extends DefaultValueBinder implements FromCollection, Wi
     }
     public function collection()
     {
-        $collection = UserSiswa::with([
+        $query = UserSiswa::with([
             'dataSiswa', 
             'dataSiswa.gelombang', 
             'dataSiswa.jurusan',
             'pembayaran'
         ])
-        ->whereHas('dataSiswa', function($query) {
-            $query->where('status_pendaftar', 'ditolak');
-        })
-        ->orderBy('created_at', 'desc')
-        ->get();
+        ->whereHas('dataSiswa', function($q) {
+            $q->where('status_pendaftar', 'ditolak');
+        });
+
+        if ($this->request) {
+            if ($this->request->filled('jurusan_id')) {
+                $jurusanId = $this->request->jurusan_id;
+                $query->whereHas('dataSiswa', fn($q) => $q->where('jurusan_id', $jurusanId));
+            }
+            if ($this->request->filled('gelombang_id')) {
+                $gelombangId = $this->request->gelombang_id;
+                $query->whereHas('dataSiswa', fn($q) => $q->where('gelombang_id', $gelombangId));
+            }
+            if ($this->request->filled('search')) {
+                $search = $this->request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('username', 'like', "%{$search}%")
+                      ->orWhereHas('dataSiswa', function($sq) use ($search) {
+                          $sq->where('nama_lengkap', 'like', "%{$search}%")
+                            ->orWhere('no_pendaftaran', 'like', "%{$search}%")
+                            ->orWhere('nisn', 'like', "%{$search}%")
+                            ->orWhere('asal_sekolah', 'like', "%{$search}%");
+                      });
+                });
+            }
+        }
+
+        $collection = $query->orderBy('created_at', 'desc')->get();
 
         $this->dataCount = $collection->count();
         return $collection;

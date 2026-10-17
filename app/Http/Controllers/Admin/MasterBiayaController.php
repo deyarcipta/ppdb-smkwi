@@ -9,9 +9,19 @@ use Illuminate\Http\Request;
 
 class MasterBiayaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data = MasterBiaya::with(['gelombang', 'gelombang.tahunAjaran'])->paginate(10);
+        $query = MasterBiaya::with(['gelombang', 'gelombang.tahunAjaran']);
+
+        if ($request->filled('gelombang_id')) {
+            $query->where('gelombang_id', $request->gelombang_id);
+        }
+
+        if ($request->filled('jenis_biaya')) {
+            $query->where('jenis_biaya', $request->jenis_biaya);
+        }
+
+        $data = $query->paginate(10)->withQueryString();
         $tahunAjaranAktif = \App\Models\TahunAjaran::where('status', 'aktif')->first();
         $gelombangs = GelombangPendaftaran::with('tahunAjaran')
             ->where('status', 'aktif')

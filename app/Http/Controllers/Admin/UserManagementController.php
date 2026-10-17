@@ -10,9 +10,23 @@ use Illuminate\Validation\Rules;
 
 class UserManagementController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data = User::where('id', '!=', auth()->id())->latest()->paginate(10);
+        $query = User::where('id', '!=', auth()->id());
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $data = $query->latest()->paginate(10)->withQueryString();
         return view('admin.user-management.index', compact('data'));
     }
 

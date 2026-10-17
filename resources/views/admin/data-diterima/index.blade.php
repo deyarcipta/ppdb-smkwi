@@ -10,12 +10,32 @@
                 <small class="text-muted">Menampilkan daftar peserta yang telah resmi dinyatakan diterima PPDB.</small>
             </div>
             <div class="d-flex align-items-center flex-wrap gap-2">
-                <div class="input-group input-group-sm" style="width: 260px;">
-                    <span class="input-group-text"><i class="bx bx-search"></i></span>
-                    <input type="text" id="searchTable" class="form-control" placeholder="Cari No Daftar / Nama / Sekolah...">
-                </div>
+                <form action="{{ route('data-diterima.index') }}" method="GET" class="d-flex flex-wrap align-items-center gap-2">
+                    <select name="jurusan_id" class="form-select form-select-sm" style="width: auto; min-width: 150px;" onchange="this.form.submit()">
+                        <option value="">Semua Jurusan</option>
+                        @foreach($jurusanList as $j)
+                            <option value="{{ $j->id }}" {{ request('jurusan_id') == $j->id ? 'selected' : '' }}>{{ $j->nama_jurusan }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="gelombang_id" class="form-select form-select-sm" style="width: auto; min-width: 160px;" onchange="this.form.submit()">
+                        <option value="">Semua Gelombang</option>
+                        @foreach($gelombangList as $g)
+                            <option value="{{ $g->id }}" {{ request('gelombang_id') == $g->id ? 'selected' : '' }}>{{ $g->nama_gelombang }}</option>
+                        @endforeach
+                    </select>
+
+                    <div class="input-group input-group-sm" style="width: 280px; min-width: 250px;">
+                        <input type="text" name="search" class="form-control" placeholder="Cari Nama / NISN / No. Daftar..." value="{{ request('search') }}">
+                        <button type="submit" class="btn btn-primary"><i class="bx bx-search"></i></button>
+                    </div>
+
+                    @if(request()->hasAny(['search', 'jurusan_id', 'gelombang_id']))
+                        <a href="{{ route('data-diterima.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset Filter"><i class="bx bx-refresh"></i></a>
+                    @endif
+                </form>
                 
-                <a href="{{ route('data-diterima.export') }}" class="btn btn-success btn-sm text-nowrap">
+                <a href="{{ route('data-diterima.export', request()->all()) }}" class="btn btn-success btn-sm text-nowrap">
                     <i class="bx bx-download me-1"></i>Download Excel
                 </a>
             </div>
@@ -763,9 +783,9 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="bx bx-x me-1"></i>Tutup
                 </button>
-                <button type="button" class="btn btn-primary" onclick="printFormulir({{ $row->id }})">
+                <a href="{{ route('admin.cetak-formulir', $row->id) }}" target="_blank" class="btn btn-primary">
                     <i class="bx bx-printer me-1"></i>Print Formulir
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -848,7 +868,7 @@
 <script>
 // Fungsi Print Formulir Admin
 window.printFormulir = function(id) {
-    doPrintFormulir(id, "detailModal");
+    window.open('/panel/data-pendaftar/' + id + '/cetak-formulir', '_blank');
 };
 
 document.addEventListener('DOMContentLoaded', function () {

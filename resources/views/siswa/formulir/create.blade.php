@@ -197,9 +197,9 @@
                                 <button type="button" class="btn btn-outline-primary btn-sm">
                                     <i class="fas fa-file-download me-1"></i> Unduh Panduan
                                 </button>
-                                <button type="button" onclick="printFormulirSiswaForm()" class="btn btn-primary btn-sm" title="Cetak Formulir Pendaftaran">
+                                <a href="{{ route('siswa.download-formulir') }}" target="_blank" class="btn btn-primary btn-sm" title="Cetak Formulir Pendaftaran">
                                     <i class="fas fa-print me-1"></i> Cetak Formulir
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -1774,95 +1774,7 @@ document.getElementById('foto_siswa').addEventListener('change', function () {
 <script src="{{ asset('sneat/js/printFormulir.js') }}?v={{ time() }}"></script>
 <script>
 function printFormulirSiswaForm() {
-    const printEl = document.getElementById('formulirPrintData');
-    if (!printEl) return;
-
-    const formMap = {
-        nama_lengkap: 'nama',
-        nisn: 'nisn',
-        nik: 'nik',
-        no_kk: 'noKk',
-        tempat_lahir: 'tempatLahir',
-        tanggal_lahir: 'tanggalLahir',
-        jenis_kelamin: 'jenisKelamin',
-        agama: 'agama',
-        asal_sekolah: 'asalSekolah',
-        jenjang_sekolah_asal: 'jenjangSekolah',
-        status_sekolah_asal: 'statusSekolah',
-        kota_sekolah_asal: 'kotaSekolah',
-        alamat: 'alamat',
-        rt: 'rt',
-        rw: 'rw',
-        desa: 'desa',
-        kecamatan: 'kecamatan',
-        kota: 'kota',
-        provinsi: 'provinsi',
-        kode_pos: 'kodePos',
-        tinggi_badan: 'tinggiBadan',
-        berat_badan: 'beratBadan',
-        anak_ke: 'anakKe',
-        jumlah_saudara: 'jumlahSaudara',
-        status_dalam_keluarga: 'statusDalamKeluarga',
-        tinggal_bersama: 'tinggalBersama',
-        jarak_kesekolah: 'jarakKesekolah',
-        waktu_tempuh: 'waktuTempuh',
-        transportasi: 'transportasi',
-        ukuran_baju: 'ukuranBaju',
-        hobi: 'hobi',
-        cita_cita: 'citaCita',
-        tahun_lulus: 'tahunLulus',
-        no_kip: 'noKip',
-        referensi: 'referensi',
-        ket_referensi: 'ketReferensi',
-        nik_ayah: 'nikAyah',
-        nama_ayah: 'namaAyah',
-        tempat_lahir_ayah: 'tempatLahirAyah',
-        tanggal_lahir_ayah: 'tanggalLahirAyah',
-        pendidikan_ayah: 'pendidikanAyah',
-        pekerjaan_ayah: 'pekerjaanAyah',
-        penghasilan_ayah: 'penghasilanAyah',
-        no_hp_ayah: 'noHpAyah',
-        nik_ibu: 'nikIbu',
-        nama_ibu: 'namaIbu',
-        tempat_lahir_ibu: 'tempatLahirIbu',
-        tanggal_lahir_ibu: 'tanggalLahirIbu',
-        pendidikan_ibu: 'pendidikanIbu',
-        pekerjaan_ibu: 'pekerjaanIbu',
-        penghasilan_ibu: 'penghasilanIbu',
-        no_hp_ibu: 'noHpIbu',
-        nik_wali: 'nikWali',
-        nama_wali: 'namaWali',
-        tempat_lahir_wali: 'tempatLahirWali',
-        tanggal_lahir_wali: 'tanggalLahirWali',
-        pendidikan_wali: 'pendidikanWali',
-        pekerjaan_wali: 'pekerjaanWali',
-        penghasilan_wali: 'penghasilanWali',
-        no_hp_wali: 'noHpWali'
-    };
-
-    for (const [inputName, dataKey] of Object.entries(formMap)) {
-        const input = document.querySelector(`[name="${inputName}"]`);
-        if (input && input.value && input.value.trim() !== '') {
-            printEl.dataset[dataKey] = input.value;
-        }
-    }
-
-    const jurusanEl = document.querySelector('[name="jurusan_id"]');
-    if (jurusanEl && jurusanEl.selectedOptions && jurusanEl.selectedOptions[0]) {
-        printEl.dataset.jurusan = jurusanEl.selectedOptions[0].text;
-    }
-    const gelombangEl = document.querySelector('[name="gelombang_id"]');
-    if (gelombangEl && gelombangEl.selectedOptions && gelombangEl.selectedOptions[0]) {
-        printEl.dataset.gelombang = gelombangEl.selectedOptions[0].text;
-    }
-
-    // Sinkronkan foto jika sudah ada di preview foto
-    const previewFoto = document.getElementById('previewFoto');
-    if (previewFoto && previewFoto.src && !previewFoto.classList.contains('d-none')) {
-        printEl.dataset.fotoSiswa = previewFoto.src;
-    }
-
-    doPrintFormulir('formulirPrintData');
+    window.open('{{ route("siswa.download-formulir") }}', '_blank');
 }
 </script>
 @endsection

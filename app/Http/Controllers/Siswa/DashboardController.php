@@ -14,6 +14,7 @@ use App\Models\DataSiswa;
 use App\Models\MasterBiaya;
 use App\Models\PengaturanAplikasi;
 use App\Services\ProgressService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -653,5 +654,34 @@ class DashboardController extends Controller
 
         return redirect()->route('siswa.dashboard')
             ->with('success', 'Konfirmasi berhasil! Kartu peserta telah dicetak. Silakan hadir ke sekolah untuk verifikasi berkas dan tes wawancara.');
+    }
+
+    /**
+     * Download / Stream Surat Pernyataan Sehat format PDF
+     */
+    public function cetakSuratPernyataanSehat(Request $request)
+    {
+        $user = Auth::user();
+        $dataSiswa = $user->dataSiswa ?? null;
+
+        // Syarat: Pembayaran PPDB harus sudah lunas
+        if (!$dataSiswa || !$dataSiswa->is_paid) {
+            return redirect()->route('siswa.dashboard')
+                ->with('error', 'Anda belum dapat mengunduh surat pernyataan sehat. Pastikan seluruh pembayaran PPDB Anda sudah diverifikasi dan lunas.');
+        }
+
+        $pengaturan = PengaturanAplikasi::getSettings();
+
+        $pdf = Pdf::loadView('siswa.surat-pernyataan-sehat-pdf', compact('user', 'dataSiswa', 'pengaturan'));
+        $pdf->setPaper('a4', 'portrait');
+
+        $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $dataSiswa->nama_lengkap ?? $user->username);
+        $filename = 'Surat_Pernyataan_Sehat_' . $cleanName . '.pdf';
+
+        if ($request->has('download')) {
+            return $pdf->download($filename);
+        }
+
+        return $pdf->stream($filename);
     }
 }

@@ -3,98 +3,59 @@
 
 @section('content')
 <div class="container-fluid p-0">
-    <!-- Header Section -->
-    <div class="row mb-4 mx-0">
-        <div class="col-12 px-3">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between py-3">
-                <h4 class="mb-sm-0">Laporan Pembayaran Siswa</h4>
-                <div class="d-flex gap-4">
-                    <div class="text-muted">
-                        <small>Total Siswa: <span class="badge bg-primary">{{ $totalSiswa }}</span></small>
+    <div class="card card-full-width">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+            <div>
+                <h5 class="mb-1"><i class="bx bx-receipt me-2 text-primary"></i>Laporan Pembayaran</h5>
+                <small class="text-muted">Rekapitulasi dan laporan rincian pembayaran keuangan pendaftar.</small>
+            </div>
+
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <form action="{{ route('laporan-pembayaran.index') }}" method="GET" class="d-flex flex-wrap align-items-center gap-2">
+                    <select name="jenis_pembayaran" class="form-select form-select-sm" style="width: auto; min-width: 130px;" onchange="this.form.submit()">
+                        <option value="">Semua Jenis</option>
+                        <option value="formulir" {{ request('jenis_pembayaran') == 'formulir' ? 'selected' : '' }}>Formulir</option>
+                        <option value="ppdb" {{ request('jenis_pembayaran') == 'ppdb' ? 'selected' : '' }}>PPDB</option>
+                    </select>
+
+                    <div class="d-flex align-items-center gap-1">
+                        <input type="date" name="tanggal_awal" class="form-control form-control-sm" style="width: 130px;" value="{{ request('tanggal_awal') }}" title="Tanggal Awal">
+                        <span class="text-muted small">-</span>
+                        <input type="date" name="tanggal_akhir" class="form-control form-control-sm" style="width: 130px;" value="{{ request('tanggal_akhir') }}" title="Tanggal Akhir">
                     </div>
-                    <div class="text-muted">
-                        <small>Total Transaksi: <span class="badge bg-info">{{ $totalTransaksi }}</span></small>
+
+                    <div class="input-group input-group-sm" style="width: 220px; min-width: 170px;">
+                        <input type="text" name="nama_siswa" class="form-control" placeholder="Cari nama siswa..." value="{{ request('nama_siswa') }}">
+                        <button type="submit" class="btn btn-primary"><i class="bx bx-search"></i></button>
                     </div>
-                    <div class="text-muted">
-                        <small>Total Nominal: <span class="badge bg-success text-white">Rp {{ number_format($totalNominal, 0, ',', '.') }}</span></small>
-                    </div>
+
+                    @if(request()->hasAny(['nama_siswa', 'jenis_pembayaran', 'tanggal_awal', 'tanggal_akhir']))
+                        <a href="{{ route('laporan-pembayaran.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset Filter">
+                            <i class="bx bx-refresh"></i>
+                        </a>
+                    @endif
+                </form>
+
+                <a href="{{ route('laporan-pembayaran.export', request()->all()) }}" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Download Excel">
+                    <i class="bx bx-download"></i>
+                    <span>Excel</span>
+                </a>
+
+                <div class="d-flex align-items-center gap-2 ms-sm-1">
+                    <span class="badge bg-label-primary px-2 py-2" title="Total Siswa">
+                        <i class="bx bx-user me-1"></i>Siswa: <strong>{{ $totalSiswa }}</strong>
+                    </span>
+                    <span class="badge bg-label-info px-2 py-2" title="Total Transaksi">
+                        <i class="bx bx-receipt me-1"></i>Trx: <strong>{{ $totalTransaksi }}</strong>
+                    </span>
+                    <span class="badge bg-label-success px-2 py-2" title="Total Nominal">
+                        <i class="bx bx-wallet me-1"></i>Rp {{ number_format($totalNominal, 0, ',', '.') }}
+                    </span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Main Card -->
-    <div class="row mx-0">
-        <div class="col-12 px-3">
-            <div class="card card-full-width">
-                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
-                    <div>
-                        <h5 class="mb-1"><i class="bx bx-receipt me-2 text-primary"></i>Laporan Pembayaran</h5>
-                        <small class="text-muted">Rekapitulasi dan laporan rincian pembayaran keuangan pendaftar.</small>
-                    </div>
-                </div>
-
-                <div class="card-body">
-                    <!-- Filter Section -->
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <!-- Filter Section -->
-                            <div class="filter-section p-3 bg-light rounded">
-                                <div class="row g-3 align-items-end">
-                                    <!-- Form Filter -->
-                                    <form action="{{ route('laporan-pembayaran.filter') }}" method="GET" class="row g-3 align-items-end col-md-11">
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-semibold text-muted">Nama Siswa</label>
-                                            <input type="text" name="nama_siswa" class="form-control form-control-sm" 
-                                                value="{{ request('nama_siswa') }}" placeholder="Cari nama siswa...">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-semibold text-muted">Jenis Pembayaran</label>
-                                            <select name="jenis_pembayaran" class="form-select form-select-sm">
-                                                <option value="">Semua Jenis</option>
-                                                <option value="formulir" {{ request('jenis_pembayaran') == 'formulir' ? 'selected' : '' }}>Formulir</option>
-                                                <option value="ppdb" {{ request('jenis_pembayaran') == 'ppdb' ? 'selected' : '' }}>PPDB</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label small fw-semibold text-muted">Tanggal Awal</label>
-                                            <input type="date" name="tanggal_awal" class="form-control form-control-sm" 
-                                                value="{{ request('tanggal_awal') }}">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label small fw-semibold text-muted">Tanggal Akhir</label>
-                                            <input type="date" name="tanggal_akhir" class="form-control form-control-sm" 
-                                                value="{{ request('tanggal_akhir') }}">
-                                        </div>
-                                        <div class="col-md-1">
-                                            <button type="submit" class="btn btn-primary btn-sm w-100">
-                                                <i class="bx bx-filter me-1"></i> Filter
-                                            </button>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <a href="{{ route('laporan-pembayaran.index') }}" class="btn btn-outline-secondary btn-sm w-100">
-                                                <i class="bx bx-refresh me-1"></i> Reset
-                                            </a>
-                                        </div>
-                                    </form>
-
-                                    <!-- Tombol Export Excel (di luar form utama tapi sejajar) -->
-                                    <div class="col-md-1">
-                                        <form action="{{ route('laporan-pembayaran.export') }}" method="GET">
-                                            <input type="hidden" name="nama_siswa" value="{{ request('nama_siswa') }}">
-                                            <input type="hidden" name="jenis_pembayaran" value="{{ request('jenis_pembayaran') }}">
-                                            <input type="hidden" name="tanggal_awal" value="{{ request('tanggal_awal') }}">
-                                            <input type="hidden" name="tanggal_akhir" value="{{ request('tanggal_akhir') }}">
-                                            <button type="submit" class="btn btn-success btn-sm w-100" title="Download Excel">
-                                                <i class="bx bx-download me-1"></i> Excel
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
+        <div class="card-body">
 
                     <!-- Table Section -->
                     <div class="table-responsive">
@@ -165,8 +126,6 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
 <!-- Modal Detail -->
 <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">

@@ -16,20 +16,47 @@ class DataDiterimaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Query untuk mengambil data user yang memiliki dataSiswa dengan status_pendaftar = 'diterima'
-        $data = UserSiswa::with(['dataSiswa', 'pembayaran', 'dataSiswa.gelombang', 'dataSiswa.jurusan'])
+        $query = UserSiswa::with(['dataSiswa', 'pembayaran', 'dataSiswa.gelombang', 'dataSiswa.jurusan'])
             ->whereHas('dataSiswa', function($query) {
                 $query->where('status_pendaftar', 'diterima');
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            });
+
+        if ($request->filled('jurusan_id')) {
+            $query->whereHas('dataSiswa', function($q) use ($request) {
+                $q->where('jurusan_id', $request->jurusan_id);
+            });
+        }
+
+        if ($request->filled('gelombang_id')) {
+            $query->whereHas('dataSiswa', function($q) use ($request) {
+                $q->where('gelombang_id', $request->gelombang_id);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                  ->orWhereHas('dataSiswa', function($sq) use ($search) {
+                      $sq->where('nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('no_pendaftaran', 'like', "%{$search}%")
+                        ->orWhere('nisn', 'like', "%{$search}%")
+                        ->orWhere('asal_sekolah', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $data = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
+        $gelombangList = \App\Models\GelombangPendaftaran::all();
+        $jurusanList = \App\Models\Jurusan::all();
 
         // Ambil total biaya dari tabel master_biaya
         $totalBiaya = MasterBiaya::where('status', 1)->sum('total_biaya');
 
-        return view('admin.data-diterima.index', compact('data', 'totalBiaya'));
+        return view('admin.data-diterima.index', compact('data', 'totalBiaya', 'gelombangList', 'jurusanList'));
     }
 
     /**
@@ -90,7 +117,7 @@ class DataDiterimaController extends Controller
     /**
      * Export data to Excel
      */
-    public function export()
+    public function export(Request $request)
     {
         try {
             logger('=== EXPORT FUNCTION CALLED ===');
@@ -106,16 +133,13 @@ class DataDiterimaController extends Controller
                 $query->where('status_pendaftar', 'diterima');
             })->count();
             
-            // logger("Data count: " . $count);
-            
             if ($count === 0) {
                 return back()->with('warning', 'Tidak ada data siswa yang diterima untuk di-export.');
             }
 
             $filename = 'data-siswa-diterima-' . date('Y-m-d') . '.xlsx';
-            // logger("Filename: " . $filename);
             
-            return Excel::download(new DataDiterimaExport, $filename);
+            return Excel::download(new DataDiterimaExport($request), $filename);
             
         } catch (\Exception $e) {
             logger('Export Error: ' . $e->getMessage());

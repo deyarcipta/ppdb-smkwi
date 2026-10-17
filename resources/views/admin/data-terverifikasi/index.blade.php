@@ -19,23 +19,41 @@
             </div>
 
             <div class="d-flex align-items-center flex-wrap gap-2">
-                @if(isset($tahunAjaranList) && $tahunAjaranList->isNotEmpty())
-                <form method="GET" action="{{ route('data-terverifikasi.index') }}" class="d-inline-block">
-                    <select name="tahun_ajaran_id" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="">-- Semua Tahun Ajaran --</option>
-                        @foreach($tahunAjaranList as $ta)
-                            <option value="{{ $ta->id }}" {{ $selectedTahunAjaranId == $ta->id ? 'selected' : '' }}>
-                                T.A {{ $ta->nama }} {{ $ta->status == 'aktif' ? '(Aktif)' : '' }}
-                            </option>
+                <form action="{{ route('data-terverifikasi.index') }}" method="GET" class="d-flex flex-wrap align-items-center gap-2">
+                    @if(isset($tahunAjaranList) && $tahunAjaranList->isNotEmpty())
+                        <select name="tahun_ajaran_id" class="form-select form-select-sm" style="width: auto; min-width: 150px;" onchange="this.form.submit()">
+                            <option value="">Semua T.A</option>
+                            @foreach($tahunAjaranList as $ta)
+                                <option value="{{ $ta->id }}" {{ $selectedTahunAjaranId == $ta->id ? 'selected' : '' }}>
+                                    T.A {{ $ta->nama }} {{ $ta->status == 'aktif' ? '(Aktif)' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
+
+                    <select name="jurusan_id" class="form-select form-select-sm" style="width: auto; min-width: 150px;" onchange="this.form.submit()">
+                        <option value="">Semua Jurusan</option>
+                        @foreach($jurusanList as $j)
+                            <option value="{{ $j->id }}" {{ request('jurusan_id') == $j->id ? 'selected' : '' }}>{{ $j->nama_jurusan }}</option>
                         @endforeach
                     </select>
-                </form>
-                @endif
 
-                <div class="input-group input-group-sm" style="width: 240px;">
-                    <span class="input-group-text"><i class="bx bx-search"></i></span>
-                    <input type="text" id="searchTable" class="form-control" placeholder="Cari No Daftar / Nama...">
-                </div>
+                    <select name="gelombang_id" class="form-select form-select-sm" style="width: auto; min-width: 160px;" onchange="this.form.submit()">
+                        <option value="">Semua Gelombang</option>
+                        @foreach($gelombangList as $g)
+                            <option value="{{ $g->id }}" {{ request('gelombang_id') == $g->id ? 'selected' : '' }}>{{ $g->nama_gelombang }}</option>
+                        @endforeach
+                    </select>
+
+                    <div class="input-group input-group-sm" style="width: 280px; min-width: 250px;">
+                        <input type="text" name="search" class="form-control" placeholder="Cari Nama / NISN / No. Daftar..." value="{{ request('search') }}">
+                        <button type="submit" class="btn btn-primary"><i class="bx bx-search"></i></button>
+                    </div>
+
+                    @if(request()->hasAny(['search', 'jurusan_id', 'gelombang_id', 'tahun_ajaran_id']))
+                        <a href="{{ route('data-terverifikasi.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset Filter"><i class="bx bx-refresh"></i></a>
+                    @endif
+                </form>
 
                 <button class="btn btn-sm btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#tambahManualModal">
                     <i class="bx bx-plus-circle me-1"></i>Tambah Pendaftar
@@ -45,10 +63,34 @@
 
 
         <div class="card-body">
+            <!-- BULK ACTION BAR -->
+            <div id="bulkActionBar" class="alert alert-primary d-none align-items-center justify-content-between p-2 mb-3 shadow-sm rounded border border-primary">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary p-2 fs-6">
+                        <i class="bx bx-check-shield"></i>
+                    </span>
+                    <div>
+                        <strong class="text-primary"><span id="selectedCount">0</span> Siswa Terpilih</strong>
+                        <div class="small text-muted">Aksi massal untuk memverifikasi pendaftar menjadi diterima</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnCancelBulk">
+                        <i class="bx bx-x me-1"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success fw-bold shadow-sm" id="btnBulkDiterima">
+                        <i class="bx bx-check-double me-1"></i>Simpan & Terima Siswa Terpilih
+                    </button>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table id="dataTable" class="table table-bordered table-hover align-middle">
                     <thead class="table-light text-center">
                         <tr>
+                            <th width="35" class="text-center">
+                                <input type="checkbox" class="form-check-input" id="checkAll" title="Pilih Semua di Halaman Ini">
+                            </th>
                             <th width="40">#</th>
                             <th>No Daftar</th>
                             {{-- <th>Password</th> --}}
@@ -96,6 +138,9 @@
                             }
                         @endphp
                         <tr>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input check-item" value="{{ $row->id }}" data-nama="{{ $row->dataSiswa->nama_lengkap ?? $row->username }}" {{ $row->dataSiswa?->status_pendaftar == 'diterima' ? 'disabled title="Sudah Diterima"' : '' }}>
+                            </td>
                             <td class="text-center">{{ $data->firstItem() + $key }}</td>
                             <td class="text-center">{{ $row->username }}</td>
                             <td style="min-width: 260px;">
@@ -522,9 +567,13 @@
 
             </div>
 
-            <!-- Footer -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bx bx-x me-1"></i>Tutup
+                </button>
+                <a href="{{ route('admin.cetak-formulir', $row->id) }}" target="_blank" class="btn btn-primary">
+                    <i class="bx bx-printer me-1"></i>Print Formulir
+                </a>
             </div>
 
         </div>
@@ -1073,17 +1122,149 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('searchTable');
-    const table = document.getElementById('dataTable');
-    const rows = table.querySelectorAll('tbody tr');
-
-    searchInput.addEventListener('keyup', function () {
-        const keyword = this.value.toLowerCase();
-
-        rows.forEach(row => {
-            const text = row.innerText.toLowerCase();
-            row.style.display = text.includes(keyword) ? '' : 'none';
+    if (searchInput) {
+        const table = document.getElementById('dataTable');
+        const rows = table ? table.querySelectorAll('tbody tr') : [];
+        searchInput.addEventListener('keyup', function () {
+            const keyword = this.value.toLowerCase();
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(keyword) ? '' : 'none';
+            });
         });
+    }
+
+    // ==========================================
+    // LOGIKA BULK ACTION PENERIMAAN SISWA
+    // ==========================================
+    const checkAll = document.getElementById('checkAll');
+    const bulkActionBar = document.getElementById('bulkActionBar');
+    const selectedCount = document.getElementById('selectedCount');
+    const btnCancelBulk = document.getElementById('btnCancelBulk');
+    const btnBulkDiterima = document.getElementById('btnBulkDiterima');
+
+    function updateBulkBar() {
+        const checkedBoxes = document.querySelectorAll('.check-item:checked');
+        const count = checkedBoxes.length;
+
+        if (count > 0) {
+            if (selectedCount) selectedCount.textContent = count;
+            if (bulkActionBar) {
+                bulkActionBar.classList.remove('d-none');
+                bulkActionBar.classList.add('d-flex');
+            }
+        } else {
+            if (bulkActionBar) {
+                bulkActionBar.classList.remove('d-flex');
+                bulkActionBar.classList.add('d-none');
+            }
+        }
+
+        // Update master checkbox state
+        const enabledBoxes = document.querySelectorAll('.check-item:not(:disabled)');
+        if (enabledBoxes.length > 0 && checkAll) {
+            checkAll.checked = (checkedBoxes.length === enabledBoxes.length);
+            checkAll.indeterminate = (checkedBoxes.length > 0 && checkedBoxes.length < enabledBoxes.length);
+        }
+    }
+
+    if (checkAll) {
+        checkAll.addEventListener('change', function () {
+            const isChecked = this.checked;
+            document.querySelectorAll('.check-item:not(:disabled)').forEach(cb => {
+                cb.checked = isChecked;
+            });
+            updateBulkBar();
+        });
+    }
+
+    // Event delegation on document/table so any click on check-item is ALWAYS captured
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.classList.contains('check-item')) {
+            updateBulkBar();
+        }
     });
+
+    if (btnCancelBulk) {
+        btnCancelBulk.addEventListener('click', function () {
+            document.querySelectorAll('.check-item').forEach(cb => { cb.checked = false; });
+            if (checkAll) {
+                checkAll.checked = false;
+                checkAll.indeterminate = false;
+            }
+            updateBulkBar();
+        });
+    }
+
+    function doSubmitBulk() {
+        const checkedBoxes = document.querySelectorAll('.check-item:checked');
+        const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+
+        if (selectedIds.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Peringatan',
+                text: 'Silakan pilih minimal 1 siswa terlebih dahulu.',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Konfirmasi Penerimaan Siswa',
+            html: `Apakah Anda yakin ingin memverifikasi dan menerima <b>${selectedIds.length} siswa</b> terpilih?<br><small class="text-muted">Status siswa akan otomatis diubah menjadi <b>Diterima</b> dan pesan WhatsApp otomatis diproses ke antrean.</small>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="bx bx-check me-1"></i>Ya, Terima Sekarang',
+            cancelButtonText: 'Batal',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return fetch('{{ route("data-terverifikasi.bulk-update-status") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_ids: selectedIds,
+                        status_pendaftar: 'diterima'
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.message || 'Gagal memproses data'); });
+                    }
+                    return response.json();
+                })
+                .catch(error => {
+                    Swal.showValidationMessage(`Gagal: ${error.message}`);
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed && result.value && result.value.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: result.value.message,
+                    timer: 1600,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        });
+    }
+
+    if (btnBulkDiterima) {
+        btnBulkDiterima.addEventListener('click', doSubmitBulk);
+    }
+
+    // Run once on page load in case browser restored checkbox state
+    updateBulkBar();
 });
 </script>
 @endpush

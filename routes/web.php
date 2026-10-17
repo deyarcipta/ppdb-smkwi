@@ -130,6 +130,7 @@ Route::prefix('panel')->group(function () {
             // Verifikasi Pendaftar
             Route::get('verifikasi-pendaftar', [VerifikasiPendaftarAdminController::class, 'index'])->name('verifikasi-pendaftar.index');
             Route::post('verifikasi-pendaftar/update', [VerifikasiPendaftarAdminController::class, 'update'])->name('verifikasi-pendaftar.update');
+            Route::post('verifikasi-pendaftar/bulk-update', [VerifikasiPendaftarAdminController::class, 'bulkUpdate'])->name('verifikasi-pendaftar.bulk-update');
             Route::delete('verifikasi-pendaftar/{id}', [VerifikasiPendaftarAdminController::class, 'destroy'])
                 ->name('verifikasi-pendaftar.destroy')
                 ->middleware('role:superadmin');
@@ -156,6 +157,7 @@ Route::prefix('panel')->group(function () {
             Route::post('/data-terverifikasi/reset-password', [DataTerverifikasiAdminController::class, 'resetPassword'])
             ->name('data-terverifikasi.reset-password');
             Route::post('data-terverifikasi/update', [DataTerverifikasiAdminController::class, 'update'])->name('data-terverifikasi.update');
+            Route::post('data-terverifikasi/bulk-update-status', [DataTerverifikasiAdminController::class, 'bulkUpdateStatus'])->name('data-terverifikasi.bulk-update-status');
             Route::post(
                 'data-terverifikasi/{id}/kirim-ulang',
                 [DataTerverifikasiAdminController::class, 'kirimUlang']
@@ -164,10 +166,15 @@ Route::prefix('panel')->group(function () {
                 ->name('data-terverifikasi.destroy')
                 ->middleware('role:superadmin');
 
-            // Data Cetak Kartu
+            // Data Cetak Kartu & Surat Pernyataan Sehat
             Route::get('data-cetak-kartu', [DataCetakKartuAdminController::class, 'index'])->name('data-cetak-kartu.index');
             Route::get('data-cetak-kartu/export-excel', [DataCetakKartuAdminController::class, 'exportExcel'])->name('data-cetak-kartu.export-excel');
+            Route::get('data-cetak-kartu/cetak-massal', [DataCetakKartuAdminController::class, 'cetakMassalKartu'])->name('data-cetak-kartu.cetak-massal');
+            Route::get('data-cetak-kartu/surat-pernyataan-sehat', [DataCetakKartuAdminController::class, 'cetakSuratPernyataanSehatMaster'])->name('data-cetak-kartu.surat-sehat-master');
+            Route::get('data-cetak-kartu/surat-sehat-massal', [DataCetakKartuAdminController::class, 'cetakMassalSuratSehat'])->name('data-cetak-kartu.surat-sehat-massal');
             Route::get('data-cetak-kartu/{id}/cetak', [DataCetakKartuAdminController::class, 'cetakKartu'])->name('data-cetak-kartu.cetak');
+            Route::get('data-cetak-kartu/{id}/surat-pernyataan-sehat', [DataCetakKartuAdminController::class, 'cetakSuratPernyataanSehat'])->name('data-cetak-kartu.surat-sehat');
+            Route::get('data-pendaftar/{id}/cetak-formulir', [DataCetakKartuAdminController::class, 'cetakFormulir'])->name('admin.cetak-formulir');
 
 
             // Kuota Master Biaya
@@ -316,6 +323,7 @@ Route::prefix('siswa')->group(function () {
     Route::middleware(['auth:siswa'])->group(function () {
         Route::get('/dashboard', [DashboardSiswaController::class, 'index'])->name('siswa.dashboard');
         Route::get('/cetak-kartu', [DashboardSiswaController::class, 'cetakKartu'])->name('siswa.cetak-kartu');
+        Route::get('/surat-pernyataan-sehat', [DashboardSiswaController::class, 'cetakSuratPernyataanSehat'])->name('siswa.surat-pernyataan-sehat');
         Route::post('/konfirmasi-cetak-kartu', [DashboardSiswaController::class, 'konfirmasiCetakKartu'])->name('siswa.konfirmasi-cetak-kartu');
 
         Route::put('/password/update', [SiswaAuthController::class, 'updatePassword'])

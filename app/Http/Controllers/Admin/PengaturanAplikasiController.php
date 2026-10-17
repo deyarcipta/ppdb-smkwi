@@ -200,7 +200,7 @@ class PengaturanAplikasiController extends Controller
 
             // Daftarkan/Buat sesi baru terlebih dahulu di server OpenWA
             $response = Http::withHeaders($headers)
-                ->timeout(10)
+                ->timeout(30)
                 ->post("{$baseUrl}/sessions", [
                     'name' => $waSessionName,
                 ]);
@@ -415,7 +415,7 @@ class PengaturanAplikasiController extends Controller
 
         try {
             $response = Http::withHeaders($headers)
-                ->timeout(10)
+                ->timeout(45)
                 ->post("{$baseUrl}/sessions/{$session->session_id}/start");
 
             if ($response->successful()) {

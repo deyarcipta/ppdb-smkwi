@@ -472,9 +472,10 @@
         .checklist-table th,
         .checklist-table td {
             border: 1px solid #444;
-            padding: 3.8px 6px;
-            font-size: 8.2pt;
+            padding: 2.2px 5px;
+            font-size: 7.5pt;
             vertical-align: middle;
+            line-height: 1.18;
         }
 
         .checklist-table th {
@@ -483,6 +484,8 @@
             font-weight: 700;
             text-align: center;
             white-space: nowrap !important;
+            padding: 3px 5px;
+            font-size: 7.8pt;
         }
 
         .checklist-table td.col-status {
@@ -493,10 +496,10 @@
         .badge-wajib {
             background: #d1e7dd;
             color: #0f5132;
-            padding: 1.5px 5px;
+            padding: 1px 4px;
             border-radius: 3px;
             font-weight: 700;
-            font-size: 7.2pt;
+            font-size: 7pt;
             display: inline-block;
             white-space: nowrap !important;
         }
@@ -504,17 +507,17 @@
         .badge-opsional {
             background: #e2e3e5;
             color: #41464b;
-            padding: 1.5px 5px;
+            padding: 1px 4px;
             border-radius: 3px;
             font-weight: 600;
-            font-size: 7.2pt;
+            font-size: 7pt;
             display: inline-block;
             white-space: nowrap !important;
         }
 
         .box-check {
             font-family: monospace;
-            font-size: 8.8pt;
+            font-size: 8.5pt;
             font-weight: bold;
             color: #222;
             white-space: nowrap !important;
@@ -530,30 +533,30 @@
 
         .status-verif-box {
             flex: 1.2;
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-right: 1px solid #444;
-            font-size: 8.2pt;
+            font-size: 7.8pt;
         }
 
         .status-verif-box strong {
-            font-size: 8.6pt;
+            font-size: 8.2pt;
             color: #111;
         }
 
         .status-options {
-            margin-top: 3px;
+            margin-top: 2px;
             display: flex;
-            gap: 14px;
-            font-size: 8.2pt;
+            gap: 12px;
+            font-size: 7.8pt;
             font-weight: 600;
             white-space: nowrap !important;
         }
 
         .ttd-box-verif {
             flex: 1;
-            padding: 5px 10px;
+            padding: 4px 8px;
             text-align: center;
-            font-size: 8pt;
+            font-size: 7.5pt;
         }
 
         .ttd-box-verif:not(:last-child) {
@@ -561,7 +564,7 @@
         }
 
         .ttd-line-space {
-            height: 30px;
+            height: 24px;
         }
 
         /* ================= RESPONSIVE RULES (MOBILE & TABLET SCREEN) ================= */
@@ -683,17 +686,22 @@
         <a href="javascript:handleBack()" class="btn-back">
             <i class="bx bx-arrow-back"></i> <span>Kembali</span>
         </a>
-        <div class="view-mode-group">
-            <button type="button" class="view-mode-btn active" id="btnFitScreen" onclick="setViewMode('fit')" title="Sesuaikan dokumen pas selebar layar perangkat">
-                <i class="bx bx-fullscreen"></i> Pas Layar
-            </button>
-            <button type="button" class="view-mode-btn" id="btnActualSize" onclick="setViewMode('actual')" title="Tampilkan ukuran asli A4 100% (bisa digeser)">
-                <i class="bx bx-zoom-in"></i> 100%
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ Auth::guard('siswa')->check() ? route('siswa.surat-pernyataan-sehat') : route('data-cetak-kartu.surat-sehat', $dataSiswa->id) }}" target="_blank" class="btn-back" style="background: #eef2ff; color: #4338ca; border-color: #c7d2fe; font-weight: 600;" title="Download Surat Pernyataan Sehat Langsung (PDF)">
+                <i class="bx bx-file-blank"></i> <span>Surat Pernyataan Sehat</span>
+            </a>
+            <div class="view-mode-group">
+                <button type="button" class="view-mode-btn active" id="btnFitScreen" onclick="setViewMode('fit')" title="Sesuaikan dokumen pas selebar layar perangkat">
+                    <i class="bx bx-fullscreen"></i> Pas Layar
+                </button>
+                <button type="button" class="view-mode-btn" id="btnActualSize" onclick="setViewMode('actual')" title="Tampilkan ukuran asli A4 100% (bisa digeser)">
+                    <i class="bx bx-zoom-in"></i> 100%
+                </button>
+            </div>
+            <button class="btn-print" onclick="window.print()">
+                <i class="bx bx-printer"></i> <span>Cetak Dokumen</span>
             </button>
         </div>
-        <button class="btn-print" onclick="window.print()">
-            <i class="bx bx-printer"></i> <span>Cetak Dokumen</span>
-        </button>
     </div>
 
     <!-- Alert Edukasi / Petunjuk Layar Mobile -->
@@ -820,8 +828,8 @@
         <!-- ================= 2. BAGIAN BAWAH: CEKLIS DATA PERSYARATAN ================= -->
         <div class="checklist-container">
             <div class="checklist-top-bar">
-                <h4>LEMBAR VERIFIKASI & CEKLIS KELENGKAPAN BERKAS PERSYARATAN</h4>
-                <span class="checklist-meta">{{ $tipeAplikasi }} {{ $tahunAjaranPeserta }}</span>
+                <h4>PERSYARATAN ADMINISTRASI & BERKAS YANG HARUS DIPENUHI OLEH PESERTA {{ $tipeAplikasi }}</h4>
+                <span class="checklist-meta">{{ strtoupper($pengaturan->nama_sekolah ?? 'SMK YASPIA') }} &bull; TA {{ $tahunAjaranPeserta }}</span>
             </div>
 
             <!-- Ringkasan Identitas Siswa -->
@@ -832,86 +840,93 @@
                 <span><strong>Asal SMP:</strong> {{ $dataSiswa->asal_sekolah ?? '-' }}</span>
             </div>
 
-            <!-- Tabel Dokumen Persyaratan (Opsi 1: Standar Lengkap PPDB SMK) -->
+            <!-- Tabel Dokumen Persyaratan (Sesuai Ketentuan SPMB SMK Yaspia) -->
             <table class="checklist-table">
                 <thead>
                     <tr>
-                        <th width="4%">No</th>
-                        <th width="44%">Nama Dokumen / Berkas Fisik</th>
-                        <th width="12%">Kategori</th>
-                        <th width="22%">Status Fisik</th>
-                        <th width="18%">Paraf & Catatan</th>
+                        <th width="4%">NO.</th>
+                        <th width="58%">PERSYARATAN</th>
+                        <th width="9%">ADA</th>
+                        <th width="11%">TIDAK ADA</th>
+                        <th width="18%">KETERANGAN</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td align="center">1</td>
-                        <td>Cetak Formulir Pendaftaran Online (Asli bertanda tangan)</td>
-                        <td align="center"><span class="badge-wajib">Wajib</span></td>
-                        <td class="col-status"><span class="box-check">[&nbsp;&nbsp;]&nbsp;Ada&nbsp;&nbsp;&nbsp;[&nbsp;&nbsp;]&nbsp;-</span></td>
+                        <td align="center">1.</td>
+                        <td>Mengisi lengkap formulir pendaftaran online {{ $pengaturan->nama_sekolah ?? 'SMK YASPIA' }} (dibuktikan dengan printout Kartu Peserta Test {{ $tipeAplikasi }})</td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td align="center">2</td>
-                        <td>Fotokopi Ijazah / Surat Keterangan Lulus (SKL) Legalisir</td>
-                        <td align="center"><span class="badge-wajib">Wajib</span></td>
-                        <td class="col-status"><span class="box-check">[&nbsp;&nbsp;]&nbsp;Ada&nbsp;&nbsp;&nbsp;[&nbsp;&nbsp;]&nbsp;-</span></td>
+                        <td align="center">2.</td>
+                        <td>3 (Tiga) lembar Foto berwarna (Background Merah/Biru) ukuran 3x4 dan 2x3</td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td align="center">3</td>
-                        <td>Fotokopi Rapor SMP/MTs (Semester 1 s.d. 5) Legalisir</td>
-                        <td align="center"><span class="badge-wajib">Wajib</span></td>
-                        <td class="col-status"><span class="box-check">[&nbsp;&nbsp;]&nbsp;Ada&nbsp;&nbsp;&nbsp;[&nbsp;&nbsp;]&nbsp;-</span></td>
+                        <td align="center">3.</td>
+                        <td>2 (dua) lembar Fotokopi Kartu Keluarga (KK)</td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td align="center">4</td>
-                        <td>Fotokopi Akta Kelahiran Calon Siswa</td>
-                        <td align="center"><span class="badge-wajib">Wajib</span></td>
-                        <td class="col-status"><span class="box-check">[&nbsp;&nbsp;]&nbsp;Ada&nbsp;&nbsp;&nbsp;[&nbsp;&nbsp;]&nbsp;-</span></td>
+                        <td align="center">4.</td>
+                        <td>2 (dua) lembar Fotokopi Akta Kelahiran Siswa</td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td align="center">5</td>
-                        <td>Fotokopi Kartu Keluarga (KK)</td>
-                        <td align="center"><span class="badge-wajib">Wajib</span></td>
-                        <td class="col-status"><span class="box-check">[&nbsp;&nbsp;]&nbsp;Ada&nbsp;&nbsp;&nbsp;[&nbsp;&nbsp;]&nbsp;-</span></td>
+                        <td align="center">5.</td>
+                        <td>2 (dua) lembar Fotokopi Ijazah SMP/MTs legalisir</td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td align="center">6</td>
-                        <td>Fotokopi KTP Kedua Orang Tua (Ayah & Ibu) / Wali</td>
-                        <td align="center"><span class="badge-wajib">Wajib</span></td>
-                        <td class="col-status"><span class="box-check">[&nbsp;&nbsp;]&nbsp;Ada&nbsp;&nbsp;&nbsp;[&nbsp;&nbsp;]&nbsp;-</span></td>
+                        <td align="center">6.</td>
+                        <td>2 (dua) rangkap Fotokopi raport, semester 1 - 6 dari sekolah asal/sebelumnya</td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td align="center">7</td>
-                        <td>Pasfoto Berwarna Terbaru Ukuran 3x4 (2 Lembar)</td>
-                        <td align="center"><span class="badge-wajib">Wajib</span></td>
-                        <td class="col-status"><span class="box-check">[&nbsp;&nbsp;]&nbsp;Ada&nbsp;&nbsp;&nbsp;[&nbsp;&nbsp;]&nbsp;-</span></td>
+                        <td align="center">7.</td>
+                        <td>2 (dua) lembar Fotokopi Surat Keterangan Lulus dari sekolah asal</td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td align="center">8</td>
-                        <td>Surat Keterangan Sehat & Bebas Buta Warna (Puskesmas/Klinik/RS)</td>
-                        <td align="center"><span class="badge-wajib">Wajib</span></td>
-                        <td class="col-status"><span class="box-check">[&nbsp;&nbsp;]&nbsp;Ada&nbsp;&nbsp;&nbsp;[&nbsp;&nbsp;]&nbsp;-</span></td>
+                        <td align="center">8.</td>
+                        <td>2 (dua) lembar Fotokopi Surat Keterangan Kelakuan Baik dari sekolah asal</td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td align="center">9</td>
-                        <td>Fotokopi Kartu KIP / PIP / PKH / KKS <em>(jika memiliki)</em></td>
-                        <td align="center"><span class="badge-opsional">Opsional</span></td>
-                        <td class="col-status"><span class="box-check">[&nbsp;&nbsp;]&nbsp;Ada&nbsp;&nbsp;&nbsp;[&nbsp;&nbsp;]&nbsp;-</span></td>
+                        <td align="center">9.</td>
+                        <td>2 (dua) lembar Fotokopi Kartu Pelajar/NISN</td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td align="center">10</td>
-                        <td>Fotokopi Piagam / Sertifikat Prestasi Akademik / Non-Akademik</td>
-                        <td align="center"><span class="badge-opsional">Opsional</span></td>
-                        <td class="col-status"><span class="box-check">[&nbsp;&nbsp;]&nbsp;Ada&nbsp;&nbsp;&nbsp;[&nbsp;&nbsp;]&nbsp;-</span></td>
+                        <td align="center">10.</td>
+                        <td>Surat Keterangan Tidak Buta Warna TERBARU (Kuliner)<br><small style="color: #555;">(dari Dokter/Dokter Mata, Puskesmas, Rumah Sakit, Klinik Kesehatan)</small></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td align="center">11.</td>
+                        <td>Khusus bagi CMB yang memiliki penyakit serius/dalam masa pengobatan Wajib menyertakan Surat Keterangan Sehat (dari Dokter, Puskesmas, Rumah Sakit, Klinik Kesehatan)</td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
+                        <td align="center"><span class="box-check">[ &nbsp; ]</span></td>
                         <td></td>
                     </tr>
                 </tbody>

@@ -29,32 +29,82 @@
   <script src="{{ asset('sneat/vendor/js/helpers.js') }}"></script>
 
   <style>
-    /* ======== PERBAIKAN JARAK DAN TAMPILAN ======== */
-    body {
-      background-color: #f8f9fa !important;
-    }
-
-    .container-p-y {
-      padding-top: 1rem !important;
-      padding-bottom: 0.5rem !important;
-    }
-
-    .content-wrapper {
-      min-height: auto !important;
-      padding-bottom: 0 !important;
-    }
-
-    .layout-page {
-      min-height: auto !important;
-    }
-
-    .card {
-      margin-bottom: 0.75rem !important;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      border-radius: 0.75rem;
-    }
-
+    /* ======== 1. DESKTOP LAYOUT (Layar >= 1200px) ======== */
     @media (min-width: 1200px) {
+      html, body {
+        height: 100%;
+        overflow: hidden; /* Mencegah window scroll & double scrollbar di desktop */
+      }
+
+      .layout-wrapper {
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .layout-container {
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+      }
+
+      .layout-menu {
+        height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000;
+        background-color: #fff !important;
+        border-right: 1px solid #e4e6e8;
+        width: 260px !important;
+        flex-shrink: 0 !important;
+      }
+
+      .layout-menu .app-brand {
+        flex-shrink: 0 !important;
+        height: 64px !important;
+      }
+
+      .layout-menu .menu-inner {
+        flex: 1 1 auto;
+        max-height: calc(100vh - 64px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scrollbar-width: thin;
+      }
+
+      .layout-menu .menu-inner::-webkit-scrollbar {
+        width: 4px;
+      }
+      .layout-menu .menu-inner::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .layout-menu .menu-inner::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+      }
+
+      .layout-page {
+        height: 100%;
+        overflow: hidden;
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .content-wrapper {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
       .content-wrapper > .container-xxl {
         padding-left: 1.625rem !important;
         padding-right: 1.625rem !important;
@@ -65,53 +115,60 @@
       }
     }
 
-    /* Pastikan seluruh sub-container di semua halaman dinetralkan agar lebar kartu sama dengan navbar */
-    .content-wrapper .container,
-    .content-wrapper .container-fluid,
-    .content-wrapper .container-sm,
-    .content-wrapper .container-md,
-    .content-wrapper .container-lg,
-    .content-wrapper .container-xl,
-    .content-wrapper .main-content,
+    /* Scrollbar tipis elegan untuk content-wrapper */
+    .content-wrapper::-webkit-scrollbar {
+      width: 6px;
+    }
+    .content-wrapper::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .content-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.18);
+      border-radius: 10px;
+    }
+    .content-wrapper::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    /* Jarak padding vertikal konten agar pas */
+    .container-p-y {
+      padding-top: 1rem !important;
+      padding-bottom: 0.5rem !important;
+    }
+
+    /* Footer persis seperti Admin: selalu di paling bawah dokumen/halaman */
+    footer.footer,
+    .content-footer {
+      padding: 0.85rem 1.5rem !important;
+      background-color: #fff !important;
+      border-top: 1px solid #e4e6e8 !important;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #6c757d;
+      flex-shrink: 0 !important;
+      margin-top: auto !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .content-wrapper > .container-xxl,
+    .container-xxl.flex-grow-1 {
+      flex: 1 0 auto !important;
+    }
+
+    .main-content,
+    .container-fluid,
+    .container-fluid.p-0,
     .container-xxl .container-xxl,
-    .container-xxl .container-fluid {
+    .container-xxl .container-fluid,
+    .container-xxl .main-content {
       padding-left: 0 !important;
       padding-right: 0 !important;
-      padding-inline: 0 !important;
-      padding-inline-start: 0 !important;
-      padding-inline-end: 0 !important;
       margin-left: 0 !important;
       margin-right: 0 !important;
-      margin-inline: 0 !important;
       width: 100% !important;
       max-width: 100% !important;
       box-sizing: border-box !important;
-    }
-
-    .content-wrapper .card,
-    .container-xxl .card,
-    .card-full-width {
-      margin-left: 0 !important;
-      margin-right: 0 !important;
-      margin-inline: 0 !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      box-sizing: border-box !important;
-    }
-
-    .container-p-y .container-p-y {
-      padding-top: 0 !important;
-      padding-bottom: 0 !important;
-    }
-
-    /* Footer agar rapi di bawah */
-    footer.footer {
-      padding: 0.5rem 0;
-      background-color: #fff;
-      border-top: 1px solid #e4e6e8;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #6c757d;
     }
 
     /* Perbaiki z-index Swal agar selalu di atas elemen Sneat */
@@ -316,7 +373,9 @@
 
         <div class="content-wrapper">
           <div class="container-xxl flex-grow-1 container-p-y">
-            @yield('content')
+            <div class="main-content">
+              @yield('content')
+            </div>
           </div>
 
           {{-- Footer Siswa --}}

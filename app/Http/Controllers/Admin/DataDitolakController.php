@@ -15,20 +15,47 @@ class DataDitolakController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Query untuk mengambil data user yang memiliki dataSiswa dengan status_pendaftar = 'ditolak'
-        $data = UserSiswa::with(['dataSiswa', 'pembayaran', 'dataSiswa.gelombang', 'dataSiswa.jurusan'])
+        $query = UserSiswa::with(['dataSiswa', 'pembayaran', 'dataSiswa.gelombang', 'dataSiswa.jurusan'])
             ->whereHas('dataSiswa', function($query) {
                 $query->where('status_pendaftar', 'ditolak');
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            });
+
+        if ($request->filled('jurusan_id')) {
+            $query->whereHas('dataSiswa', function($q) use ($request) {
+                $q->where('jurusan_id', $request->jurusan_id);
+            });
+        }
+
+        if ($request->filled('gelombang_id')) {
+            $query->whereHas('dataSiswa', function($q) use ($request) {
+                $q->where('gelombang_id', $request->gelombang_id);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                  ->orWhereHas('dataSiswa', function($sq) use ($search) {
+                      $sq->where('nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('no_pendaftaran', 'like', "%{$search}%")
+                        ->orWhere('nisn', 'like', "%{$search}%")
+                        ->orWhere('asal_sekolah', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $data = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
+        $gelombangList = \App\Models\GelombangPendaftaran::all();
+        $jurusanList = \App\Models\Jurusan::all();
 
         // Ambil total biaya dari tabel master_biaya
         $totalBiaya = MasterBiaya::where('status', 1)->sum('total_biaya');
 
-        return view('admin.data-ditolak.index', compact('data', 'totalBiaya'));
+        return view('admin.data-ditolak.index', compact('data', 'totalBiaya', 'gelombangList', 'jurusanList'));
     }
 
     /**
@@ -89,7 +116,7 @@ class DataDitolakController extends Controller
     /**
      * Export data to Excel
      */
-    public function export()
+    public function export(Request $request)
     {
         try {
             logger('=== EXPORT DATA DITOLAK FUNCTION CALLED ===');
@@ -105,16 +132,13 @@ class DataDitolakController extends Controller
                 $query->where('status_pendaftar', 'ditolak');
             })->count();
             
-            logger("Data ditolak count: " . $count);
-            
             if ($count === 0) {
                 return back()->with('warning', 'Tidak ada data siswa yang ditolak untuk di-export.');
             }
 
             $filename = 'data-siswa-ditolak-' . date('Y-m-d') . '.xlsx';
-            logger("Filename: " . $filename);
             
-            return Excel::download(new DataDitolakExport, $filename);
+            return Excel::download(new DataDitolakExport($request), $filename);
             
         } catch (\Exception $e) {
             logger('Export Data Ditolak Error: ' . $e->getMessage());

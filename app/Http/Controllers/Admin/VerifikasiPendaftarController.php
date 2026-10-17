@@ -10,6 +10,9 @@ use App\Services\WhatsappService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+use App\Models\Jurusan;
+use App\Models\Gelombang;
+
 class VerifikasiPendaftarController extends Controller
 {
     protected $whatsappService;
@@ -19,13 +22,40 @@ class VerifikasiPendaftarController extends Controller
         $this->whatsappService = $whatsappService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $data = UserSiswa::with('dataSiswa')
-            ->where('status_akun', 'belum_verifikasi')
-            ->paginate(10);
+        $query = UserSiswa::with(['dataSiswa.jurusan', 'dataSiswa.gelombang'])
+            ->where('status_akun', 'belum_verifikasi');
 
-        return view('admin.verifikasi-pendaftar.index', compact('data'));
+        if ($request->filled('jurusan_id')) {
+            $query->whereHas('dataSiswa', function($q) use ($request) {
+                $q->where('jurusan_id', $request->jurusan_id);
+            });
+        }
+
+        if ($request->filled('gelombang_id')) {
+            $query->whereHas('dataSiswa', function($q) use ($request) {
+                $q->where('gelombang_id', $request->gelombang_id);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                  ->orWhereHas('dataSiswa', function($sub) use ($search) {
+                      $sub->where('nama_lengkap', 'like', "%{$search}%")
+                          ->orWhere('no_hp', 'like', "%{$search}%")
+                          ->orWhere('asal_sekolah', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $data = $query->latest()->paginate(10)->withQueryString();
+        $jurusanList = Jurusan::all();
+        $gelombangList = Gelombang::all();
+
+        return view('admin.verifikasi-pendaftar.index', compact('data', 'jurusanList', 'gelombangList'));
     }
 
     public function update(Request $request)
@@ -57,6 +87,62 @@ class VerifikasiPendaftarController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    /**
+     * Bulk Action: Verifikasi / Jadikan Diterima Massal
+     */
+    public function bulkUpdate(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'required|exists:users_siswa,id',
+            'status_pendaftar' => 'required|in:belum_verifikasi,sudah_verifikasi,diterima'
+        ]);
+
+        $status = $request->status_pendaftar;
+        $count = 0;
+
+        foreach ($request->user_ids as $id) {
+            $user = UserSiswa::with('dataSiswa')->find($id);
+            if ($user) {
+                if ($status === 'sudah_verifikasi' || $status === 'diterima') {
+                    $user->update(['status_akun' => 'aktif']);
+
+                    if ($user->dataSiswa) {
+                        $user->dataSiswa->update([
+                            'status_pendaftar' => ($status === 'diterima') ? 'diterima' : 'sudah_verifikasi'
+                        ]);
+                    }
+
+                    // Kirim pesan WhatsApp otomatis (queue work)
+                    if ($user->dataSiswa && $user->dataSiswa->no_hp) {
+                        $this->sendMessage(
+                            $user->dataSiswa->no_hp,
+                            $user->username,
+                            $user->dataSiswa->nama_lengkap
+                        );
+                    }
+                } else {
+                    $user->update(['status_akun' => 'belum_verifikasi']);
+                    if ($user->dataSiswa) {
+                        $user->dataSiswa->update(['status_pendaftar' => 'belum_verifikasi']);
+                    }
+                }
+                $count++;
+            }
+        }
+
+        $label = ($status === 'diterima') ? 'diterima' : 'diverifikasi';
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil memproses {$count} pendaftar menjadi {$label}!"
+            ]);
+        }
+
+        return back()->with('success', "Berhasil memproses {$count} pendaftar menjadi {$label}!");
     }
 
     public function destroy($id)

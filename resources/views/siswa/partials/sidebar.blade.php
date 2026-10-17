@@ -71,6 +71,15 @@
             </a>
         </li>
     @endif
+
+    @if(Auth::user()->dataSiswa && Auth::user()->dataSiswa->is_paid)
+        <li class="menu-item {{ Request::is('siswa/surat-pernyataan-sehat*') ? 'active' : '' }}">
+            <a href="{{ route('siswa.surat-pernyataan-sehat') }}" target="_blank" class="menu-link">
+                <i class="menu-icon bx bx-file-blank"></i>
+                <div>Surat Pernyataan Sehat</div>
+            </a>
+        </li>
+    @endif
   </ul>
 </aside>
 

@@ -36,9 +36,37 @@
                     @endif
                 </form>
 
-                <a href="{{ route('data-cetak-kartu.export-excel', request()->all()) }}" class="btn btn-success btn-sm text-nowrap">
-                    <i class="bx bx-download me-1"></i>Download Excel
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{{ route('data-cetak-kartu.cetak-massal', request()->all()) }}" target="_blank" class="btn btn-warning btn-sm text-nowrap" title="Cetak Semua Kartu Ujian Siswa (Mengikuti Filter Aktif)">
+                        <i class="bx bx-printer me-1"></i>Cetak Semua Kartu (Massal)
+                    </a>
+
+                    <div class="btn-group btn-group-sm">
+                        <a href="{{ route('data-cetak-kartu.surat-sehat-massal', request()->all()) }}" target="_blank" class="btn btn-outline-info text-nowrap" title="Cetak Massal Surat Pernyataan Sehat Siswa (PDF Terisi Data)">
+                            <i class="bx bx-file-blank me-1"></i>Surat Sehat (Massal)
+                        </a>
+                        <button type="button" class="btn btn-outline-info dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" title="Pilihan Cetak Surat Sehat">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li>
+                                <a class="dropdown-item" href="{{ route('data-cetak-kartu.surat-sehat-massal', request()->all()) }}" target="_blank">
+                                    <i class="bx bx-printer me-2 text-primary"></i>Cetak Massal (Terisi Data Siswa)
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('data-cetak-kartu.surat-sehat-master') }}" target="_blank">
+                                    <i class="bx bx-file me-2 text-secondary"></i>Download Format Kosong (Blanko)
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <a href="{{ route('data-cetak-kartu.export-excel', request()->all()) }}" class="btn btn-success btn-sm text-nowrap">
+                        <i class="bx bx-download me-1"></i>Download Excel
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -121,9 +149,14 @@
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route('data-cetak-kartu.cetak', $row->id) }}" target="_blank" class="btn btn-warning btn-sm" title="Cetak Kartu Peserta">
-                                        <i class="bx bx-printer me-1"></i> Cetak
-                                    </a>
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <a href="{{ route('data-cetak-kartu.cetak', $row->id) }}" target="_blank" class="btn btn-warning btn-sm text-nowrap" title="Cetak Kartu Ujian Peserta">
+                                            <i class="bx bx-printer me-1"></i> Cetak Kartu Ujian
+                                        </a>
+                                        <a href="{{ route('data-cetak-kartu.surat-sehat', $row->id) }}" target="_blank" class="btn btn-outline-info btn-sm text-nowrap" title="Download Surat Pernyataan Sehat Siswa (PDF)">
+                                            <i class="bx bx-file-blank me-1"></i> Surat Sehat
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
