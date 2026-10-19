@@ -243,14 +243,22 @@
                     @endif
 
                     @if($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Terdapat kesalahan dalam pengisian form. Silakan periksa kembali.
+                        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-exclamation-triangle me-2 fa-lg"></i>
+                                <strong class="fs-6">Formulir Belum Lengkap!</strong>
+                            </div>
+                            <p class="mb-2 small">Mohon lengkapi atau perbaiki kolom-kolom berikut sebelum mengirim formulir:</p>
+                            <ul class="mb-0 ps-3 small">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
 
-                    <form action="{{ route('siswa.formulir.store') }}" method="POST" id="multiStepForm">
+                    <form action="{{ route('siswa.formulir.store') }}" method="POST" id="multiStepForm" novalidate>
                         @csrf
 
                         <!-- Tab 1: Data Diri & Keluarga -->
@@ -273,7 +281,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="nisn" class="form-label fw-semibold">
-                                            <i class="fas fa-id-card me-2 text-primary"></i>NISN
+                                            <i class="fas fa-id-card me-2 text-primary"></i>NISN <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control form-control-lg @error('nisn') is-invalid @enderror" id="nisn" name="nisn" 
                                                value="{{ $existingData->nisn ?? old('nisn') }}" 
@@ -286,7 +294,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="nik" class="form-label fw-semibold">
-                                            <i class="fas fa-address-card me-2 text-primary"></i>NIK
+                                            <i class="fas fa-address-card me-2 text-primary"></i>NIK <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control form-control-lg @error('nik') is-invalid @enderror" id="nik" name="nik" 
                                                value="{{ $existingData->nik ?? old('nik') }}" 
@@ -299,7 +307,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="no_kk" class="form-label fw-semibold">
-                                            <i class="fas fa-address-card me-2 text-primary"></i>No. KK
+                                            <i class="fas fa-address-card me-2 text-primary"></i>No. KK <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control form-control-lg @error('no_kk') is-invalid @enderror" id="no_kk" name="no_kk" 
                                                value="{{ $existingData->no_kk ?? old('no_kk') }}" 
@@ -328,7 +336,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label for="jenis_kelamin" class="form-label fw-semibold">
-                                            <i class="fas fa-venus-mars me-2 text-primary"></i>Jenis Kelamin
+                                            <i class="fas fa-venus-mars me-2 text-primary"></i>Jenis Kelamin <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select form-select-lg @error('jenis_kelamin') is-invalid @enderror" id="jenis_kelamin" name="jenis_kelamin">
                                             <option value="">Pilih Jenis Kelamin</option>
@@ -346,7 +354,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label for="tempat_lahir" class="form-label fw-semibold">
-                                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>Tempat Lahir
+                                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>Tempat Lahir <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control form-control-lg @error('tempat_lahir') is-invalid @enderror" id="tempat_lahir" name="tempat_lahir" 
                                                value="{{ $existingData->tempat_lahir ?? old('tempat_lahir') }}" 
@@ -359,7 +367,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label for="tanggal_lahir" class="form-label fw-semibold">
-                                            <i class="fas fa-calendar-alt me-2 text-primary"></i>Tanggal Lahir
+                                            <i class="fas fa-calendar-alt me-2 text-primary"></i>Tanggal Lahir <span class="text-danger">*</span>
                                         </label>
                                         <input type="date" class="form-control form-control-lg @error('tanggal_lahir') is-invalid @enderror" 
                                             id="tanggal_lahir" name="tanggal_lahir" 
@@ -375,7 +383,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label for="no_hp" class="form-label fw-semibold">
-                                            <i class="fas fa-phone me-2 text-primary"></i>No. HP/WhatsApp
+                                            <i class="fas fa-phone me-2 text-primary"></i>No. HP/WhatsApp <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control form-control-lg @error('no_hp') is-invalid @enderror" id="no_hp" name="no_hp" 
                                                value="{{ $existingData->no_hp ?? old('no_hp') }}" 
@@ -452,7 +460,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="agama" class="form-label fw-semibold">
-                                            <i class="fas fa-pray me-2 text-primary"></i>Agama
+                                            <i class="fas fa-pray me-2 text-primary"></i>Agama <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select form-select-lg @error('agama') is-invalid @enderror" id="agama" name="agama">
                                             <option value="">Pilih Agama</option>
@@ -471,7 +479,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="ukuran_baju" class="form-label fw-semibold">
-                                            <i class="fas fa-tshirt me-2 text-primary"></i>Ukuran Baju
+                                            <i class="fas fa-tshirt me-2 text-primary"></i>Ukuran Baju <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select form-select-lg @error('ukuran_baju') is-invalid @enderror" id="ukuran_baju" name="ukuran_baju">
                                             <option value="">Pilih Ukuran</option>
@@ -541,7 +549,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="anak_ke" class="form-label fw-semibold">
-                                            <i class="fas fa-sort-numeric-up me-2 text-primary"></i>Anak Ke
+                                            <i class="fas fa-sort-numeric-up me-2 text-primary"></i>Anak Ke <span class="text-danger">*</span>
                                         </label>
                                         <input type="number" class="form-control form-control-lg @error('anak_ke') is-invalid @enderror" id="anak_ke" name="anak_ke" 
                                                value="{{ $existingData->anak_ke ?? old('anak_ke') }}" 
@@ -554,7 +562,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="jumlah_saudara" class="form-label fw-semibold">
-                                            <i class="fas fa-user-friends me-2 text-primary"></i>Jumlah Saudara
+                                            <i class="fas fa-user-friends me-2 text-primary"></i>Jumlah Saudara <span class="text-danger">*</span>
                                         </label>
                                         <input type="number" class="form-control form-control-lg @error('jumlah_saudara') is-invalid @enderror" id="jumlah_saudara" name="jumlah_saudara" 
                                                value="{{ $existingData->jumlah_saudara ?? old('jumlah_saudara') }}" 
@@ -567,7 +575,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="status_dalam_keluarga" class="form-label fw-semibold">
-                                            <i class="fas fa-user-tag me-2 text-primary"></i>Status dalam Keluarga
+                                            <i class="fas fa-user-tag me-2 text-primary"></i>Status dalam Keluarga <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select form-select-lg @error('status_dalam_keluarga') is-invalid @enderror" id="status_dalam_keluarga" name="status_dalam_keluarga">
                                             <option value="">Pilih Status</option>
@@ -612,7 +620,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="tinggal_bersama" class="form-label fw-semibold">
-                                            <i class="fas fa-house-user me-2 text-primary"></i>Tinggal Bersama
+                                            <i class="fas fa-house-user me-2 text-primary"></i>Tinggal Bersama <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select form-select-lg @error('tinggal_bersama') is-invalid @enderror" id="tinggal_bersama" name="tinggal_bersama">
                                             <option value="">Pilih Status Tinggal</option>
@@ -740,7 +748,7 @@
 
                             <div class="form-group mb-4">
                                 <label for="alamat" class="form-label fw-semibold">
-                                    <i class="fas fa-map-marked-alt me-2 text-primary"></i>Alamat Lengkap
+                                    <i class="fas fa-map-marked-alt me-2 text-primary"></i>Alamat Lengkap <span class="text-danger">*</span>
                                 </label>
                                 <textarea class="form-control form-control-lg @error('alamat') is-invalid @enderror" id="alamat" name="alamat" 
                                           rows="3" placeholder="Masukkan alamat lengkap">{{ $existingData->alamat ?? old('alamat') }}</textarea>
@@ -752,7 +760,7 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <div class="form-group mb-3">
-                                        <label for="rt" class="form-label fw-semibold">RT</label>
+                                        <label for="rt" class="form-label fw-semibold">RT <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-lg @error('rt') is-invalid @enderror" id="rt" name="rt" 
                                                value="{{ $existingData->rt ?? old('rt') }}" 
                                                placeholder="000">
@@ -763,7 +771,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group mb-3">
-                                        <label for="rw" class="form-label fw-semibold">RW</label>
+                                        <label for="rw" class="form-label fw-semibold">RW <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-lg @error('rw') is-invalid @enderror" id="rw" name="rw" 
                                                value="{{ $existingData->rw ?? old('rw') }}" 
                                                placeholder="000">
@@ -774,7 +782,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
-                                        <label for="desa" class="form-label fw-semibold">Desa/Kelurahan</label>
+                                        <label for="desa" class="form-label fw-semibold">Desa/Kelurahan <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-lg @error('desa') is-invalid @enderror" id="desa" name="desa" 
                                                value="{{ $existingData->desa ?? old('desa') }}" 
                                                placeholder="Nama desa/kelurahan">
@@ -788,7 +796,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
-                                        <label for="kecamatan" class="form-label fw-semibold">Kecamatan</label>
+                                        <label for="kecamatan" class="form-label fw-semibold">Kecamatan <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-lg @error('kecamatan') is-invalid @enderror" id="kecamatan" name="kecamatan" 
                                                value="{{ $existingData->kecamatan ?? old('kecamatan') }}" 
                                                placeholder="Nama kecamatan">
@@ -799,7 +807,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
-                                        <label for="kota" class="form-label fw-semibold">Kota/Kabupaten</label>
+                                        <label for="kota" class="form-label fw-semibold">Kota/Kabupaten <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-lg @error('kota') is-invalid @enderror" id="kota" name="kota" 
                                                value="{{ $existingData->kota ?? old('kota') }}" 
                                                placeholder="Nama kota/kabupaten">
@@ -813,7 +821,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
-                                        <label for="provinsi" class="form-label fw-semibold">Provinsi</label>
+                                        <label for="provinsi" class="form-label fw-semibold">Provinsi <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-lg @error('provinsi') is-invalid @enderror" id="provinsi" name="provinsi" 
                                                value="{{ $existingData->provinsi ?? old('provinsi') }}" 
                                                placeholder="Nama provinsi">
@@ -824,7 +832,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
-                                        <label for="kode_pos" class="form-label fw-semibold">Kode Pos</label>
+                                        <label for="kode_pos" class="form-label fw-semibold">Kode Pos <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-lg @error('kode_pos') is-invalid @enderror" id="kode_pos" name="kode_pos" 
                                                value="{{ $existingData->kode_pos ?? old('kode_pos') }}" 
                                                placeholder="00000">
@@ -1637,63 +1645,144 @@
 </style>
 
 <script>
-// JavaScript code remains the same as previous version
 document.addEventListener('DOMContentLoaded', function() {
     const formTabs = document.querySelectorAll('.form-tab');
     const tabPanes = document.querySelectorAll('.tab-pane');
     const nextButtons = document.querySelectorAll('.next-tab');
     const prevButtons = document.querySelectorAll('.prev-tab');
+    const multiStepForm = document.getElementById('multiStepForm');
 
-    // Tab navigation
+    // Konfigurasi field yang wajib diisi sesuai persyaratan
+    const requiredConfig = [
+        // Tab 1: Data Diri & Keluarga
+        { id: 'nisn', label: 'NISN', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'nik', label: 'NIK', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'no_kk', label: 'No. Kartu Keluarga', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'nama_lengkap', label: 'Nama Lengkap', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'jenis_kelamin', label: 'Jenis Kelamin', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'tempat_lahir', label: 'Tempat Lahir', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'tanggal_lahir', label: 'Tanggal Lahir', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'no_hp', label: 'No. HP/WhatsApp', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'asal_sekolah', label: 'Asal Sekolah', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'jenjang_sekolah_asal', label: 'Jenjang Sekolah Asal', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'status_sekolah_asal', label: 'Status Sekolah Asal', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'kecamatan_desa_sekolah_asal', label: 'Kecamatan/Desa Asal Sekolah', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'agama', label: 'Agama', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'ukuran_baju', label: 'Ukuran Baju', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'anak_ke', label: 'Anak Ke', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'jumlah_saudara', label: 'Jumlah Saudara', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'status_dalam_keluarga', label: 'Status dalam Keluarga', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+        { id: 'tinggal_bersama', label: 'Tinggal Bersama', tab: 'data-diri', tabName: 'Data Diri & Keluarga' },
+
+        // Tab 2: Data Alamat
+        { id: 'alamat', label: 'Alamat Lengkap', tab: 'data-alamat', tabName: 'Data Alamat' },
+        { id: 'rt', label: 'RT', tab: 'data-alamat', tabName: 'Data Alamat' },
+        { id: 'rw', label: 'RW', tab: 'data-alamat', tabName: 'Data Alamat' },
+        { id: 'desa', label: 'Desa/Kelurahan', tab: 'data-alamat', tabName: 'Data Alamat' },
+        { id: 'kecamatan', label: 'Kecamatan', tab: 'data-alamat', tabName: 'Data Alamat' },
+        { id: 'kota', label: 'Kota/Kabupaten', tab: 'data-alamat', tabName: 'Data Alamat' },
+        { id: 'provinsi', label: 'Provinsi', tab: 'data-alamat', tabName: 'Data Alamat' },
+        { id: 'kode_pos', label: 'Kode Pos', tab: 'data-alamat', tabName: 'Data Alamat' },
+    ];
+
+    function activateTab(targetTabId) {
+        formTabs.forEach(tab => {
+            tab.classList.toggle('active', tab.getAttribute('data-tab') === targetTabId);
+        });
+        tabPanes.forEach(pane => {
+            pane.classList.toggle('active', pane.id === targetTabId);
+        });
+        updateProgress(targetTabId);
+        window.scrollTo({ top: 100, behavior: 'smooth' });
+    }
+
+    function checkFields(fieldsToCheck) {
+        const missing = [];
+        fieldsToCheck.forEach(item => {
+            const el = document.getElementById(item.id);
+            if (!el) return;
+            const val = el.value ? el.value.trim() : '';
+            if (!val) {
+                missing.push(item);
+                el.classList.add('is-invalid');
+                let feedback = el.parentNode.querySelector('.invalid-feedback');
+                if (!feedback) {
+                    feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    el.parentNode.appendChild(feedback);
+                }
+                feedback.textContent = `${item.label} wajib diisi.`;
+            } else {
+                el.classList.remove('is-invalid');
+            }
+        });
+        return missing;
+    }
+
+    // Auto-remove is-invalid ketika siswa mengisi input/select
+    requiredConfig.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el) {
+            el.addEventListener('input', function() {
+                if (this.value && this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+            el.addEventListener('change', function() {
+                if (this.value && this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        }
+    });
+
+    // Tab navigation via click
     formTabs.forEach(tab => {
         tab.addEventListener('click', function() {
             const targetTab = this.getAttribute('data-tab');
-            
-            // Update active tab
-            formTabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Show target tab content
-            tabPanes.forEach(pane => pane.classList.remove('active'));
-            document.getElementById(targetTab).classList.add('active');
-            
-            // Scroll to top of form
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            activateTab(targetTab);
         });
     });
 
-    // Next button functionality
+    // Tombol Lanjutkan (Next button functionality dengan validasi)
     nextButtons.forEach(button => {
         button.addEventListener('click', function() {
             const currentTab = this.closest('.tab-pane');
             const nextTabId = this.getAttribute('data-next');
-            
-            // Validation for current tab
-            if (currentTab.id === 'data-diri') {
-                const namaLengkap = document.getElementById('nama_lengkap').value;
-                if (!namaLengkap.trim()) {
-                    showAlert('error', 'Nama Lengkap harus diisi!');
-                    document.getElementById('nama_lengkap').focus();
-                    return;
-                }
+
+            // Cek data wajib pada tab yang sedang aktif
+            const tabFields = requiredConfig.filter(f => f.tab === currentTab.id);
+            const missing = checkFields(tabFields);
+
+            if (missing.length > 0) {
+                const first = missing[0];
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Data Belum Lengkap',
+                    html: `
+                        <p class="text-muted mb-2">Mohon lengkapi <b>${missing.length}</b> data wajib berikut sebelum melanjutkan ke tahap berikutnya:</p>
+                        <div class="text-start p-3 bg-light rounded" style="max-height: 200px; overflow-y: auto; font-size: 13.5px; border: 1px solid #dee2e6;">
+                            <ul class="mb-0 ps-3">
+                                ${missing.map(m => `<li class="mb-1 text-danger"><b>${m.label}</b></li>`).join('')}
+                            </ul>
+                        </div>
+                    `,
+                    confirmButtonText: '<i class="fas fa-edit me-1"></i> Lengkapi Data',
+                    confirmButtonColor: '#3498db'
+                }).then(() => {
+                    setTimeout(() => {
+                        const el = document.getElementById(first.id);
+                        if (el) {
+                            el.focus();
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 150);
+                });
+                return;
             }
-            
-            // Switch to next tab
-            formTabs.forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.getAttribute('data-tab') === nextTabId) {
-                    tab.classList.add('active');
-                }
-            });
-            
-            tabPanes.forEach(pane => pane.classList.remove('active'));
-            document.getElementById(nextTabId).classList.add('active');
-            
-            // Update progress (you can implement this based on your needs)
-            updateProgress(nextTabId);
-            
-            // Scroll to top of form
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Switch to next tab jika valid
+            activateTab(nextTabId);
         });
     });
 
@@ -1701,45 +1790,110 @@ document.addEventListener('DOMContentLoaded', function() {
     prevButtons.forEach(button => {
         button.addEventListener('click', function() {
             const prevTabId = this.getAttribute('data-prev');
-            
-            // Switch to previous tab
-            formTabs.forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.getAttribute('data-tab') === prevTabId) {
-                    tab.classList.add('active');
-                }
-            });
-            
-            tabPanes.forEach(pane => pane.classList.remove('active'));
-            document.getElementById(prevTabId).classList.add('active');
-            
-            // Scroll to top of form
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            activateTab(prevTabId);
         });
     });
 
-    function showAlert(type, message) {
-        // Simple alert implementation - you can replace with SweetAlert or similar
-        alert(message);
+    // Handle submit form pendaftaran dengan pengecekan seluruh data wajib
+    if (multiStepForm) {
+        multiStepForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Cek seluruh data wajib dari semua tab
+            const allMissing = checkFields(requiredConfig);
+
+            if (allMissing.length > 0) {
+                const firstMissing = allMissing[0];
+                // Otomatis pindahkan tampilan ke tab tempat data yang belum terisi
+                activateTab(firstMissing.tab);
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Formulir Belum Lengkap!',
+                    html: `
+                        <p class="text-muted mb-2">Terdapat <b>${allMissing.length}</b> kolom wajib yang belum Anda isi atau belum dipilih:</p>
+                        <div class="text-start p-3 bg-light rounded" style="max-height: 220px; overflow-y: auto; font-size: 13.5px; border: 1px solid #dee2e6;">
+                            <ul class="mb-0 ps-3">
+                                ${allMissing.map(m => `<li class="mb-1"><b>${m.label}</b> <span class="badge bg-secondary ms-1">${m.tabName}</span></li>`).join('')}
+                            </ul>
+                        </div>
+                        <p class="small text-primary mt-3 mb-0"><i class="fas fa-info-circle me-1"></i>Anda telah diarahkan ke tab <b>${firstMissing.tabName}</b> untuk melengkapi data.</p>
+                    `,
+                    confirmButtonText: '<i class="fas fa-edit me-1"></i> Lengkapi Sekarang',
+                    confirmButtonColor: '#3498db'
+                }).then(() => {
+                    setTimeout(() => {
+                        const el = document.getElementById(firstMissing.id);
+                        if (el) {
+                            el.focus();
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 150);
+                });
+                return;
+            }
+
+            // Konfirmasi pengiriman formulir jika semua data wajib terisi
+            Swal.fire({
+                title: 'Kirim Formulir Pendaftaran?',
+                text: 'Semua data wajib telah lengkap. Pastikan seluruh informasi sudah benar dan sesuai dokumen resmi.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#1abc9c',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-paper-plane me-1"></i> Ya, Kirim Sekarang',
+                cancelButtonText: 'Periksa Kembali'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    multiStepForm.submit();
+                }
+            });
+        });
     }
 
     function updateProgress(tabId) {
-        // Update progress bars based on current tab
         const progressItems = document.querySelectorAll('.progress-fill');
+        if (!progressItems || progressItems.length < 3) return;
         
         if (tabId === 'data-diri') {
-            progressItems[0].style.width = '{{ $progress['data_diri'] }}';
-            document.querySelector('.progress-item:nth-child(1) .progress-label span:last-child').textContent = '{{ $progress['data_diri'] }}';
+            progressItems[0].style.width = '{{ $progress['data_diri'] }}%';
         } else if (tabId === 'data-alamat') {
-            progressItems[1].style.width = '{{$progress['alamat']}}';
-            document.querySelector('.progress-item:nth-child(2) .progress-label span:last-child').textContent = '{{$progress['alamat']}}';
+            progressItems[1].style.width = '{{ $progress['alamat'] }}%';
         } else if (tabId === 'data-orangtua') {
-            progressItems[2].style.width = '{{$progress['orangtua']}}';
-            document.querySelector('.progress-item:nth-child(3) .progress-label span:last-child').textContent = '{{$progress['orangtua']}}';
+            progressItems[2].style.width = '{{ $progress['orangtua'] }}%';
         }
-        
-        
     }
+
+    // Auto-focus dan auto-switch tab jika kembali dari server dengan error
+    @if($errors->any())
+        const firstInvalid = document.querySelector('.is-invalid');
+        if (firstInvalid) {
+            const pane = firstInvalid.closest('.tab-pane');
+            if (pane && pane.id) {
+                activateTab(pane.id);
+                setTimeout(() => {
+                    firstInvalid.focus();
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 200);
+            }
+        }
+        Swal.fire({
+            icon: 'error',
+            title: 'Pengisian Formulir Belum Lengkap',
+            html: `
+                <p class="text-muted mb-2">Mohon lengkapi atau perbaiki kolom berikut:</p>
+                <div class="text-start p-3 bg-light rounded" style="max-height: 200px; overflow-y: auto; font-size: 13.5px; border: 1px solid #dee2e6;">
+                    <ul class="mb-0 ps-3">
+                        @foreach($errors->all() as $err)
+                            <li class="text-danger mb-1">{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            `,
+            confirmButtonText: 'Perbaiki Data',
+            confirmButtonColor: '#e74c3c'
+        });
+    @endif
 
     // Initialize progress
     updateProgress('data-diri');

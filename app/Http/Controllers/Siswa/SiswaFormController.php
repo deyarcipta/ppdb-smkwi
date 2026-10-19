@@ -109,6 +109,11 @@ class SiswaFormController extends Controller
             return redirect()->route('siswa.dashboard')
                 ->with('success', $message);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput()
+                ->with('error', 'Formulir belum lengkap. Silakan lengkapi seluruh data wajib yang ditandai.');
         } catch (\Exception $e) {
             Log::error('Error saving data: ' . $e->getMessage());
             return redirect()->back()
@@ -217,46 +222,48 @@ class SiswaFormController extends Controller
     private function validateForm(Request $request)
     {
         return $request->validate([
-            // HAPUS validasi untuk jurusan_id dan gelombang_id karena tidak diinput user
-
-            // DATA PRIBADI SISWA
-            'nisn' => 'nullable|string|max:20',
-            'nik' => 'nullable|string|max:20',
-            'no_kk' => 'nullable|string|max:20',
+            // DATA PRIBADI SISWA (Semua wajib kecuali: no_kip, hobi, cita_cita, referensi, ket_referensi)
+            'nisn' => 'required|string|max:20',
+            'nik' => 'required|string|max:20',
+            'no_kk' => 'required|string|max:20',
             'nama_lengkap' => 'required|string|max:255',
-            'tempat_lahir' => 'nullable|string|max:255',
-            'tanggal_lahir' => 'nullable|date',
-            'jenis_kelamin' => 'nullable|in:Laki-Laki,Perempuan',
-            'no_hp' => 'nullable|string|max:15',
+            'tempat_lahir' => 'required|string|max:255',
+            'tanggal_lahir' => 'required|date',
+            'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan',
+            'no_hp' => 'required|string|max:20',
             'asal_sekolah' => 'required|string|max:255',
             'jenjang_sekolah_asal' => 'required|string|in:SMP,MTs,PKBM,Lainnya',
             'status_sekolah_asal' => 'required|string|in:Negeri,Swasta',
             'kecamatan_desa_sekolah_asal' => 'required|string|max:255',
             'kota_sekolah_asal' => 'nullable|string|max:255',
-            'agama' => 'nullable|string|max:50',
-            'ukuran_baju' => 'nullable|string|max:10',
+            'agama' => 'required|string|max:50',
+            'ukuran_baju' => 'required|string|max:10',
+            'no_kip' => 'nullable|string|max:50',
             'hobi' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'alamat' => 'nullable|string',
-            'rt' => 'nullable|string|max:5',
-            'rw' => 'nullable|string|max:5',
-            'desa' => 'nullable|string|max:255',
-            'kecamatan' => 'nullable|string|max:255',
-            'kota' => 'nullable|string|max:255',
-            'provinsi' => 'nullable|string|max:255',
-            'kode_pos' => 'nullable|string|max:10',
-            'anak_ke' => 'nullable|integer|min:1',
-            'jumlah_saudara' => 'nullable|integer|min:0',
-            'tinggi_badan' => 'nullable|integer|min:100|max:250',
-            'berat_badan' => 'nullable|integer|min:20|max:200',
-            'status_dalam_keluarga' => 'nullable|string|max:255',
-            'tinggal_bersama' => 'nullable|string|max:255',
-            'jarak_kesekolah' => 'nullable|integer|min:0',
-            'waktu_tempuh' => 'nullable|integer|min:0',
-            'transportasi' => 'nullable|string|max:255',
-            'no_kip' => 'nullable|string|max:50',
             'referensi' => 'nullable|string|max:255',
-            'ket_referensi' => 'nullable|string|max:255', // GUNAKAN NAMA YANG ADA DI DATABASE
+            'ket_referensi' => 'nullable|string|max:255',
+
+            // DATA KELUARGA (Semua wajib kecuali: tinggi_badan, berat_badan, jarak_kesekolah, waktu_tempuh, transportasi)
+            'anak_ke' => 'required|integer|min:1',
+            'jumlah_saudara' => 'required|integer|min:0',
+            'status_dalam_keluarga' => 'required|string|max:255',
+            'tinggal_bersama' => 'required|string|max:255',
+            'tinggi_badan' => 'nullable|numeric|min:50|max:250',
+            'berat_badan' => 'nullable|numeric|min:10|max:200',
+            'jarak_kesekolah' => 'nullable|numeric|min:0',
+            'waktu_tempuh' => 'nullable|numeric|min:0',
+            'transportasi' => 'nullable|string|max:255',
+
+            // DATA ALAMAT (Semua wajib)
+            'alamat' => 'required|string',
+            'rt' => 'required|string|max:10',
+            'rw' => 'required|string|max:10',
+            'desa' => 'required|string|max:255',
+            'kecamatan' => 'required|string|max:255',
+            'kota' => 'required|string|max:255',
+            'provinsi' => 'required|string|max:255',
+            'kode_pos' => 'required|string|max:10',
 
             // DATA AYAH
             'status_ayah' => 'nullable|string|in:Masih Hidup,Meninggal Dunia',
@@ -267,7 +274,7 @@ class SiswaFormController extends Controller
             'pendidikan_ayah' => 'nullable|string|max:255',
             'pekerjaan_ayah' => 'nullable|string|max:255',
             'penghasilan_ayah' => 'nullable|string|max:255',
-            'no_hp_ayah' => 'nullable|string|max:15',
+            'no_hp_ayah' => 'nullable|string|max:20',
 
             // DATA IBU
             'status_ibu' => 'nullable|string|in:Masih Hidup,Meninggal Dunia',
@@ -278,7 +285,7 @@ class SiswaFormController extends Controller
             'pendidikan_ibu' => 'nullable|string|max:255',
             'pekerjaan_ibu' => 'nullable|string|max:255',
             'penghasilan_ibu' => 'nullable|string|max:255',
-            'no_hp_ibu' => 'nullable|string|max:15',
+            'no_hp_ibu' => 'nullable|string|max:20',
 
             // DATA WALI
             'nik_wali' => 'nullable|string|max:20',
@@ -288,14 +295,40 @@ class SiswaFormController extends Controller
             'pendidikan_wali' => 'nullable|string|max:255',
             'pekerjaan_wali' => 'nullable|string|max:255',
             'penghasilan_wali' => 'nullable|string|max:255',
-            'no_hp_wali' => 'nullable|string|max:15',
+            'no_hp_wali' => 'nullable|string|max:20',
         ], [
+            // DATA PRIBADI
+            'nisn.required' => 'NISN wajib diisi.',
+            'nik.required' => 'NIK wajib diisi.',
+            'no_kk.required' => 'Nomor Kartu Keluarga (KK) wajib diisi.',
             'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
+            'tempat_lahir.required' => 'Tempat lahir wajib diisi.',
+            'tanggal_lahir.required' => 'Tanggal lahir wajib diisi.',
+            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
+            'no_hp.required' => 'Nomor HP/WhatsApp wajib diisi.',
             'asal_sekolah.required' => 'Nama asal sekolah wajib diisi.',
             'jenjang_sekolah_asal.required' => 'Jenjang sekolah asal wajib dipilih.',
             'status_sekolah_asal.required' => 'Status sekolah asal wajib dipilih.',
             'kecamatan_desa_sekolah_asal.required' => 'Kecamatan/Desa asal sekolah wajib diisi.',
             'kota_sekolah_asal.required' => 'Kecamatan/Desa asal sekolah wajib diisi.',
+            'agama.required' => 'Agama wajib dipilih.',
+            'ukuran_baju.required' => 'Ukuran baju seragam wajib dipilih.',
+
+            // DATA KELUARGA
+            'anak_ke.required' => 'Urutan anak ke berapa wajib diisi.',
+            'jumlah_saudara.required' => 'Jumlah saudara kandung wajib diisi.',
+            'status_dalam_keluarga.required' => 'Status dalam keluarga wajib dipilih.',
+            'tinggal_bersama.required' => 'Status tinggal bersama wajib dipilih.',
+
+            // DATA ALAMAT
+            'alamat.required' => 'Alamat lengkap tempat tinggal wajib diisi.',
+            'rt.required' => 'Nomor RT tempat tinggal wajib diisi.',
+            'rw.required' => 'Nomor RW tempat tinggal wajib diisi.',
+            'desa.required' => 'Desa/Kelurahan tempat tinggal wajib diisi.',
+            'kecamatan.required' => 'Kecamatan tempat tinggal wajib diisi.',
+            'kota.required' => 'Kota/Kabupaten tempat tinggal wajib diisi.',
+            'provinsi.required' => 'Provinsi tempat tinggal wajib diisi.',
+            'kode_pos.required' => 'Kode pos tempat tinggal wajib diisi.',
         ]);
     }
 
