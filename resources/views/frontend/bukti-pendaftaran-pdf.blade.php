@@ -1,8 +1,13 @@
+@php
+    $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::first();
+    $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+    $namaPanjang = $pengaturan->namaPanjangAplikasi;
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
-    <title>Bukti Pendaftaran PPDB - {{ $dataSiswa->nama_lengkap ?? $user->username }}</title>
+    <title>Bukti Pendaftaran {{ $tipeAplikasi }} - {{ $dataSiswa->nama_lengkap ?? $user->username }}</title>
     <style>
         @page {
             size: A4 portrait;
@@ -229,7 +234,7 @@
                     @endif
                 </td>
                 <td class="kop-text">
-                    <h2>PANITIA PENERIMAAN PESERTA DIDIK BARU (PPDB)</h2>
+                    <h2>PANITIA {{ strtoupper($namaPanjang) }} ({{ $tipeAplikasi }})</h2>
                     <h1>{{ $pengaturan->nama_sekolah ?? 'SMK WISATA INDONESIA' }}</h1>
                     <p>{{ $pengaturan->alamat ?? 'Jl. Raya Desa No. 123, Indonesia' }}</p>
                     <p>Telepon: {{ $pengaturan->telepon ?? '-' }} | Email: {{ $pengaturan->email ?? '-' }}</p>
@@ -296,8 +301,11 @@
             <td class="data-separator">:</td>
             <td class="data-value">
                 {{ $dataSiswa->asal_sekolah ?? '-' }}
-                @if(!empty($dataSiswa->jenjang_sekolah_asal) || !empty($dataSiswa->status_sekolah_asal) || !empty($dataSiswa->kota_sekolah_asal))
-                    ({{ implode(' - ', array_filter([$dataSiswa->jenjang_sekolah_asal, $dataSiswa->status_sekolah_asal, $dataSiswa->kota_sekolah_asal])) }})
+                @php
+                    $subdistrict = $dataSiswa->kecamatan_desa_sekolah_asal ?? $dataSiswa->kota_sekolah_asal;
+                @endphp
+                @if(!empty($dataSiswa->jenjang_sekolah_asal) || !empty($dataSiswa->status_sekolah_asal) || !empty($subdistrict))
+                    ({{ implode(' - ', array_filter([$dataSiswa->jenjang_sekolah_asal, $dataSiswa->status_sekolah_asal, $subdistrict])) }})
                 @endif
             </td>
         </tr>
@@ -337,17 +345,17 @@
     <div class="instruction-box">
         <h4>PETUNJUK ALUR SELANJUTNYA:</h4>
         <ol>
-            <li>Simpan bukti pendaftaran ini dengan baik sebagai bukti resmi registrasi PPDB.</li>
-            <li>Gunakan <strong>Username</strong> dan <strong>Password</strong> di atas untuk login ke <strong>Portal Siswa PPDB</strong>.</li>
+            <li>Simpan bukti pendaftaran ini dengan baik sebagai bukti resmi registrasi {{ $tipeAplikasi }}.</li>
+            <li>Gunakan <strong>Username</strong> dan <strong>Password</strong> di atas untuk login ke <strong>Portal Siswa {{ $tipeAplikasi }}</strong>.</li>
             <li>Lengkapi data formulir dan unggah pasfoto pada formulir pendaftaran di portal siswa.</li>
             <li>Lakukan pembayaran registrasi/formulir sesuai instruksi pada menu Pembayaran.</li>
-            <li>Jika membutuhkan bantuan, hubungi Panitia PPDB di No. Telp: <strong>{{ $pengaturan->telepon ?? $pengaturan->no_hp ?? '-' }}</strong>.</li>
+            <li>Jika membutuhkan bantuan, hubungi Panitia {{ $tipeAplikasi }} di No. Telp: <strong>{{ $pengaturan->telepon ?? $pengaturan->no_hp ?? '-' }}</strong>.</li>
         </ol>
     </div>
 
     <!-- FOOTER NOTE -->
     <div class="footer-note">
-        <em>Dicetak otomatis oleh Sistem PPDB Online pada tanggal: {{ date('d/m/Y H:i:s') }} WIB</em>
+        <em>Dicetak otomatis oleh Sistem {{ $tipeAplikasi }} Online pada tanggal: {{ date('d/m/Y H:i:s') }} WIB</em>
     </div>
 
 </body>

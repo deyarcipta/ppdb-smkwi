@@ -6,7 +6,7 @@
   <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
     <div>
       <h5 class="mb-1"><i class="bx bx-phone me-2 text-primary"></i>Kontak Pendaftaran</h5>
-      <small class="text-muted">Kelola kontak panitia PPDB yang tampil di halaman depan web.</small>
+      <small class="text-muted">Kelola kontak panitia {{ $tipeAplikasi }} yang tampil di halaman depan web.</small>
     </div>
     <button class="btn btn-primary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#addKontakModal">
       <i class="bx bx-plus me-1"></i>Tambah Kontak

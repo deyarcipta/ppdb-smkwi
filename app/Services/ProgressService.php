@@ -24,7 +24,7 @@ class ProgressService
         // ======== KATEGORI DATA DIRI ========
         $dataDiriFields = [
             'nisn', 'nik', 'no_kk', 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir',
-            'jenis_kelamin', 'no_hp', 'asal_sekolah', 'jenjang_sekolah_asal', 'status_sekolah_asal', 'kota_sekolah_asal', 'agama', 'ukuran_baju', 'hobi',
+            'jenis_kelamin', 'no_hp', 'asal_sekolah', 'jenjang_sekolah_asal', 'status_sekolah_asal', 'kecamatan_desa_sekolah_asal', 'agama', 'ukuran_baju', 'hobi',
             'cita_cita', 'anak_ke', 'jumlah_saudara', 'tinggi_badan', 'berat_badan',
             'status_dalam_keluarga', 'tinggal_bersama', 'jarak_kesekolah', 'waktu_tempuh',
             'transportasi', 'no_kip', 'referensi', 'ket_referensi',
@@ -38,11 +38,11 @@ class ProgressService
         // ======== KATEGORI DATA ORANGTUA ========
         $orangtuaFields = [
             // Data Ayah
-            'nik_ayah', 'nama_ayah', 'tempat_lahir_ayah', 'tanggal_lahir_ayah',
+            'status_ayah', 'nik_ayah', 'nama_ayah', 'tempat_lahir_ayah', 'tanggal_lahir_ayah',
             'pendidikan_ayah', 'pekerjaan_ayah', 'penghasilan_ayah', 'no_hp_ayah',
             
             // Data Ibu
-            'nik_ibu', 'nama_ibu', 'tempat_lahir_ibu', 'tanggal_lahir_ibu',
+            'status_ibu', 'nik_ibu', 'nama_ibu', 'tempat_lahir_ibu', 'tanggal_lahir_ibu',
             'pendidikan_ibu', 'pekerjaan_ibu', 'penghasilan_ibu', 'no_hp_ibu',
             
             // Data Wali

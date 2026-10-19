@@ -1,5 +1,9 @@
+@php
+    $pengaturan = \App\Models\PengaturanAplikasi::first();
+    $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+@endphp
 @extends('siswa.layouts.app')
-@section('title', 'Pengumuman PPDB')
+@section('title', 'Pengumuman ' . $tipeAplikasi)
 
 @section('content')
 <div class="container-fluid p-0">

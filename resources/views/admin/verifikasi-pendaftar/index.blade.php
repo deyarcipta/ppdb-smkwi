@@ -215,8 +215,11 @@
                         <label class="form-label fw-bold text-primary">Asal Sekolah</label>
                         <p class="border-bottom pb-2">
                             {{ $item->dataSiswa->asal_sekolah ?? '-' }}
-                            @if(!empty($item->dataSiswa->jenjang_sekolah_asal) || !empty($item->dataSiswa->status_sekolah_asal) || !empty($item->dataSiswa->kota_sekolah_asal))
-                                <br><small class="text-muted">{{ implode(' • ', array_filter([$item->dataSiswa->jenjang_sekolah_asal, $item->dataSiswa->status_sekolah_asal, $item->dataSiswa->kota_sekolah_asal])) }}</small>
+                            @php
+                                $subdistrict = $item->dataSiswa->kecamatan_desa_sekolah_asal ?? $item->dataSiswa->kota_sekolah_asal;
+                            @endphp
+                            @if(!empty($item->dataSiswa->jenjang_sekolah_asal) || !empty($item->dataSiswa->status_sekolah_asal) || !empty($subdistrict))
+                                <br><small class="text-muted">{{ implode(' • ', array_filter([$item->dataSiswa->jenjang_sekolah_asal, $item->dataSiswa->status_sekolah_asal, $subdistrict])) }}</small>
                             @endif
                         </p>
                     </div>

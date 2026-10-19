@@ -30,6 +30,7 @@ class DataSiswa extends Model
         'asal_sekolah',
         'jenjang_sekolah_asal',
         'status_sekolah_asal',
+        'kecamatan_desa_sekolah_asal',
         'kota_sekolah_asal',
         'id_smp',
         'agama',
@@ -56,6 +57,7 @@ class DataSiswa extends Model
         'no_kip',
         'referensi',
         'ket_referensi',
+        'status_ayah',
         'nik_ayah',
         'nama_ayah',
         'tempat_lahir_ayah',
@@ -64,6 +66,7 @@ class DataSiswa extends Model
         'pekerjaan_ayah',
         'penghasilan_ayah',
         'no_hp_ayah',
+        'status_ibu',
         'nik_ibu',
         'nama_ibu',
         'tempat_lahir_ibu',
@@ -310,11 +313,11 @@ class DataSiswa extends Model
     {
         $fields = [
             'nama_lengkap', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin',
-            'no_hp', 'asal_sekolah', 'jenjang_sekolah_asal', 'status_sekolah_asal', 'kota_sekolah_asal', 'agama', 'alamat', 'rt', 'rw',
+            'no_hp', 'asal_sekolah', 'jenjang_sekolah_asal', 'status_sekolah_asal', 'kecamatan_desa_sekolah_asal', 'agama', 'alamat', 'rt', 'rw',
             'desa', 'kecamatan', 'kota', 'provinsi', 'kode_pos',
-            'anak_ke', 'jumlah_saudara', 'tinggi_badan', 'berat_badan', 'nik_ayah', 'nama_ayah', 'tanggal_lahir_ayah', 'pendidikan_ayah',
+            'anak_ke', 'jumlah_saudara', 'tinggi_badan', 'berat_badan', 'status_ayah', 'nik_ayah', 'nama_ayah', 'tanggal_lahir_ayah', 'pendidikan_ayah',
             'pekerjaan_ayah', 'penghasilan_ayah', 'no_hp_ayah',
-            'nik_ibu', 'nama_ibu', 'tanggal_lahir_ibu', 'pendidikan_ibu',
+            'status_ibu', 'nik_ibu', 'nama_ibu', 'tanggal_lahir_ibu', 'pendidikan_ibu',
             'pekerjaan_ibu', 'penghasilan_ibu', 'no_hp_ibu', 'nik_wali', 'nama_wali', 'tanggal_lahir_wali', 'pendidikan_wali',
             'pekerjaan_wali', 'penghasilan_wali', 'no_hp_wali',
         ];
@@ -327,6 +330,32 @@ class DataSiswa extends Model
         }
 
         return round(($filled / count($fields)) * 100);
+    }
+
+    /**
+     * Fallback accessor untuk kecamatan_desa_sekolah_asal dan kota_sekolah_asal
+     */
+    public function getKecamatanDesaSekolahAsalAttribute($value)
+    {
+        return $value ?: ($this->attributes['kota_sekolah_asal'] ?? null);
+    }
+
+    public function getKotaSekolahAsalAttribute($value)
+    {
+        return $value ?: ($this->attributes['kecamatan_desa_sekolah_asal'] ?? null);
+    }
+
+    /**
+     * Helper accessor status ayah & ibu default
+     */
+    public function getStatusAyahAttribute($value)
+    {
+        return $value ?: 'Masih Hidup';
+    }
+
+    public function getStatusIbuAttribute($value)
+    {
+        return $value ?: 'Masih Hidup';
     }
 
     /**

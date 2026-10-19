@@ -10,6 +10,7 @@
       $pengaturan = \App\Models\PengaturanAplikasi::first();
       $logo = $pengaturan->logo ?? 'sneat/img/logowi.png';
       $namaAplikasi = $pengaturan->nama_aplikasi ?? 'PPDB';
+      $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
       $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
     @endphp
     <title>Login Admin | {{ $namaAplikasi }} - {{ $namaSekolah }}</title>
@@ -362,7 +363,7 @@
         <!-- Header -->
         <div class="brand-wrapper">
             <div class="badge-secure">
-                <i class="bx bx-shield-quarter"></i> PORTAL ADMIN PPDB
+                <i class="bx bx-shield-quarter"></i> PORTAL ADMIN {{ $tipeAplikasi }}
             </div>
             <div class="logo-container">
                 <img src="{{ asset($logo) }}" alt="Logo {{ $namaAplikasi }}">
@@ -446,7 +447,7 @@
 
         <!-- Footer Info -->
         <div class="card-footer-note">
-            &copy; {{ date('Y') }} {{ $namaSekolah }} &bull; PPDB Digital System
+            &copy; {{ date('Y') }} {{ $namaSekolah }} &bull; {{ $tipeAplikasi }} Digital System
         </div>
 
     </div>

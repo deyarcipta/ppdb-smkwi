@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Manajemen Backup & Restore - Admin PPDB')
+@section('title', 'Manajemen Backup & Restore - Admin ' . ($tipeAplikasi ?? 'PPDB'))
 
 <style>
     /* Styling Modal persis seperti Sneat Template (Tambah Pendaftar Manual) */
@@ -345,7 +345,7 @@
             <div class="col-lg-8">
                 <h6 class="fw-bold text-danger mb-2">Ingin Menggunakan Sistem Dalam Keadaan Fresh Untuk Tahun Ajaran Baru?</h6>
                 <p class="text-muted small mb-2">
-                    Fitur ini digunakan ketika telah berganti tahun ajaran dan sistem PPDB akan digunakan dari awal kembali. Seluruh data pendaftaran, akun siswa, bukti pembayaran, dan log aktivitas akan dibersihkan.
+                    Fitur ini digunakan ketika telah berganti tahun ajaran dan sistem {{ $tipeAplikasi }} akan digunakan dari awal kembali. Seluruh data pendaftaran, akun siswa, bukti pembayaran, dan log aktivitas akan dibersihkan.
                 </p>
                 <div class="d-flex flex-wrap gap-3 text-muted small">
                     <span class="text-danger"><i class="bx bx-x-circle me-1"></i>Dihapus: Data Pendaftar, Akun Siswa, Pembayaran, Log Sistem & Berkas Upload Siswa</span>

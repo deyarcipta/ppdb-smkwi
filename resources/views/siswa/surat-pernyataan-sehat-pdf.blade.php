@@ -1,7 +1,7 @@
 @php
     $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::first();
-    $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'SPMB';
-    $namaSekolah = $pengaturan->nama_sekolah ?? 'SMKS YASPIA';
+    $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+    $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
     
     $tahunAjaranPeserta = $dataSiswa?->tahunAjaran?->nama 
         ?? $dataSiswa?->gelombang?->tahunAjaran?->nama 
@@ -33,7 +33,7 @@
 <html lang="id">
 <head>
     <meta charset="utf-8">
-    <title>Surat Pernyataan Sehat - {{ $namaSiswa ?? 'SPMB' }}</title>
+    <title>Surat Pernyataan Sehat - {{ $namaSiswa ?? $tipeAplikasi }}</title>
     <style>
         @page {
             size: a4 portrait;

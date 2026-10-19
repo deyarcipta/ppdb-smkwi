@@ -348,8 +348,11 @@
                                 <div><strong>No. HP:</strong> {{ $row->dataSiswa->no_hp ?? '-' }}</div>
                                 <div><strong>Email:</strong> {{ $row->email ?? '-' }}</div>
                                 <div><strong>Asal Sekolah:</strong> {{ $row->dataSiswa->asal_sekolah ?? '-' }}
-                                    @if(!empty($row->dataSiswa->jenjang_sekolah_asal) || !empty($row->dataSiswa->status_sekolah_asal) || !empty($row->dataSiswa->kota_sekolah_asal))
-                                        <small class="text-muted">({{ implode(' - ', array_filter([$row->dataSiswa->jenjang_sekolah_asal, $row->dataSiswa->status_sekolah_asal, $row->dataSiswa->kota_sekolah_asal])) }})</small>
+                                    @php
+                                        $subdistrict = $row->dataSiswa->kecamatan_desa_sekolah_asal ?? $row->dataSiswa->kota_sekolah_asal;
+                                    @endphp
+                                    @if(!empty($row->dataSiswa->jenjang_sekolah_asal) || !empty($row->dataSiswa->status_sekolah_asal) || !empty($subdistrict))
+                                        <small class="text-muted">({{ implode(' - ', array_filter([$row->dataSiswa->jenjang_sekolah_asal, $row->dataSiswa->status_sekolah_asal, $subdistrict])) }})</small>
                                     @endif
                                 </div>
                             </div>
@@ -412,6 +415,11 @@
                         <h6 class="mb-3 text-primary">Data Ayah</h6>
                         <div class="row">
                             <div class="col-md-4">
+                                <div><strong>Status Ayah:</strong> 
+                                    <span class="badge {{ ($row->dataSiswa->status_ayah ?? 'Masih Hidup') == 'Meninggal Dunia' ? 'bg-danger' : 'bg-success' }}">
+                                        {{ $row->dataSiswa->status_ayah ?? 'Masih Hidup' }}
+                                    </span>
+                                </div>
                                 <div><strong>NIK Ayah:</strong> {{ $row->dataSiswa->nik_ayah ?? '-' }}</div>
                                 <div><strong>Nama Ayah:</strong> {{ $row->dataSiswa->nama_ayah ?? '-' }}</div>
                                 <div><strong>Tempat Lahir Ayah:</strong> {{ $row->dataSiswa->tempat_lahir_ayah ?? '-' }}</div>
@@ -437,6 +445,11 @@
                         <h6 class="mb-3 text-primary">Data Ibu</h6>
                         <div class="row">
                             <div class="col-md-4">
+                                <div><strong>Status Ibu:</strong> 
+                                    <span class="badge {{ ($row->dataSiswa->status_ibu ?? 'Masih Hidup') == 'Meninggal Dunia' ? 'bg-danger' : 'bg-success' }}">
+                                        {{ $row->dataSiswa->status_ibu ?? 'Masih Hidup' }}
+                                    </span>
+                                </div>
                                 <div><strong>NIK Ibu:</strong> {{ $row->dataSiswa->nik_ibu ?? '-' }}</div>
                                 <div><strong>Nama Ibu:</strong> {{ $row->dataSiswa->nama_ibu ?? '-' }}</div>
                                 <div><strong>Tempat Lahir Ibu:</strong> {{ $row->dataSiswa->tempat_lahir_ibu ?? '-' }}</div>

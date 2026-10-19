@@ -116,7 +116,7 @@ const noHp = modal.getAttribute("data-no-hp") || "-";
 const asalSekolah = modal.getAttribute("data-asal-sekolah") || "-";
 const jenjangSekolah = modal.getAttribute("data-jenjang-sekolah") || "-";
 const statusSekolah = modal.getAttribute("data-status-sekolah") || "-";
-const kotaSekolah = modal.getAttribute("data-kota-sekolah") || "-";
+const kotaSekolah = modal.getAttribute("data-kecamatan-desa-sekolah") || modal.getAttribute("data-kota-sekolah") || "-";
 const alamat = modal.getAttribute("data-alamat") || "-";
 const rt = modal.getAttribute("data-rt") || "-";
 const rw = modal.getAttribute("data-rw") || "-";
@@ -144,6 +144,7 @@ const referensi = modal.getAttribute("data-referensi") || "-";
 const ketReferensi = modal.getAttribute("data-ket-referensi") || "-";
 
 // Data Ayah
+const statusAyah = modal.getAttribute("data-status-ayah") || "Masih Hidup";
 const nikAyah = modal.getAttribute("data-nik-ayah") || "-";
 const namaAyah = modal.getAttribute("data-nama-ayah") || "-";
 const tempatLahirAyah = modal.getAttribute("data-tempat-lahir-ayah") || "-";
@@ -154,6 +155,7 @@ const penghasilanAyah = modal.getAttribute("data-penghasilan-ayah") || "-";
 const noHpAyah = modal.getAttribute("data-no-hp-ayah") || "-";
 
 // Data Ibu
+const statusIbu = modal.getAttribute("data-status-ibu") || "Masih Hidup";
 const nikIbu = modal.getAttribute("data-nik-ibu") || "-";
 const namaIbu = modal.getAttribute("data-nama-ibu") || "-";
 const tempatLahirIbu = modal.getAttribute("data-tempat-lahir-ibu") || "-";
@@ -447,7 +449,7 @@ const printContent = `
                     </tr>
                     <tr>
                         <td><b>Status Sekolah</b></td><td>${statusSekolah}</td>
-                        <td><b>Kota Asal Sekolah</b></td><td>${kotaSekolah}</td>
+                        <td><b>Kecamatan/Desa Asal Sekolah</b></td><td>${kotaSekolah}</td>
                     </tr>
                     <tr>
                         <td><b>Tinggi Badan (cm)</b></td><td>${tinggiBadan}</td>
@@ -516,6 +518,12 @@ const printContent = `
                     </tr>
                     </thead>
                     <tbody>
+                    <tr>
+                        <td><b>Status Keberadaan</b></td>
+                        <td>${statusAyah}</td>
+                        <td>${statusIbu}</td>
+                        <td>-</td>
+                    </tr>
                     <tr>
                         <td><b>NIK</b></td>
                         <td>${nikAyah}</td>

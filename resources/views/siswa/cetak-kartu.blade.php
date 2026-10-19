@@ -787,8 +787,11 @@
                             <td class="col">:</td>
                             <td class="val" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
                                 {{ $dataSiswa->asal_sekolah ?? '-' }}
-                                @if(!empty($dataSiswa->jenjang_sekolah_asal) || !empty($dataSiswa->status_sekolah_asal) || !empty($dataSiswa->kota_sekolah_asal))
-                                    ({{ implode(' - ', array_filter([$dataSiswa->jenjang_sekolah_asal, $dataSiswa->status_sekolah_asal, $dataSiswa->kota_sekolah_asal])) }})
+                                @php
+                                    $subdistrict = $dataSiswa->kecamatan_desa_sekolah_asal ?? $dataSiswa->kota_sekolah_asal;
+                                @endphp
+                                @if(!empty($dataSiswa->jenjang_sekolah_asal) || !empty($dataSiswa->status_sekolah_asal) || !empty($subdistrict))
+                                    ({{ implode(' - ', array_filter([$dataSiswa->jenjang_sekolah_asal, $dataSiswa->status_sekolah_asal, $subdistrict])) }})
                                 @endif
                             </td>
                             <td class="lbl" style="width: 130px; padding-left: 14px;">Tanggal Cetak</td>

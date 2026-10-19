@@ -123,7 +123,7 @@
                 <div class="card login-card-siswa">
                     <div class="login-header-siswa">
                         <div class="school-logo">
-                            <img src="{{ asset($logo) }}" alt="Logo PPDB">
+                            <img src="{{ asset($logo) }}" alt="Logo {{ $tipeAplikasi }}">
                         </div>
                         <h4 class="mb-2">{{ $namaAplikasi }}</h4>
                         <p class="mb-0">Area Login Siswa</p>

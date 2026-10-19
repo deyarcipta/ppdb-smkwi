@@ -39,7 +39,10 @@
          data-asal-sekolah="{{ $existingData->asal_sekolah ?? '-' }}"
          data-jenjang-sekolah="{{ $existingData->jenjang_sekolah_asal ?? '-' }}"
          data-status-sekolah="{{ $existingData->status_sekolah_asal ?? '-' }}"
-         data-kota-sekolah="{{ $existingData->kota_sekolah_asal ?? '-' }}"
+         data-kecamatan-desa-sekolah="{{ $existingData->kecamatan_desa_sekolah_asal ?? $existingData->kota_sekolah_asal ?? '-' }}"
+         data-kota-sekolah="{{ $existingData->kecamatan_desa_sekolah_asal ?? $existingData->kota_sekolah_asal ?? '-' }}"
+         data-status-ayah="{{ $existingData->status_ayah ?? 'Masih Hidup' }}"
+         data-status-ibu="{{ $existingData->status_ibu ?? 'Masih Hidup' }}"
          data-alamat="{{ $existingData->alamat ?? '-' }}"
          data-rt="{{ $existingData->rt ?? '-' }}"
          data-rw="{{ $existingData->rw ?? '-' }}"
@@ -432,13 +435,13 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="kota_sekolah_asal" class="form-label fw-semibold">
-                                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>Kota Asal Sekolah <span class="text-danger">*</span>
+                                        <label for="kecamatan_desa_sekolah_asal" class="form-label fw-semibold">
+                                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>Kecamatan/Desa Asal Sekolah <span class="text-danger">*</span>
                                         </label>
-                                        <input type="text" class="form-control form-control-lg @error('kota_sekolah_asal') is-invalid @enderror" id="kota_sekolah_asal" name="kota_sekolah_asal" 
-                                               value="{{ $existingData->kota_sekolah_asal ?? old('kota_sekolah_asal') }}" 
-                                               placeholder="Contoh: Jakarta Selatan" required>
-                                        @error('kota_sekolah_asal')
+                                        <input type="text" class="form-control form-control-lg @error('kecamatan_desa_sekolah_asal') is-invalid @enderror" id="kecamatan_desa_sekolah_asal" name="kecamatan_desa_sekolah_asal" 
+                                               value="{{ $existingData->kecamatan_desa_sekolah_asal ?? $existingData->kota_sekolah_asal ?? old('kecamatan_desa_sekolah_asal') }}" 
+                                               placeholder="Contoh: Jagakarsa / Cipedak" required>
+                                        @error('kecamatan_desa_sekolah_asal')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -860,7 +863,19 @@
                                 </div>
                                 <div class="section-body">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
+                                            <div class="form-group mb-3">
+                                                <label for="status_ayah" class="form-label fw-semibold">Status Ayah</label>
+                                                <select class="form-select @error('status_ayah') is-invalid @enderror" id="status_ayah" name="status_ayah">
+                                                    <option value="Masih Hidup" {{ ($existingData->status_ayah ?? old('status_ayah', 'Masih Hidup')) == 'Masih Hidup' ? 'selected' : '' }}>Masih Hidup</option>
+                                                    <option value="Meninggal Dunia" {{ ($existingData->status_ayah ?? old('status_ayah')) == 'Meninggal Dunia' ? 'selected' : '' }}>Meninggal Dunia</option>
+                                                </select>
+                                                @error('status_ayah')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
                                             <div class="form-group mb-3">
                                                 <label for="nik_ayah" class="form-label fw-semibold">NIK Ayah</label>
                                                 <input type="text" class="form-control @error('nik_ayah') is-invalid @enderror" id="nik_ayah" name="nik_ayah" 
@@ -871,7 +886,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group mb-3">
                                                 <label for="nama_ayah" class="form-label fw-semibold">Nama Lengkap Ayah</label>
                                                 <input type="text" class="form-control @error('nama_ayah') is-invalid @enderror" id="nama_ayah" name="nama_ayah" 
@@ -990,7 +1005,19 @@
                                 </div>
                                 <div class="section-body">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
+                                            <div class="form-group mb-3">
+                                                <label for="status_ibu" class="form-label fw-semibold">Status Ibu</label>
+                                                <select class="form-select @error('status_ibu') is-invalid @enderror" id="status_ibu" name="status_ibu">
+                                                    <option value="Masih Hidup" {{ ($existingData->status_ibu ?? old('status_ibu', 'Masih Hidup')) == 'Masih Hidup' ? 'selected' : '' }}>Masih Hidup</option>
+                                                    <option value="Meninggal Dunia" {{ ($existingData->status_ibu ?? old('status_ibu')) == 'Meninggal Dunia' ? 'selected' : '' }}>Meninggal Dunia</option>
+                                                </select>
+                                                @error('status_ibu')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
                                             <div class="form-group mb-3">
                                                 <label for="nik_ibu" class="form-label fw-semibold">NIK Ibu</label>
                                                 <input type="text" class="form-control @error('nik_ibu') is-invalid @enderror" id="nik_ibu" name="nik_ibu" 
@@ -1001,7 +1028,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group mb-3">
                                                 <label for="nama_ibu" class="form-label fw-semibold">Nama Lengkap Ibu</label>
                                                 <input type="text" class="form-control @error('nama_ibu') is-invalid @enderror" id="nama_ibu" name="nama_ibu" 

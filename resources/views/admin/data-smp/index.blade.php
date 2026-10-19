@@ -6,7 +6,7 @@
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
         <div>
             <h5 class="mb-1"><i class="bx bx-building-house me-2 text-primary"></i>Data SMP / MTs Asal</h5>
-            <small class="text-muted">Kelola data sekolah asal siswa pendaftar PPDB.</small>
+            <small class="text-muted">Kelola data sekolah asal siswa pendaftar {{ $tipeAplikasi }}.</small>
         </div>
 
         <div class="d-flex align-items-center flex-wrap gap-2">

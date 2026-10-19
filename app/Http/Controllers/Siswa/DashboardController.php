@@ -569,7 +569,10 @@ class DashboardController extends Controller
                 return ['Isi Formulir', 'warning'];
                 
             case 4:
-                // Cek apakah sudah ada pembayaran PPDB
+                // Cek apakah sudah ada pembayaran PPDB / SPMB
+                $pengaturanApp = PengaturanAplikasi::first();
+                $tipeApp = $pengaturanApp->tipe_aplikasi ?? 'PPDB';
+
                 $pembayaranPPDB = Pembayaran::where('user_id', Auth::id())
                     ->where('jenis_pembayaran', 'ppdb')
                     ->latest()
@@ -577,16 +580,16 @@ class DashboardController extends Controller
                     
                 if ($pembayaranPPDB) {
                     if ($pembayaranPPDB->status == 'pending') {
-                        return ['Menunggu Verifikasi Pembayaran PPDB', 'info'];
+                        return ["Menunggu Verifikasi Pembayaran {$tipeApp}", 'info'];
                     }
                     if ($pembayaranPPDB->status == 'ditolak') {
-                        return ['Upload Ulang Bukti Pembayaran PPDB', 'danger'];
+                        return ["Upload Ulang Bukti Pembayaran {$tipeApp}", 'danger'];
                     }
                     if ($pembayaranPPDB->status == 'diverifikasi') {
-                        return ['Pembayaran PPDB Terverifikasi', 'success'];
+                        return ["Pembayaran {$tipeApp} Terverifikasi", 'success'];
                     }
                 }
-                return ['Pembayaran PPDB', 'warning'];
+                return ["Pembayaran {$tipeApp}", 'warning'];
                 
             case 5:
                 return ['Cetak Kartu Ujian', 'warning'];
@@ -619,10 +622,11 @@ class DashboardController extends Controller
                 ->with('error', 'Fitur cetak kartu belum diaktifkan oleh administrator.');
         }
 
-        // Syarat cetak kartu: Pembayaran PPDB harus sudah lunas
+        // Syarat cetak kartu: Pembayaran PPDB / SPMB harus sudah lunas
+        $tipeApp = $pengaturan->tipe_aplikasi ?? 'PPDB';
         if (!$dataSiswa || !$dataSiswa->is_paid) {
             return redirect()->route('siswa.dashboard')
-                ->with('error', 'Anda belum dapat mencetak kartu peserta. Pastikan seluruh pembayaran PPDB Anda sudah diverifikasi dan lunas.');
+                ->with('error', "Anda belum dapat mencetak kartu peserta. Pastikan seluruh pembayaran {$tipeApp} Anda sudah diverifikasi dan lunas.");
         }
 
         return view('siswa.cetak-kartu', compact('user', 'dataSiswa', 'pengaturan'));
@@ -635,13 +639,15 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $dataSiswa = $user->dataSiswa ?? null;
+        $pengaturan = PengaturanAplikasi::getSettings();
+        $tipeApp = $pengaturan->tipe_aplikasi ?? 'PPDB';
 
         if (!$dataSiswa || !$dataSiswa->is_paid) {
             if ($request->expectsJson() || $request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Pembayaran PPDB harus diverifikasi dan lunas.'], 400);
+                return response()->json(['success' => false, 'message' => "Pembayaran {$tipeApp} harus diverifikasi dan lunas."], 400);
             }
             return redirect()->route('siswa.dashboard')
-                ->with('error', 'Pembayaran PPDB harus diverifikasi dan lunas sebelum melanjutkan.');
+                ->with('error', "Pembayaran {$tipeApp} harus diverifikasi dan lunas sebelum melanjutkan.");
         }
 
         $dataSiswa->update([
@@ -663,11 +669,13 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $dataSiswa = $user->dataSiswa ?? null;
+        $pengaturan = PengaturanAplikasi::getSettings();
+        $tipeApp = $pengaturan->tipe_aplikasi ?? 'PPDB';
 
-        // Syarat: Pembayaran PPDB harus sudah lunas
+        // Syarat: Pembayaran PPDB / SPMB harus sudah lunas
         if (!$dataSiswa || !$dataSiswa->is_paid) {
             return redirect()->route('siswa.dashboard')
-                ->with('error', 'Anda belum dapat mengunduh surat pernyataan sehat. Pastikan seluruh pembayaran PPDB Anda sudah diverifikasi dan lunas.');
+                ->with('error', "Anda belum dapat mengunduh surat pernyataan sehat. Pastikan seluruh pembayaran {$tipeApp} Anda sudah diverifikasi dan lunas.");
         }
 
         $pengaturan = PengaturanAplikasi::getSettings();

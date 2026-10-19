@@ -7,7 +7,7 @@
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
                 <h5 class="mb-1"><i class="bx bx-id-card me-2 text-warning"></i>Data Cetak Kartu Peserta</h5>
-                <small class="text-muted">Menampilkan daftar akun dan informasi cetak kartu peserta pendaftaran PPDB.</small>
+                <small class="text-muted">Menampilkan daftar akun dan informasi cetak kartu peserta pendaftaran {{ $tipeAplikasi }}.</small>
             </div>
             
             <div class="d-flex align-items-center flex-wrap gap-2">

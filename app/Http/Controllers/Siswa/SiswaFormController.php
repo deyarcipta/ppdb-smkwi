@@ -50,6 +50,11 @@ class SiswaFormController extends Controller
             $validated = $this->validateForm($request);
             Log::info('Validated Data:', $validated);
 
+            // Sinkronkan kota_sekolah_asal untuk kompatibilitas data lama
+            if (!empty($validated['kecamatan_desa_sekolah_asal'])) {
+                $validated['kota_sekolah_asal'] = $validated['kecamatan_desa_sekolah_asal'];
+            }
+
             // Tambahkan user_id dari user yang login
             $validated['user_id'] = Auth::id();
             $validated['status_pendaftar'] = 'pending';
@@ -226,7 +231,8 @@ class SiswaFormController extends Controller
             'asal_sekolah' => 'required|string|max:255',
             'jenjang_sekolah_asal' => 'required|string|in:SMP,MTs,PKBM,Lainnya',
             'status_sekolah_asal' => 'required|string|in:Negeri,Swasta',
-            'kota_sekolah_asal' => 'required|string|max:255',
+            'kecamatan_desa_sekolah_asal' => 'required|string|max:255',
+            'kota_sekolah_asal' => 'nullable|string|max:255',
             'agama' => 'nullable|string|max:50',
             'ukuran_baju' => 'nullable|string|max:10',
             'hobi' => 'nullable|string|max:255',
@@ -253,6 +259,7 @@ class SiswaFormController extends Controller
             'ket_referensi' => 'nullable|string|max:255', // GUNAKAN NAMA YANG ADA DI DATABASE
 
             // DATA AYAH
+            'status_ayah' => 'nullable|string|in:Masih Hidup,Meninggal Dunia',
             'nik_ayah' => 'nullable|string|max:20',
             'nama_ayah' => 'nullable|string|max:255',
             'tempat_lahir_ayah' => 'nullable|string|max:255',
@@ -263,6 +270,7 @@ class SiswaFormController extends Controller
             'no_hp_ayah' => 'nullable|string|max:15',
 
             // DATA IBU
+            'status_ibu' => 'nullable|string|in:Masih Hidup,Meninggal Dunia',
             'nik_ibu' => 'nullable|string|max:20',
             'nama_ibu' => 'nullable|string|max:255',
             'tempat_lahir_ibu' => 'nullable|string|max:255',
@@ -286,7 +294,8 @@ class SiswaFormController extends Controller
             'asal_sekolah.required' => 'Nama asal sekolah wajib diisi.',
             'jenjang_sekolah_asal.required' => 'Jenjang sekolah asal wajib dipilih.',
             'status_sekolah_asal.required' => 'Status sekolah asal wajib dipilih.',
-            'kota_sekolah_asal.required' => 'Kota asal sekolah wajib diisi.',
+            'kecamatan_desa_sekolah_asal.required' => 'Kecamatan/Desa asal sekolah wajib diisi.',
+            'kota_sekolah_asal.required' => 'Kecamatan/Desa asal sekolah wajib diisi.',
         ]);
     }
 

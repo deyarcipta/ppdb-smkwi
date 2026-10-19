@@ -326,13 +326,14 @@ class VerifikasiPembayaranController extends Controller
 
             $pengaturan = \App\Models\PengaturanAplikasi::getSettings();
             $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
+            $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
 
-            // Default untuk PPDB
+            // Default untuk PPDB / SPMB
             $ppdbPlaceholders = [
                 '{status_judul}' => 'TELAH DIVERIFIKASI',
                 '{status_badge}' => '✅',
                 '{status_detail}' => 'TERVERIFIKASI',
-                '{pesan_verifikasi}' => 'Selamat! Pembayaran PPDB ' . $namaSekolah . ' telah *BERHASIL DIVERIFIKASI*.',
+                '{pesan_verifikasi}' => 'Selamat! Pembayaran ' . $tipeAplikasi . ' ' . $namaSekolah . ' telah *BERHASIL DIVERIFIKASI*.',
                 '{tahap_selanjutnya}' => "1. *TUNGGU VERIFIKASI FINAL*\n   Data Anda akan diverifikasi oleh admin\n\n2. *PANTAU PENGUMUMAN*\n   Lihat hasil seleksi via sistem\n\n3. *DAFTAR ULANG*\n   Lakukan daftar ulang jika diterima",
                 '{pesan_penutup}' => '*Proses pendaftaran Anda sedang berjalan!* 📝',
                 '{total_biaya}' => number_format($totalBiayaPPDB, 0, ',', '.'),
@@ -346,7 +347,7 @@ class VerifikasiPembayaranController extends Controller
                     '{status_judul}' => 'TELAH LUNAS',
                     '{status_badge}' => '✅',
                     '{status_detail}' => 'LUNAS & TERVERIFIKASI',
-                    '{pesan_verifikasi}' => 'Selamat! Pembayaran PPDB ' . $namaSekolah . ' telah *DILUNASI SEPENUHNYA*.',
+                    '{pesan_verifikasi}' => 'Selamat! Pembayaran ' . $tipeAplikasi . ' ' . $namaSekolah . ' telah *DILUNASI SEPENUHNYA*.',
                     '{tahap_selanjutnya}' => "1. *TUNGGU VERIFIKASI FINAL*\n   Data Anda akan diverifikasi oleh admin\n\n2. *PANTAU PENGUMUMAN*\n   Lihat hasil seleksi via sistem\n\n3. *DAFTAR ULANG*\n   Lakukan daftar ulang jika diterima",
                     '{pesan_penutup}' => '*Proses pendaftaran Anda hampir selesai!* 🎓',
                     '{total_biaya}' => number_format($totalBiayaPPDB, 0, ',', '.'),
@@ -358,7 +359,7 @@ class VerifikasiPembayaranController extends Controller
                     '{status_judul}' => 'TELAH DIVERIFIKASI',
                     '{status_badge}' => '✅',
                     '{status_detail}' => 'TERVERIFIKASI (Belum Lunas)',
-                    '{pesan_verifikasi}' => 'Selamat! Pembayaran PPDB ' . $namaSekolah . ' telah *BERHASIL DIVERIFIKASI*.',
+                    '{pesan_verifikasi}' => 'Selamat! Pembayaran ' . $tipeAplikasi . ' ' . $namaSekolah . ' telah *BERHASIL DIVERIFIKASI*.',
                     '{tahap_selanjutnya}' => "1. *LANJUTKAN PEMBAYARAN*\n   Lunasi sisa pembayaran: Rp " . number_format($sisaPembayaran, 0, ',', '.') . "\n\n2. *TUNGGU VERIFIKASI FINAL*\n   Data Anda akan diverifikasi oleh admin\n\n3. *PANTAU PENGUMUMAN*\n   Lihat hasil seleksi via sistem",
                     '{pesan_penutup}' => '*Segera lunasi pembayaran untuk menyelesaikan proses!* 💰',
                     '{total_biaya}' => number_format($totalBiayaPPDB, 0, ',', '.'),

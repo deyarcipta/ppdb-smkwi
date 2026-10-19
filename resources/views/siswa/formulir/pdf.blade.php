@@ -361,7 +361,7 @@
         </tr>
         <tr>
             <td class="lbl">Jenjang / Status Asal</td><td>{{ $dataSiswa?->jenjang_sekolah_asal ?? '-' }} / {{ $dataSiswa?->status_sekolah_asal ?? '-' }}</td>
-            <td class="lbl">Kota Asal Sekolah</td><td>{{ $dataSiswa?->kota_sekolah_asal ?? '-' }}</td>
+            <td class="lbl">Kecamatan/Desa Asal Sekolah</td><td>{{ $dataSiswa?->kecamatan_desa_sekolah_asal ?? $dataSiswa?->kota_sekolah_asal ?? '-' }}</td>
         </tr>
         <tr>
             <td class="lbl">Tinggi / Berat Badan</td><td>{{ $dataSiswa?->tinggi_badan ?? '-' }} cm / {{ $dataSiswa?->berat_badan ?? '-' }} kg</td>
@@ -407,6 +407,12 @@
             </tr>
         </thead>
         <tbody>
+            <tr>
+                <td class="lbl">Status Keberadaan</td>
+                <td>{{ $dataSiswa?->status_ayah ?? 'Masih Hidup' }}</td>
+                <td>{{ $dataSiswa?->status_ibu ?? 'Masih Hidup' }}</td>
+                <td>-</td>
+            </tr>
             <tr>
                 <td class="lbl">NIK</td>
                 <td>{{ $dataSiswa?->nik_ayah ?? '-' }}</td>

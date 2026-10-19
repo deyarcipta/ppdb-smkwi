@@ -7,7 +7,7 @@
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
             <div>
                 <h5 class="mb-1"><i class="bx bx-user-check me-2 text-success"></i>Data Siswa Diterima</h5>
-                <small class="text-muted">Menampilkan daftar peserta yang telah resmi dinyatakan diterima PPDB.</small>
+                <small class="text-muted">Menampilkan daftar peserta yang telah resmi dinyatakan diterima {{ $tipeAplikasi }}.</small>
             </div>
             <div class="d-flex align-items-center flex-wrap gap-2">
                 <form action="{{ route('data-diterima.index') }}" method="GET" class="d-flex flex-wrap align-items-center gap-2">
@@ -194,7 +194,8 @@
      data-asal-sekolah="{{ $row->dataSiswa->asal_sekolah ?? '-' }}"
      data-jenjang-sekolah="{{ $row->dataSiswa->jenjang_sekolah_asal ?? '-' }}"
      data-status-sekolah="{{ $row->dataSiswa->status_sekolah_asal ?? '-' }}"
-     data-kota-sekolah="{{ $row->dataSiswa->kota_sekolah_asal ?? '-' }}"
+     data-kecamatan-desa-sekolah="{{ $row->dataSiswa->kecamatan_desa_sekolah_asal ?? $row->dataSiswa->kota_sekolah_asal ?? '-' }}"
+     data-kota-sekolah="{{ $row->dataSiswa->kecamatan_desa_sekolah_asal ?? $row->dataSiswa->kota_sekolah_asal ?? '-' }}"
      data-alamat="{{ $row->dataSiswa->alamat ?? '-' }}"
      data-rt="{{ $row->dataSiswa->rt ?? '-' }}"
      data-rw="{{ $row->dataSiswa->rw ?? '-' }}"
@@ -219,6 +220,7 @@
      data-no-kip="{{ $row->dataSiswa->no_kip ?? '-' }}"
      data-referensi="{{ $row->dataSiswa->referensi ?? '-' }}"
      data-ket-referensi="{{ $row->dataSiswa->ket_referensi ?? '-' }}"
+     data-status-ayah="{{ $row->dataSiswa->status_ayah ?? 'Masih Hidup' }}"
      data-nik-ayah="{{ $row->dataSiswa->nik_ayah ?? '-' }}"
      data-nama-ayah="{{ $row->dataSiswa->nama_ayah ?? '-' }}"
      data-tempat-lahir-ayah="{{ $row->dataSiswa->tempat_lahir_ayah ?? '-' }}"
@@ -227,6 +229,7 @@
      data-pekerjaan-ayah="{{ $row->dataSiswa->pekerjaan_ayah ?? '-' }}"
      data-penghasilan-ayah="{{ $row->dataSiswa->penghasilan_ayah ?? '-' }}"
      data-no-hp-ayah="{{ $row->dataSiswa->no_hp_ayah ?? '-' }}"
+     data-status-ibu="{{ $row->dataSiswa->status_ibu ?? 'Masih Hidup' }}"
      data-nik-ibu="{{ $row->dataSiswa->nik_ibu ?? '-' }}"
      data-nama-ibu="{{ $row->dataSiswa->nama_ibu ?? '-' }}"
      data-tempat-lahir-ibu="{{ $row->dataSiswa->tempat_lahir_ibu ?? '-' }}"
@@ -515,8 +518,8 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="row mb-2">
-                                    <div class="col-sm-4"><strong>Kota Sekolah:</strong></div>
-                                    <div class="col-sm-8">{{ $row->dataSiswa->kota_sekolah_asal ?? '-' }}</div>
+                                    <div class="col-sm-4"><strong>Kecamatan/Desa:</strong></div>
+                                    <div class="col-sm-8">{{ $row->dataSiswa->kecamatan_desa_sekolah_asal ?? $row->dataSiswa->kota_sekolah_asal ?? '-' }}</div>
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col-sm-4"><strong>Tahun Lulus:</strong></div>
@@ -535,6 +538,14 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Status Ayah:</strong></div>
+                                    <div class="col-sm-8">
+                                        <span class="badge {{ ($row->dataSiswa->status_ayah ?? 'Masih Hidup') == 'Meninggal Dunia' ? 'bg-danger' : 'bg-success' }}">
+                                            {{ $row->dataSiswa->status_ayah ?? 'Masih Hidup' }}
+                                        </span>
+                                    </div>
+                                </div>
                                 <div class="row mb-2">
                                     <div class="col-sm-4"><strong>NIK Ayah:</strong></div>
                                     <div class="col-sm-8">{{ $row->dataSiswa->nik_ayah ?? '-' }}</div>
@@ -582,6 +593,14 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4"><strong>Status Ibu:</strong></div>
+                                    <div class="col-sm-8">
+                                        <span class="badge {{ ($row->dataSiswa->status_ibu ?? 'Masih Hidup') == 'Meninggal Dunia' ? 'bg-danger' : 'bg-success' }}">
+                                            {{ $row->dataSiswa->status_ibu ?? 'Masih Hidup' }}
+                                        </span>
+                                    </div>
+                                </div>
                                 <div class="row mb-2">
                                     <div class="col-sm-4"><strong>NIK Ibu:</strong></div>
                                     <div class="col-sm-8">{{ $row->dataSiswa->nik_ibu ?? '-' }}</div>

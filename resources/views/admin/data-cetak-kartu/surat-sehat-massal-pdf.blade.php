@@ -1,7 +1,7 @@
 @php
     $pengaturan = $pengaturan ?? \App\Models\PengaturanAplikasi::first();
-    $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'SPMB';
-    $namaSekolah = $pengaturan->nama_sekolah ?? 'SMKS YASPIA';
+    $tipeAplikasi = $pengaturan->tipe_aplikasi ?? 'PPDB';
+    $namaSekolah = $pengaturan->nama_sekolah ?? 'SMK Wisata Indonesia';
     $kotaSurat = $pengaturan?->kota ?? 'Jakarta';
     $tanggalSurat = now()->translatedFormat('d F Y');
 @endphp
