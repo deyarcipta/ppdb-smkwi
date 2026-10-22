@@ -34,6 +34,7 @@ class PengaturanAplikasiController extends Controller
             'no_hp' => 'nullable|string|max:20',
             'no_hp_admin' => 'nullable|string|max:20',
             'alamat' => 'nullable|string|max:500',
+            'jam_operasional' => 'nullable|string|max:500',
             'facebook' => 'nullable|url|max:255',
             'instagram' => 'nullable|url|max:255',
             'youtube' => 'nullable|url|max:255',

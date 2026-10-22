@@ -239,6 +239,12 @@
               </div>
 
               <div class="mb-3">
+                <label class="form-label fw-bold">Jam Operasional</label>
+                <textarea name="jam_operasional" class="form-control" rows="2" placeholder="Contoh: Senin - Jumat: 08.00 - 16.00 WIB&#10;Sabtu: 08.00 - 14.00 WIB">{{ $pengaturan->jam_operasional }}</textarea>
+                <small class="text-muted">Jam operasional kantor/layanan yang ditampilkan pada landing page website dan dashboard siswa.</small>
+              </div>
+
+              <div class="mb-3">
                 <label>Facebook URL</label>
                 <input type="url" name="facebook" class="form-control" value="{{ $pengaturan->facebook }}" placeholder="https://facebook.com/username">
               </div>

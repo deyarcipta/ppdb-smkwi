@@ -601,8 +601,7 @@
                     <i class="bi bi-clock"></i>
                   </div>
                   <h5 class="fw-bold">Jam Operasional</h5>
-                  <p>Senin - Jumat: 08.00 - 16.00 WIB<br>
-                  Sabtu: 08.00 - 14.00 WIB</p>
+                  <p>{!! nl2br(e($pengaturan->jam_operasional ?: "Senin - Jumat: 08.00 - 16.00 WIB\nSabtu: 08.00 - 14.00 WIB")) !!}</p>
                 </div>
               </div>
             </div>

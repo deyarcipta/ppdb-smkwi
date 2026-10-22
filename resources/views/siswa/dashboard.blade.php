@@ -89,7 +89,7 @@
                 <div class="alert alert-warning">
                   <h6 class="alert-heading">Informasi Pembayaran Tunai:</h6>
                   <p class="mb-1"><strong>Lokasi Pembayaran:</strong> Kantor Administrasi {{ $pengaturan_aplikasi->nama_sekolah ?? 'Sekolah' }}</p>
-                  <p class="mb-1"><strong>Jam Operasional:</strong> Senin - Jumat, 08:00 - 15:00 WIB</p>
+                  <p class="mb-1"><strong>Jam Operasional:</strong> {!! nl2br(e($pengaturan_aplikasi->jam_operasional ?? 'Senin - Jumat, 08:00 - 15:00 WIB')) !!}</p>
                   <p class="mb-1"><strong>Jumlah:</strong> Rp {{ number_format($nominalFormulir ?? 150000, 0, ',', '.') }}</p>
                   <p class="mb-0"><strong>Bawa:</strong> Formulir pendaftaran dan uang tepat</p>
                 </div>

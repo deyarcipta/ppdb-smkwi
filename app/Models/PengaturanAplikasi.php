@@ -23,6 +23,7 @@ class PengaturanAplikasi extends Model
         'no_hp',
         'no_hp_admin',
         'alamat',
+        'jam_operasional',
         'facebook',
         'instagram',
         'youtube',
